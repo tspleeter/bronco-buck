@@ -1,0 +1,108 @@
+{
+  "productId": "BB001",
+  "slug": "bronco-buck-classic",
+  "name": "Bronco Buck Classic",
+  "basePrice": 24.99,
+  "currency": "USD",
+  "baseLayer": "base_bronco",
+  "layerOrder": [
+    "body",
+    "mane-style",
+    "mane-color",
+    "accessory",
+    "stand-style",
+    "stand-color",
+    "nameplate",
+    "packaging"
+  ],
+  "groups": [
+    {
+      "id": "G1",
+      "name": "Body Color",
+      "type": "single",
+      "required": true,
+      "displayOrder": 1,
+      "options": [
+        { "id": "V1", "name": "Red", "priceDelta": 0, "imageLayer": "body_red", "layerType": "body", "active": true },
+        { "id": "V2", "name": "Blue", "priceDelta": 0, "imageLayer": "body_blue", "layerType": "body", "active": true },
+        { "id": "V3", "name": "Black", "priceDelta": 0, "imageLayer": "body_black", "layerType": "body", "active": true },
+        { "id": "V15", "name": "Green", "priceDelta": 0, "imageLayer": "body_green", "layerType": "body", "active": true }
+      ]
+    },
+    {
+      "id": "G2",
+      "name": "Mane Style",
+      "type": "single",
+      "required": true,
+      "displayOrder": 2,
+      "options": [
+        { "id": "V4", "name": "Short", "priceDelta": 0, "imageLayer": "mane_short", "layerType": "mane-style", "active": true },
+        { "id": "V5", "name": "Punk", "priceDelta": 3, "imageLayer": "mane_punk", "layerType": "mane-style", "active": true }
+      ]
+    },
+    {
+      "id": "G3",
+      "name": "Mane Color",
+      "type": "single",
+      "required": true,
+      "displayOrder": 3,
+      "options": [
+        { "id": "V6", "name": "Black", "priceDelta": 0, "imageLayer": "mane_black", "layerType": "mane-color", "active": true },
+        { "id": "V7", "name": "Blonde", "priceDelta": 2, "imageLayer": "mane_blonde", "layerType": "mane-color", "active": true }
+      ]
+    },
+    {
+      "id": "G4",
+      "name": "Accessories",
+      "type": "multi",
+      "required": false,
+      "displayOrder": 4,
+      "options": [
+        { "id": "V8", "name": "Sunglasses", "priceDelta": 4, "imageLayer": "accessory_sunglasses", "layerType": "accessory", "active": true }
+      ]
+    },
+    {
+      "id": "G5",
+      "name": "Stand Style",
+      "type": "single",
+      "required": true,
+      "displayOrder": 5,
+      "options": [
+        { "id": "V9", "name": "Standard", "priceDelta": 0, "imageLayer": "stand_standard", "layerType": "stand-style", "active": true }
+      ]
+    },
+    {
+      "id": "G6",
+      "name": "Stand Color",
+      "type": "single",
+      "required": true,
+      "displayOrder": 6,
+      "options": [
+        { "id": "V10", "name": "Black", "priceDelta": 0, "imageLayer": "stand_black", "layerType": "stand-color", "active": true },
+        { "id": "V11", "name": "Red", "priceDelta": 1, "imageLayer": "stand_red", "layerType": "stand-color", "active": true }
+      ]
+    },
+    {
+      "id": "G7",
+      "name": "Nameplate",
+      "type": "single",
+      "required": false,
+      "displayOrder": 7,
+      "options": [
+        { "id": "V12", "name": "None", "priceDelta": 0, "imageLayer": "none", "layerType": "nameplate", "active": true },
+        { "id": "V16", "name": "Buck", "priceDelta": 2, "imageLayer": "nameplate_buck", "layerType": "nameplate", "active": true },
+        { "id": "V13", "name": "Custom", "priceDelta": 5, "imageLayer": "nameplate_custom", "layerType": "nameplate", "active": true }
+      ]
+    },
+    {
+      "id": "G8",
+      "name": "Packaging",
+      "type": "single",
+      "required": true,
+      "displayOrder": 8,
+      "options": [
+        { "id": "V14", "name": "Standard Box", "priceDelta": 0, "imageLayer": "packaging_standard", "layerType": "packaging", "active": true }
+      ]
+    }
+  ]
+}

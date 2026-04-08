@@ -1,0 +1,24 @@
+[
+  {
+    "featuredId": "FB001",
+    "buildName": "Desert Punk Buddy",
+    "slug": "desert-punk-buddy",
+    "productId": "BB001",
+    "selectedOptions": {
+      "G1": "V1",
+      "G2": "V5",
+      "G3": "V6",
+      "G4": ["V8"],
+      "G5": "V9",
+      "G6": "V11",
+      "G7": "V12",
+      "G8": "V14"
+    },
+    "customFields": {},
+    "heroImage": "featured_desert_punk",
+    "caption": "Trail-ready with attitude.",
+    "featured": true,
+    "buildOfWeek": true,
+    "active": true
+  }
+]
