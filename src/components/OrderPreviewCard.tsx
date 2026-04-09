@@ -1,7 +1,9 @@
 "use client";
 
 import { Order } from "@/types/order";
-import broncoConfig from "@/data/bronco-config.json";
+import broncoConfigJson from "@/data/bronco-config.json";
+import type { ProductConfig } from "@/types/product";
+const broncoConfig = broncoConfigJson as ProductConfig;
 import { getSelectedLayers } from "@/lib/layers";
 import BuilderPreview from "@/components/BuilderPreview";
 

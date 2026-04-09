@@ -1,4 +1,6 @@
-import broncoConfig from "@/data/bronco-config.json";
+import broncoConfigJson from "@/data/bronco-config.json";
+import type { ProductConfig } from "@/types/product";
+const broncoConfig = broncoConfigJson as ProductConfig;
 
 export function getGroupName(groupId: string): string {
   const group = broncoConfig.groups.find((g) => g.id === groupId);
