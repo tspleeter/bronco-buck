@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import broncoConfig from "@/data/bronco-config.json";
+import broncoConfigJson from "@/data/bronco-config.json";
+import type { ProductConfig } from "@/types/product";
+const broncoConfig = broncoConfigJson as ProductConfig;
 import { getCart, saveCart, clearCart } from "@/lib/cart";
 import { CartItem } from "@/types/cart";
 import { getGroupName, getOptionName } from "@/lib/product-display";

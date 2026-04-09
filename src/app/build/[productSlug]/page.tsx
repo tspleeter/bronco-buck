@@ -2,7 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import broncoConfig from "@/data/bronco-config.json";
+import broncoConfigJson from "@/data/bronco-config.json";
+import type { ProductConfig } from "@/types/product";
+const broncoConfig = broncoConfigJson as ProductConfig;
 import featuredBuilds from "@/data/featured-builds.json";
 import { getDefaultBuildState } from "@/lib/defaults";
 import { calculateBuildPrice } from "@/lib/pricing";

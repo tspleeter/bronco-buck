@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import broncoConfig from "@/data/bronco-config.json";
+import broncoConfigJson from "@/data/bronco-config.json";
+import type { ProductConfig } from "@/types/product";
+const broncoConfig = broncoConfigJson as ProductConfig;
 import { getSavedBuilds, removeSavedBuild } from "@/lib/saved-builds";
 import { getSelectedLayers } from "@/lib/layers";
 import { SavedBuild } from "@/types/saved-build";
