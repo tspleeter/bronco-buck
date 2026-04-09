@@ -1,18 +1,24 @@
 import { NextResponse } from "next/server";
-import { readDB } from "@/lib/dev-db";
-import { SharedBuild } from "@/types/shared-build";
+import { readSharedBuildById } from "@/lib/dev-db";
 
 export async function GET(
   _req: Request,
-  { params }: { params: { shareId: string } }
+  { params }: { params: Promise<{ sharedId: string }> }
 ) {
-  const db = readDB() as SharedBuild[];
+  try {
+    const { sharedId } = await params;
+    const item = await readSharedBuildById(sharedId);
 
-  const item = db.find((b: SharedBuild) => b.shareId === params.shareId);
+    if (!item) {
+      return NextResponse.json({ message: "Not found" }, { status: 404 });
+    }
 
-  if (!item) {
-    return NextResponse.json({ message: "Not found" }, { status: 404 });
+    return NextResponse.json(item);
+  } catch (err) {
+    console.error("Failed to read shared build:", err);
+    return NextResponse.json(
+      { message: "Failed to load shared build" },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json(item);
 }
