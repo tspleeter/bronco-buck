@@ -1,115 +1,81 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createBuild } from "@/lib/api";
-import { useSavedBuilds } from "@/components/SavedBuildsProvider";
+import { getLayerAssetPath } from "@/lib/assets";
 
-export default function BuilderPreview() {
-  const router = useRouter();
-  const { addSavedBuild } = useSavedBuilds();
+// Replaces the original BuilderPreview which was a prototype component
+// with its own internal state that ignored all props. The build page
+// passes layers, view, and nameplateText — this version uses all three.
+// Delegates asset path resolution to lib/assets.ts — single source of truth.
 
-  const [bodyColor, setBodyColor] = useState("orange");
-  const [maneColor, setManeColor] = useState("black");
-  const [base, setBase] = useState("classic");
+interface BuilderPreviewProps {
+  layers: string[];
+  view: string;
+  nameplateText?: string;
+}
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+const BODY_VIEWS = ["front", "side", "rear", "angle"];
 
-  async function handleSubmit() {
-    try {
-      setLoading(true);
-      setError("");
-
-      const result = await createBuild({
-        bodyColor,
-        maneColor,
-        base,
-      });
-
-      if (!result || !result.id) {
-        throw new Error("No ID returned from API");
-      }
-
-      addSavedBuild(result.id);
-      router.push(`/saved/${result.id}`);
-    } catch {
-      setError("Failed to save build.");
-    } finally {
-      setLoading(false);
-    }
-  }
+export default function BuilderPreview({
+  layers,
+  view,
+  nameplateText,
+}: BuilderPreviewProps) {
+  // Normalize view — fall back to "front" if unrecognized
+  const normalizedView = BODY_VIEWS.includes(view) ? view : "front";
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-10">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        <div className="rounded-2xl border p-6 shadow-sm">
-          <h2 className="text-2xl font-bold mb-6">Build Your Bronco Buck</h2>
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        aspectRatio: "4 / 3",
+        borderRadius: 16,
+        overflow: "hidden",
+        background: "#f5f5f5",
+        userSelect: "none",
+      }}
+    >
+      {layers.map((layer) => {
+        const src = getLayerAssetPath(layer, normalizedView);
+        if (!src) return null;
 
-          <div className="mb-5">
-            <label className="block text-sm mb-2">Body Color</label>
-            <select
-              value={bodyColor}
-              onChange={(e) => setBodyColor(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="orange">Orange</option>
-              <option value="white">White</option>
-              <option value="red">Red</option>
-              <option value="blue">Blue</option>
-              <option value="black">Black</option>
-            </select>
-          </div>
+        return (
+          <img
+            key={layer}
+            src={src}
+            alt=""
+            draggable={false}
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+            }}
+          />
+        );
+      })}
 
-          <div className="mb-5">
-            <label className="block text-sm mb-2">Mane Color</label>
-            <select
-              value={maneColor}
-              onChange={(e) => setManeColor(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="black">Black</option>
-              <option value="brown">Brown</option>
-              <option value="white">White</option>
-            </select>
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-sm mb-2">Base</label>
-            <select
-              value={base}
-              onChange={(e) => setBase(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="classic">Classic</option>
-              <option value="custom">Custom</option>
-            </select>
-          </div>
-
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="w-full border rounded px-4 py-3 font-semibold"
-          >
-            {loading ? "Saving..." : "Save & Share Build"}
-          </button>
-
-          {error && <p className="mt-4 text-red-600">{error}</p>}
+      {/* Nameplate text overlay for custom nameplates */}
+      {nameplateText && layers.includes("nameplate_custom") && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: "14%",
+            left: "50%",
+            transform: "translateX(-50%)",
+            fontSize: "clamp(10px, 2.5vw, 16px)",
+            fontWeight: 900,
+            letterSpacing: "0.08em",
+            color: "#111",
+            textTransform: "uppercase",
+            whiteSpace: "nowrap",
+            pointerEvents: "none",
+          }}
+        >
+          {nameplateText}
         </div>
-
-        <div className="rounded-2xl border p-6 shadow-sm text-center">
-          <h3 className="text-xl font-semibold mb-4">Preview</h3>
-          <p>
-            <strong>Body:</strong> {bodyColor}
-          </p>
-          <p>
-            <strong>Mane:</strong> {maneColor}
-          </p>
-          <p>
-            <strong>Base:</strong> {base}
-          </p>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

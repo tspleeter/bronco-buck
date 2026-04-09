@@ -36,13 +36,9 @@ export default function CheckoutPage() {
   useEffect(() => {
     setItems(getCart());
 
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 900);
-    };
-
+    const checkMobile = () => setIsMobile(window.innerWidth < 900);
     checkMobile();
     window.addEventListener("resize", checkMobile);
-
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
@@ -60,10 +56,7 @@ export default function CheckoutPage() {
   const handleChange =
     (field: keyof CheckoutFormData) =>
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      setForm((prev) => ({
-        ...prev,
-        [field]: event.target.value,
-      }));
+      setForm((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
   const validateForm = () => {
@@ -71,6 +64,9 @@ export default function CheckoutPage() {
     if (!form.firstName.trim()) return "First name is required.";
     if (!form.lastName.trim()) return "Last name is required.";
     if (!form.email.trim()) return "Email is required.";
+    // Basic email format check
+    if (!form.email.includes("@") || !form.email.includes("."))
+      return "Please enter a valid email address.";
     if (!form.address1.trim()) return "Address is required.";
     if (!form.city.trim()) return "City is required.";
     if (!form.state.trim()) return "State is required.";
@@ -78,7 +74,7 @@ export default function CheckoutPage() {
     return "";
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     const validationError = validateForm();
 
     if (validationError) {
@@ -124,12 +120,15 @@ export default function CheckoutPage() {
       updatedAt: now,
     };
 
-    createOrder(order);
-    clearCart();
-
-    window.setTimeout(() => {
-      router.push("/checkout/confirmation");
-    }, 500);
+    try {
+      // createOrder now POSTs to the API and persists to DynamoDB
+      await createOrder(order);
+      clearCart();
+      router.push(`/checkout/confirmation?orderId=${order.orderId}`);
+    } catch {
+      setMessage("Something went wrong placing your order. Please try again.");
+      setPlacingOrder(false);
+    }
   };
 
   return (
@@ -176,10 +175,7 @@ export default function CheckoutPage() {
           </p>
 
           <div style={{ marginTop: 16 }}>
-            <Toast
-              message={message}
-              type={message ? "error" : "success"}
-            />
+            <Toast message={message} type={message ? "error" : "success"} />
           </div>
 
           <div style={{ marginTop: 24, display: "grid", gap: 16 }}>
@@ -329,17 +325,10 @@ export default function CheckoutPage() {
               {items.map((item) => (
                 <div
                   key={item.cartItemId}
-                  style={{
-                    borderBottom: "1px solid #eee",
-                    paddingBottom: 12,
-                  }}
+                  style={{ borderBottom: "1px solid #eee", paddingBottom: 12 }}
                 >
                   <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      gap: 12,
-                    }}
+                    style={{ display: "flex", justifyContent: "space-between", gap: 12 }}
                   >
                     <strong>{item.productName}</strong>
                     <strong>${(item.price * item.quantity).toFixed(2)}</strong>
@@ -351,7 +340,6 @@ export default function CheckoutPage() {
                     {Object.entries(item.selectedOptions).map(([groupId, value]) => {
                       if (Array.isArray(value)) {
                         if (!value.length) return null;
-
                         return (
                           <div key={groupId}>
                             {getGroupName(groupId)}:{" "}
@@ -359,7 +347,6 @@ export default function CheckoutPage() {
                           </div>
                         );
                       }
-
                       return (
                         <div key={groupId}>
                           {getGroupName(groupId)}: {getOptionName(value, groupId)}

@@ -8,11 +8,23 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import {
+  getSavedBuilds,
+  addSavedBuild as libAddSavedBuild,
+  removeSavedBuild as libRemoveSavedBuild,
+  clearSavedBuilds as libClearSavedBuilds,
+} from "@/lib/saved-builds";
+import type { SavedBuild } from "@/types/saved-build";
+
+// The Provider now uses saved-builds.ts as the single source of truth.
+// The separate broncoBuckSavedBuildIds localStorage key has been removed —
+// it was a duplicate that drifted out of sync with bronco_buddy_saved_builds.
 
 type SavedBuildsContextType = {
+  savedBuilds: SavedBuild[];
   savedIds: string[];
   savedCount: number;
-  addSavedBuild: (id: string) => void;
+  addSavedBuild: (build: SavedBuild) => void;
   removeSavedBuild: (id: string) => void;
   clearSavedBuilds: () => void;
   refreshSavedBuilds: () => void;
@@ -22,74 +34,47 @@ const SavedBuildsContext = createContext<SavedBuildsContextType | undefined>(
   undefined
 );
 
-const STORAGE_KEY = "broncoBuckSavedBuildIds";
-
-function readSavedIds(): string[] {
-  if (typeof window === "undefined") return [];
-
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (!raw) return [];
-
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeSavedIds(ids: string[]) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
-}
-
 export default function SavedBuildsProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [savedBuilds, setSavedBuilds] = useState<SavedBuild[]>([]);
 
   useEffect(() => {
-    setSavedIds(readSavedIds());
+    setSavedBuilds(getSavedBuilds());
   }, []);
 
   function refreshSavedBuilds() {
-    setSavedIds(readSavedIds());
+    setSavedBuilds(getSavedBuilds());
   }
 
-  function addSavedBuild(id: string) {
-    setSavedIds((prev) => {
-      if (prev.includes(id)) return prev;
-      const next = [id, ...prev];
-      writeSavedIds(next);
-      return next;
-    });
+  function addSavedBuild(build: SavedBuild) {
+    libAddSavedBuild(build);
+    setSavedBuilds(getSavedBuilds());
   }
 
   function removeSavedBuild(id: string) {
-    setSavedIds((prev) => {
-      const next = prev.filter((item) => item !== id);
-      writeSavedIds(next);
-      return next;
-    });
+    libRemoveSavedBuild(id);
+    setSavedBuilds((prev) => prev.filter((b) => b.buildId !== id));
   }
 
   function clearSavedBuilds() {
-    writeSavedIds([]);
-    setSavedIds([]);
+    libClearSavedBuilds();
+    setSavedBuilds([]);
   }
 
   const value = useMemo(
     () => ({
-      savedIds,
-      savedCount: savedIds.length,
+      savedBuilds,
+      savedIds: savedBuilds.map((b) => b.buildId),
+      savedCount: savedBuilds.length,
       addSavedBuild,
       removeSavedBuild,
       clearSavedBuilds,
       refreshSavedBuilds,
     }),
-    [savedIds]
+    [savedBuilds]
   );
 
   return (

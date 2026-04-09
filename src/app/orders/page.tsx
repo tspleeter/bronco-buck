@@ -2,36 +2,44 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { getOrders, removeOrder, clearOrders } from "@/lib/orders";
+import { getOrders } from "@/lib/orders";
 import { Order } from "@/types/order";
 import { ActionButton } from "@/components/ActionButton";
 import { Toast } from "@/components/Toast";
 import { OrderPreviewCard } from "@/components/OrderPreviewCard";
+// removeOrder and clearOrders removed — orders are now in DynamoDB.
+// Deleting orders from the customer-facing UI is not appropriate for
+// a real store. Order management should happen in an admin interface.
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [isMobile, setIsMobile] = useState(false);
 
-  const refreshOrders = () => {
-    setOrders(getOrders());
-  };
-
   useEffect(() => {
-    refreshOrders();
+    let cancelled = false;
 
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 900);
+    const loadOrders = async () => {
+      try {
+        const data = await getOrders();
+        if (!cancelled) setOrders(data);
+      } catch {
+        if (!cancelled) setOrders([]);
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
     };
 
-    checkMobile();
+    const checkMobile = () => setIsMobile(window.innerWidth < 900);
 
+    loadOrders();
+    checkMobile();
     window.addEventListener("resize", checkMobile);
-    window.addEventListener("orders-updated", refreshOrders);
 
     return () => {
+      cancelled = true;
       window.removeEventListener("resize", checkMobile);
-      window.removeEventListener("orders-updated", refreshOrders);
     };
   }, []);
 
@@ -40,18 +48,6 @@ export default function OrdersPage() {
   const flashMessage = (text: string) => {
     setMessage(text);
     window.setTimeout(() => setMessage(""), 2500);
-  };
-
-  const handleRemoveOrder = (orderId: string) => {
-    removeOrder(orderId);
-    refreshOrders();
-    flashMessage("Order removed.");
-  };
-
-  const handleClearOrders = () => {
-    clearOrders();
-    setOrders([]);
-    flashMessage("Orders cleared.");
   };
 
   return (
@@ -70,29 +66,39 @@ export default function OrdersPage() {
             <h1 style={{ margin: 0, fontSize: isMobile ? 36 : 48, fontWeight: 900 }}>
               Orders
             </h1>
-            <p style={{ marginTop: 8, color: "#666" }}>
-              {orderCount} order{orderCount === 1 ? "" : "s"}
-            </p>
+            {!isLoading && (
+              <p style={{ marginTop: 8, color: "#666" }}>
+                {orderCount} order{orderCount === 1 ? "" : "s"}
+              </p>
+            )}
           </div>
 
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <Link href="/build/bronco-buck-classic">
-              <span style={{ display: "inline-block" }}>
-                <ActionButton variant="secondary">Back to Builder</ActionButton>
-              </span>
-            </Link>
-
-            <ActionButton onClick={handleClearOrders} variant="secondary">
-              Clear Orders
-            </ActionButton>
-          </div>
+          <Link href="/build/bronco-buck-classic">
+            <span style={{ display: "inline-block" }}>
+              <ActionButton variant="secondary">Back to Builder</ActionButton>
+            </span>
+          </Link>
         </div>
 
         <div style={{ marginTop: 16 }}>
           <Toast message={message} type="success" />
         </div>
 
-        {orders.length === 0 ? (
+        {isLoading ? (
+          <div
+            style={{
+              marginTop: 24,
+              background: "#fff",
+              border: "1px solid #ddd",
+              borderRadius: 16,
+              padding: 24,
+            }}
+          >
+            <p style={{ margin: 0, color: "#888", fontSize: 14 }}>
+              Loading orders…
+            </p>
+          </div>
+        ) : orders.length === 0 ? (
           <div
             style={{
               marginTop: 24,
@@ -144,12 +150,7 @@ export default function OrdersPage() {
                         </p>
                       </div>
 
-                      <div
-                        style={{
-                          fontSize: isMobile ? 24 : 28,
-                          fontWeight: 900,
-                        }}
-                      >
+                      <div style={{ fontSize: isMobile ? 24 : 28, fontWeight: 900 }}>
                         ${order.pricing.total.toFixed(2)}
                       </div>
                     </div>
@@ -165,16 +166,12 @@ export default function OrdersPage() {
                       <div>
                         <h3 style={{ margin: 0, fontSize: 16 }}>Customer</h3>
                         <div style={{ marginTop: 8, display: "grid", gap: 4, color: "#555" }}>
-                          <div>
-                            {order.customer.firstName} {order.customer.lastName}
-                          </div>
+                          <div>{order.customer.firstName} {order.customer.lastName}</div>
                           <div>{order.customer.email}</div>
                           {order.customer.phone ? <div>{order.customer.phone}</div> : null}
                           <div>{order.customer.address1}</div>
                           {order.customer.address2 ? <div>{order.customer.address2}</div> : null}
-                          <div>
-                            {order.customer.city}, {order.customer.state} {order.customer.zip}
-                          </div>
+                          <div>{order.customer.city}, {order.customer.state} {order.customer.zip}</div>
                         </div>
                       </div>
 
@@ -197,7 +194,6 @@ export default function OrdersPage() {
 
                     <div style={{ marginTop: 16 }}>
                       <h3 style={{ margin: 0, fontSize: 16 }}>Items</h3>
-
                       <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
                         {order.items.map((item) => (
                           <div
@@ -218,15 +214,11 @@ export default function OrdersPage() {
                               }}
                             >
                               <strong>{item.productName}</strong>
-                              <strong>
-                                ${(item.price * item.quantity).toFixed(2)}
-                              </strong>
+                              <strong>${(item.price * item.quantity).toFixed(2)}</strong>
                             </div>
-
                             <div style={{ marginTop: 6, color: "#666" }}>
                               Qty: {item.quantity}
                             </div>
-
                             {item.customFields?.nameplateText ? (
                               <div style={{ marginTop: 6, color: "#666" }}>
                                 Nameplate: {item.customFields.nameplateText}
@@ -237,28 +229,12 @@ export default function OrdersPage() {
                       </div>
                     </div>
 
-                    <div
-                      style={{
-                        marginTop: 16,
-                        display: "flex",
-                        gap: 12,
-                        flexWrap: "wrap",
-                      }}
-                    >
+                    <div style={{ marginTop: 16, display: "flex", gap: 12, flexWrap: "wrap" }}>
                       <Link href={`/orders/${order.orderId}`}>
                         <span style={{ display: "inline-block" }}>
-                          <ActionButton variant="primary">
-                            View Order
-                          </ActionButton>
+                          <ActionButton variant="primary">View Order</ActionButton>
                         </span>
                       </Link>
-
-                      <ActionButton
-                        onClick={() => handleRemoveOrder(order.orderId)}
-                        variant="secondary"
-                      >
-                        Remove Order
-                      </ActionButton>
                     </div>
                   </div>
                 </div>

@@ -2,13 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { getSharedBuilds } from "@/lib/shared-builds";
 import { SharedBuild } from "@/types/shared-build";
 import { SharedBuildPreviewCard } from "@/components/SharedBuildPreviewCard";
 import { ActionButton } from "@/components/ActionButton";
+// Removed getSharedBuilds from lib/shared-builds — that reads localStorage
+// and only shows builds from the current device. The gallery should show
+// all shared builds from everyone, which requires the API.
 
 export default function GalleryPage() {
   const [items, setItems] = useState<SharedBuild[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -16,41 +19,33 @@ export default function GalleryPage() {
 
     const refreshGallery = async () => {
       try {
-        const builds = await getSharedBuilds();
-        if (!cancelled) {
-          setItems(builds);
+        const res = await fetch("/api/shared-builds");
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          setItems(data);
         }
       } catch {
-        if (!cancelled) {
-          setItems([]);
-        }
+        if (!cancelled) setItems([]);
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
     };
 
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 900);
-    };
+    const checkMobile = () => setIsMobile(window.innerWidth < 900);
 
     refreshGallery();
     checkMobile();
-
     window.addEventListener("resize", checkMobile);
-    window.addEventListener("shared-builds-updated", refreshGallery);
 
     return () => {
       cancelled = true;
       window.removeEventListener("resize", checkMobile);
-      window.removeEventListener("shared-builds-updated", refreshGallery);
     };
   }, []);
 
   const count = useMemo(() => items.length, [items]);
-
   const featuredItems = useMemo(() => items.filter((item) => item.isFeatured), [items]);
-  const nonFeaturedItems = useMemo(
-    () => items.filter((item) => !item.isFeatured),
-    [items],
-  );
+  const nonFeaturedItems = useMemo(() => items.filter((item) => !item.isFeatured), [items]);
 
   return (
     <main style={{ minHeight: "100vh", padding: isMobile ? 16 : 24 }}>
@@ -119,19 +114,28 @@ export default function GalleryPage() {
               </span>
             </Link>
 
-            <div
-              style={{
-                color: "#666",
-                fontWeight: 700,
-                padding: "10px 4px",
-              }}
-            >
-              {count} shared build{count === 1 ? "" : "s"}
-            </div>
+            {!isLoading && (
+              <div style={{ color: "#666", fontWeight: 700, padding: "10px 4px" }}>
+                {count} shared build{count === 1 ? "" : "s"}
+              </div>
+            )}
           </div>
         </section>
 
-        {items.length === 0 ? (
+        {isLoading ? (
+          <div
+            style={{
+              background: "#fff",
+              border: "1px solid #ddd",
+              borderRadius: 18,
+              padding: 24,
+            }}
+          >
+            <p style={{ margin: 0, color: "#888", fontSize: 14 }}>
+              Loading builds…
+            </p>
+          </div>
+        ) : items.length === 0 ? (
           <div
             style={{
               background: "#fff",

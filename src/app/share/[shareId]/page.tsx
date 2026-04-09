@@ -4,29 +4,44 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import broncoConfig from "@/data/bronco-config.json";
-import { getSharedBuildById } from "@/lib/shared-builds";
 import { getSelectedLayers } from "@/lib/layers";
 import { getBuildSummary } from "@/lib/summary";
 import BuilderPreview from "@/components/BuilderPreview";
 import { BuildSummary } from "@/components/BuildSummary";
 import { PriceSummary } from "@/components/PriceSummary";
 import { ActionButton } from "@/components/ActionButton";
+// getSharedBuildById removed — we now fetch from the API so sharing works cross-device
 
 export default function SharedBuildPage() {
   const params = useParams<{ shareId: string }>();
   const shareId = params?.shareId;
 
   const [sharedBuild, setSharedBuild] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [view, setView] = useState("front");
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    if (!shareId) return;
-
-    const found = getSharedBuildById(shareId);
-    if (found) {
-      setSharedBuild(found);
+    if (!shareId) {
+      setIsLoading(false);
+      return;
     }
+
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/shared-builds/${shareId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSharedBuild(data);
+        }
+      } catch {
+        // Network error — sharedBuild stays null, not-found state renders below
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    load();
   }, [shareId]);
 
   useEffect(() => {
@@ -46,6 +61,14 @@ export default function SharedBuildPage() {
     return getBuildSummary(broncoConfig, sharedBuild);
   }, [sharedBuild]);
 
+  if (isLoading) {
+    return (
+      <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ color: "#888", fontSize: 14 }}>Loading build…</p>
+      </main>
+    );
+  }
+
   if (!sharedBuild) {
     return (
       <main style={{ minHeight: "100vh", padding: 24 }}>
@@ -61,7 +84,7 @@ export default function SharedBuildPage() {
         >
           <h1>Shared build not found</h1>
           <p style={{ color: "#666" }}>
-            This build is not available in your local storage.
+            This link may have expired or the build no longer exists.
           </p>
 
           <Link href="/build/bronco-buck-classic">
@@ -107,7 +130,7 @@ export default function SharedBuildPage() {
           </h1>
 
           <p style={{ color: "#666", marginTop: 8 }}>
-            Broncos don’t duck. They Buck.
+            Broncos don't duck. They Buck.
           </p>
         </div>
 
@@ -175,10 +198,6 @@ export default function SharedBuildPage() {
                 <ActionButton variant="secondary">Start Fresh</ActionButton>
               </Link>
             </div>
-
-            <p style={{ marginTop: 16, fontSize: 12, color: "#888" }}>
-              Note: sharing is currently local to this browser.
-            </p>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import broncoConfig from "@/data/bronco-config.json";
 import { getCart, saveCart, clearCart } from "@/lib/cart";
@@ -16,16 +16,15 @@ export default function CartPage() {
   const [message, setMessage] = useState("");
   const [isMobile, setIsMobile] = useState(false);
 
+  // Debounce timer ref — prevents saving to localStorage on every keystroke
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     setItems(getCart());
 
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 900);
-    };
-
+    const checkMobile = () => setIsMobile(window.innerWidth < 900);
     checkMobile();
     window.addEventListener("resize", checkMobile);
-
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
@@ -45,8 +44,13 @@ export default function CartPage() {
         : item,
     );
     setItems(next);
-    saveCart(next);
-    flashMessage("Cart updated.");
+
+    // Debounce the localStorage write — only save 400ms after the user stops typing
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      saveCart(next);
+      flashMessage("Cart updated.");
+    }, 400);
   };
 
   const removeItem = (cartItemId: string) => {
@@ -170,7 +174,6 @@ export default function CartPage() {
                           {Object.entries(item.selectedOptions).map(([groupId, value]) => {
                             if (Array.isArray(value)) {
                               if (!value.length) return null;
-
                               return (
                                 <div
                                   key={groupId}

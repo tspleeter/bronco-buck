@@ -2,26 +2,44 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getLastOrder } from "@/lib/orders";
+import { useSearchParams } from "next/navigation";
+import { getOrderById } from "@/lib/orders";
 import { Order } from "@/types/order";
 import { ActionButton } from "@/components/ActionButton";
 
 export default function ConfirmationPage() {
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("orderId");
+
   const [order, setOrder] = useState<Order | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    setOrder(getLastOrder());
+    let cancelled = false;
 
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 900);
+    const load = async () => {
+      if (orderId) {
+        try {
+          const found = await getOrderById(orderId);
+          if (!cancelled) setOrder(found ?? null);
+        } catch {
+          if (!cancelled) setOrder(null);
+        }
+      } else {
+        setOrder(null);
+      }
     };
 
+    load();
+
+    const checkMobile = () => setIsMobile(window.innerWidth < 900);
     checkMobile();
     window.addEventListener("resize", checkMobile);
-
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("resize", checkMobile);
+    };
+  }, [orderId]);
 
   return (
     <main style={{ minHeight: "100vh", padding: isMobile ? 16 : 24 }}>
@@ -100,7 +118,7 @@ export default function ConfirmationPage() {
           </div>
         ) : (
           <p style={{ marginTop: 24, color: "#666" }}>
-            No recent order details found.
+            No order details found.
           </p>
         )}
 

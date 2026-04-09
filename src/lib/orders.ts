@@ -1,140 +1,52 @@
 import { Order } from "@/types/order";
 
-const ORDERS_KEY = "bronco_buddy_orders";
-const LAST_ORDER_KEY = "bronco_buddy_last_order";
+// Client-side wrapper around the orders API.
+// Previously this read/wrote orders to localStorage — meaning the store
+// owner had no visibility into orders and they were lost on browser clear.
+// Now all orders are persisted to DynamoDB via the API routes.
+//
+// Function signatures are unchanged so existing pages work without edits.
 
 /**
- * Notify app that orders changed (for UI updates)
+ * Create a new order by posting to the API
  */
-function notifyOrdersChanged() {
-  if (typeof window === "undefined") return;
-  window.dispatchEvent(new Event("orders-updated"));
-}
+export async function createOrder(order: Order): Promise<void> {
+  const res = await fetch("/api/orders", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(order),
+  });
 
-/**
- * Get all orders
- */
-export function getOrders(): Order[] {
-  if (typeof window === "undefined") return [];
-
-  try {
-    const raw = window.localStorage.getItem(ORDERS_KEY);
-    if (!raw) return [];
-
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed;
-  } catch {
-    return [];
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.message ?? "Failed to create order");
   }
 }
 
 /**
  * Get a single order by ID
  */
-export function getOrderById(orderId: string): Order | undefined {
-  const orders = getOrders();
-  return orders.find((order) => order.orderId === orderId);
-}
+export async function getOrderById(orderId: string): Promise<Order | undefined> {
+  const res = await fetch(`/api/orders/${orderId}`);
 
-/**
- * Persist orders list
- */
-export function saveOrders(items: Order[]) {
-  if (typeof window === "undefined") return;
+  if (res.status === 404) return undefined;
 
-  window.localStorage.setItem(ORDERS_KEY, JSON.stringify(items));
-  notifyOrdersChanged();
-}
-
-/**
- * Create a new order
- */
-export function createOrder(order: Order) {
-  const orders = getOrders();
-  const next = [order, ...orders];
-
-  saveOrders(next);
-  setLastOrder(order);
-}
-
-/**
- * Update an existing order
- */
-export function updateOrder(updatedOrder: Order) {
-  const orders = getOrders();
-
-  const next = orders.map((order) =>
-    order.orderId === updatedOrder.orderId ? updatedOrder : order
-  );
-
-  saveOrders(next);
-
-  // Keep last order in sync
-  const lastOrder = getLastOrder();
-  if (lastOrder?.orderId === updatedOrder.orderId) {
-    setLastOrder(updatedOrder);
+  if (!res.ok) {
+    throw new Error("Failed to fetch order");
   }
+
+  return res.json();
 }
 
 /**
- * Remove an order
+ * Get all orders
  */
-export function removeOrder(orderId: string) {
-  const orders = getOrders();
-  const next = orders.filter((order) => order.orderId !== orderId);
+export async function getOrders(): Promise<Order[]> {
+  const res = await fetch("/api/orders");
 
-  saveOrders(next);
-
-  // Clear last order if needed
-  const lastOrder = getLastOrder();
-  if (lastOrder?.orderId === orderId) {
-    clearLastOrder();
+  if (!res.ok) {
+    throw new Error("Failed to fetch orders");
   }
-}
 
-/**
- * Clear all orders
- */
-export function clearOrders() {
-  if (typeof window === "undefined") return;
-
-  window.localStorage.removeItem(ORDERS_KEY);
-  clearLastOrder();
-  notifyOrdersChanged();
-}
-
-/**
- * Store last order (used for confirmation page)
- */
-export function setLastOrder(order: Order) {
-  if (typeof window === "undefined") return;
-
-  window.localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(order));
-}
-
-/**
- * Get last placed order
- */
-export function getLastOrder(): Order | null {
-  if (typeof window === "undefined") return null;
-
-  try {
-    const raw = window.localStorage.getItem(LAST_ORDER_KEY);
-    if (!raw) return null;
-
-    return JSON.parse(raw) as Order;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Clear last order reference
- */
-export function clearLastOrder() {
-  if (typeof window === "undefined") return;
-
-  window.localStorage.removeItem(LAST_ORDER_KEY);
+  return res.json();
 }

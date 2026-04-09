@@ -36,15 +36,10 @@ export default function SiteNav() {
           Bronco Buck
         </Link>
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-          }}
-        >
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {/* Fixed: was /build/classic (404) */}
           <Link
-            href="/build/classic"
+            href="/build/bronco-buck-classic"
             style={{
               padding: "10px 16px",
               border: "1px solid #111",
