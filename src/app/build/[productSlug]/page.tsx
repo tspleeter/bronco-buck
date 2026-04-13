@@ -372,9 +372,6 @@ export default function BuildPage() {
                 Share Build
               </ActionButton>
 
-              <ActionButton onClick={() => router.push("/saved")} variant="secondary">
-                View Saved Builds
-              </ActionButton>
 
               <ActionButton onClick={handleAddToCart} variant="outline">
                 Add to Cart
