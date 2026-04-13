@@ -6,6 +6,7 @@ import broncoConfigJson from "@/data/bronco-config.json";
 import type { ProductConfig } from "@/types/product";
 const broncoConfig = broncoConfigJson as ProductConfig;
 import { getSavedBuilds, removeSavedBuild } from "@/lib/saved-builds";
+import { useSavedBuilds } from "@/components/SavedBuildsProvider";
 import { getSelectedLayers } from "@/lib/layers";
 import { SavedBuild } from "@/types/saved-build";
 import BuilderPreview from "@/components/BuilderPreview";
@@ -18,6 +19,7 @@ import { Toast } from "@/components/Toast";
 export default function SavedBuildsPage() {
   const [builds, setBuilds] = useState<SavedBuild[]>([]);
   const [message, setMessage] = useState("");
+  const { refreshSavedBuilds } = useSavedBuilds();
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -36,6 +38,7 @@ export default function SavedBuildsPage() {
 
   const handleRemove = (buildId: string) => {
     removeSavedBuild(buildId);
+    refreshSavedBuilds();
     setBuilds((prev) => prev.filter((b) => b.buildId !== buildId));
     flashMessage("Build removed.");
   };
