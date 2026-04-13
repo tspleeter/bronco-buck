@@ -7,9 +7,10 @@ export async function GET() {
     const orders = await getOrders();
     return NextResponse.json(orders);
   } catch (err) {
-    console.error("Failed to fetch orders:", err);
+    const detail = err instanceof Error ? err.message : String(err);
+    console.error("Failed to fetch orders:", detail);
     return NextResponse.json(
-      { message: "Failed to fetch orders" },
+      { message: "Failed to fetch orders", detail },
       { status: 500 }
     );
   }
@@ -30,9 +31,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json(order, { status: 201 });
   } catch (err) {
-    console.error("Failed to create order:", err);
+    const detail = err instanceof Error ? err.message : String(err);
+    console.error("Failed to create order:", detail);
     return NextResponse.json(
-      { message: "Failed to create order" },
+      { message: "Failed to create order", detail },
       { status: 500 }
     );
   }
