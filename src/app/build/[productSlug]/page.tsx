@@ -23,9 +23,11 @@ import { PriceSummary } from "@/components/PriceSummary";
 import { BuildSummary } from "@/components/BuildSummary";
 import { Toast } from "@/components/Toast";
 import { ActionButton } from "@/components/ActionButton";
+import { useSavedBuilds } from "@/components/SavedBuildsProvider";
 
 export default function BuildPage() {
   const router = useRouter();
+  const { refreshSavedBuilds } = useSavedBuilds();
   const searchParams = useSearchParams();
 
   const featuredSlug = searchParams.get("featured");
@@ -165,6 +167,7 @@ export default function BuildPage() {
       savedAt: new Date().toISOString(),
     });
 
+    refreshSavedBuilds();
     router.replace(`/build/${broncoConfig.slug}?saved=${id}`);
     flash("Saved as new.");
   };
