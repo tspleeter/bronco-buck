@@ -28,7 +28,6 @@ const LAYER_FOLDERS: Record<string, string> = {
   stand_black: "stand-color",
   stand_red: "stand-color",
 
-  nameplate_buck: "nameplate",
   nameplate_custom: "nameplate",
 
   packaging_standard: "packaging",
