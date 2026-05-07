@@ -7,80 +7,55 @@ export default function SiteNav() {
   const { savedCount } = useSavedBuilds();
 
   return (
-    <nav
-      style={{
-        width: "100%",
-        borderBottom: "1px solid #ddd",
-        backgroundColor: "#fff",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "1100px",
-          margin: "0 auto",
-          padding: "16px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Link
-          href="/"
-          style={{
-            fontSize: "24px",
-            fontWeight: 700,
-            textDecoration: "none",
-            color: "#111",
-          }}
-        >
-          Bronco Buck
+    <nav className="site-nav" aria-label="Main navigation">
+      <div className="site-nav-inner">
+        {/* Brand */}
+        <Link href="/" className="site-nav-brand">
+          Bronco<span>Buck</span>
         </Link>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          {/* Fixed: was /build/classic (404) */}
+        {/* Links */}
+        <div className="site-nav-links">
+          <Link href="/build/bronco-buck-classic" className="nav-link">
+            Build
+          </Link>
+
+          <Link href="/gallery" className="nav-link">
+            Gallery
+          </Link>
+
           <Link
-            href="/build/bronco-buck-classic"
+            href="/cart"
+            className="nav-link"
             style={{
-              padding: "10px 16px",
-              border: "1px solid #111",
-              borderRadius: "10px",
-              textDecoration: "none",
-              color: "#111",
-              fontWeight: 600,
-              display: "inline-block",
+              borderColor: "var(--color-border)",
+              color: "var(--color-text-muted)",
             }}
           >
-            Build
+            Cart
           </Link>
 
           <Link
             href="/saved"
             style={{
-              padding: "10px 16px",
-              border: "1px solid #111",
-              borderRadius: "999px",
-              textDecoration: "none",
-              color: "#111",
-              fontWeight: 600,
               display: "inline-flex",
               alignItems: "center",
               gap: "8px",
+              padding: "9px 16px",
+              borderRadius: "var(--radius-sm)",
+              border: "1px solid var(--color-border)",
+              background: "var(--color-surface-2)",
+              color: "var(--color-text)",
+              fontSize: "0.9rem",
+              fontWeight: 600,
+              transition: "background var(--dur-base) var(--ease-out), border-color var(--dur-base)",
             }}
           >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
             <span>Saved</span>
-            <span
-              style={{
-                minWidth: "24px",
-                textAlign: "center",
-                border: "1px solid #111",
-                borderRadius: "999px",
-                padding: "2px 8px",
-                fontSize: "12px",
-                lineHeight: 1.2,
-              }}
-            >
-              {savedCount}
-            </span>
+            <span className="badge">{savedCount}</span>
           </Link>
         </div>
       </div>
