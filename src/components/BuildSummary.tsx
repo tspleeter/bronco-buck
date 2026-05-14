@@ -14,98 +14,39 @@ export function BuildSummary({
   price,
 }: BuildSummaryProps) {
   return (
-    <section
-      style={{
-        background: "#fff",
-        border: "1px solid #e5e5e5",
-        borderRadius: 20,
-        padding: 20,
-        boxShadow: "0 6px 20px rgba(0,0,0,0.04)",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          gap: 16,
-          alignItems: "center",
-          flexWrap: "wrap",
-        }}
-      >
-        <div>
-          <p
-            style={{
-              margin: 0,
-              fontSize: 12,
-              fontWeight: 700,
-              color: "#666",
-              textTransform: "uppercase",
-              letterSpacing: "0.12em",
-            }}
-          >
-            Current Build
-          </p>
-          <h2
-            style={{
-              margin: "8px 0 0",
-              fontSize: 28,
-              fontWeight: 900,
-            }}
-          >
-            Build Summary
-          </h2>
+    <section className="surface" style={{ padding: "24px" }}>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "16px", marginBottom: "20px" }}>
+        <div className="section-header">
+          <span className="eyebrow">Current Build</span>
+          <h2 style={{ fontSize: "1.4rem", fontWeight: 800 }}>Build Summary</h2>
         </div>
-
         <div
-          style={{
-            fontSize: 30,
-            fontWeight: 900,
-            whiteSpace: "nowrap",
-          }}
+          className="price-display"
+          style={{ fontSize: "1.75rem", color: "var(--color-gold-light)", whiteSpace: "nowrap" }}
         >
           ${price.toFixed(2)}
         </div>
       </div>
 
-      <div
-        style={{
-          marginTop: 18,
-          display: "grid",
-          gap: 10,
-        }}
-      >
+      {/* Divider */}
+      <div className="divider" style={{ marginBottom: "16px" }} />
+
+      {/* Summary Rows */}
+      <div style={{ display: "grid" }}>
         {items.map((item) => (
-          <div
-            key={item.groupId}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              gap: 14,
-              flexWrap: "wrap",
-              paddingBottom: 10,
-              borderBottom: "1px solid #f0f0f0",
-            }}
-          >
-            <strong style={{ color: "#444" }}>{item.groupName}</strong>
-            <span style={{ color: "#111" }}>{item.optionName}</span>
+          <div key={item.groupId} className="summary-row">
+            <strong>{item.groupName}</strong>
+            <span>{item.optionName}</span>
           </div>
         ))}
 
-        {nameplateText ? (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              gap: 14,
-              flexWrap: "wrap",
-              paddingBottom: 10,
-              borderBottom: "1px solid #f0f0f0",
-            }}
-          >
-            <strong style={{ color: "#444" }}>Nameplate Text</strong>
-            <span style={{ color: "#111" }}>{nameplateText}</span>
+        {nameplateText && (
+          <div className="summary-row">
+            <strong>Nameplate Text</strong>
+            <span>{nameplateText}</span>
           </div>
-        ) : null}
+        )}
       </div>
     </section>
   );

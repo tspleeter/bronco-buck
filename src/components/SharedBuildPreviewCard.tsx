@@ -23,25 +23,12 @@ export function SharedBuildPreviewCard({
   });
 
   return (
-    <section
-      style={{
-        background: "#fff",
-        border: "1px solid #e5e5e5",
-        borderRadius: 22,
-        padding: 18,
-        display: "grid",
-        gap: 16,
-        boxShadow: "0 6px 20px rgba(0,0,0,0.04)",
-      }}
+    <article
+      className="card"
+      style={{ padding: "20px", display: "grid", gap: "18px" }}
     >
-      <div
-        style={{
-          borderRadius: 18,
-          overflow: "hidden",
-          background: "linear-gradient(180deg, #fafafa 0%, #f2f2f2 100%)",
-          padding: 10,
-        }}
-      >
+      {/* Preview */}
+      <div className="preview-bg" style={{ padding: "16px" }}>
         <BuilderPreview
           layers={layers}
           view="front"
@@ -49,69 +36,38 @@ export function SharedBuildPreviewCard({
         />
       </div>
 
-      <div style={{ display: "grid", gap: 8 }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 12,
-            alignItems: "start",
-          }}
-        >
-          <h2
-            style={{
-              margin: 0,
-              fontSize: 24,
-              fontWeight: 900,
-              lineHeight: 1.15,
-            }}
-          >
+      {/* Info */}
+      <div style={{ display: "grid", gap: "6px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "flex-start" }}>
+          <h2 style={{ fontFamily: "var(--font-heading)", fontSize: "1.2rem", fontWeight: 800, letterSpacing: "-0.01em", color: "var(--color-text)", lineHeight: 1.2 }}>
             {item.buildName}
           </h2>
-
           <div
-            style={{
-              fontSize: 26,
-              fontWeight: 900,
-              whiteSpace: "nowrap",
-            }}
+            className="price-display"
+            style={{ fontSize: "1.25rem", whiteSpace: "nowrap", color: "var(--color-gold-light)" }}
           >
             ${item.price.toFixed(2)}
           </div>
         </div>
 
-        <p
-          style={{
-            margin: 0,
-            color: "#666",
-            fontSize: 14,
-          }}
-        >
-          Shared {new Date(item.createdAt).toLocaleDateString()}
+        <p style={{ fontSize: "0.8rem", color: "var(--color-text-dim)" }}>
+          Shared {new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
         </p>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gap: 10,
-          gridTemplateColumns: "1fr 1fr",
-        }}
-      >
-        <Link
-          href={`/share/${item.shareId}`}
-          style={{ textDecoration: "none" }}
-        >
-          <ActionButton variant="secondary">View Build</ActionButton>
+      {/* Actions */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+        <Link href={`/share/${item.shareId}`} style={{ display: "contents" }}>
+          <ActionButton variant="outline">
+            View Build
+          </ActionButton>
         </Link>
-
-        <Link
-          href={`/build/${item.productSlug}?share=${item.shareId}`}
-          style={{ textDecoration: "none" }}
-        >
-          <ActionButton variant="primary">Build This</ActionButton>
+        <Link href={`/build/${item.productSlug}?share=${item.shareId}`} style={{ display: "contents" }}>
+          <ActionButton variant="primary">
+            Build This
+          </ActionButton>
         </Link>
       </div>
-    </section>
+    </article>
   );
 }

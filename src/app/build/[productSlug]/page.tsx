@@ -16,7 +16,6 @@ import {
   getSavedBuildById,
   updateSavedBuild,
 } from "@/lib/saved-builds";
-// addSharedBuild and getSharedBuildById removed — sharing now goes through the API
 import BuilderPreview from "@/components/BuilderPreview";
 import { OptionGroup } from "@/components/OptionGroup";
 import { PriceSummary } from "@/components/PriceSummary";
@@ -24,6 +23,33 @@ import { BuildSummary } from "@/components/BuildSummary";
 import { Toast } from "@/components/Toast";
 import { ActionButton } from "@/components/ActionButton";
 import { useSavedBuilds } from "@/components/SavedBuildsProvider";
+
+/* ── Icons ── */
+const SaveIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+    <polyline points="17 21 17 13 7 13 7 21" />
+    <polyline points="7 3 7 8 15 8" />
+  </svg>
+);
+
+const ShareIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="18" cy="5" r="3" />
+    <circle cx="6" cy="12" r="3" />
+    <circle cx="18" cy="19" r="3" />
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+  </svg>
+);
+
+const CartIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <circle cx="9" cy="21" r="1" />
+    <circle cx="20" cy="21" r="1" />
+    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+  </svg>
+);
 
 export default function BuildPage() {
   const router = useRouter();
@@ -39,8 +65,6 @@ export default function BuildPage() {
   const [view, setView] = useState("front");
   const [message, setMessage] = useState("");
   const [isMobile, setIsMobile] = useState(false);
-
-  // isLoading prevents a flash of default options while we fetch the shared build
   const [isLoading, setIsLoading] = useState(!!shareId);
 
   const [buildState, setBuildState] = useState(() =>
@@ -55,7 +79,6 @@ export default function BuildPage() {
   }, []);
 
   useEffect(() => {
-    // Wrap in an async IIFE so we can await the share API call
     const load = async () => {
       if (shareId) {
         try {
@@ -69,9 +92,8 @@ export default function BuildPage() {
             });
             return;
           }
-          // Share ID not found — fall through to defaults below
         } catch {
-          // Network error — fall through to defaults
+          // fall through
         } finally {
           setIsLoading(false);
         }
@@ -122,12 +144,10 @@ export default function BuildPage() {
   const getBuildName = () => {
     const body = buildState.selectedOptions["G1"];
     const group = broncoConfig.groups.find((g) => g.id === "G1");
-
     if (typeof body === "string") {
       const option = group?.options.find((o) => o.id === body);
       if (option) return `${option.name} ${broncoConfig.name}`;
     }
-
     return `${broncoConfig.name} Build`;
   };
 
@@ -138,7 +158,6 @@ export default function BuildPage() {
 
   const handleUpdate = () => {
     if (!savedBuildId) return;
-
     updateSavedBuild({
       buildId: savedBuildId,
       buildName: getBuildName(),
@@ -149,13 +168,11 @@ export default function BuildPage() {
       price,
       savedAt: new Date().toISOString(),
     });
-
     flash("Build updated.");
   };
 
   const handleSaveNew = () => {
     const id = crypto.randomUUID();
-
     addSavedBuild({
       buildId: id,
       buildName: getBuildName(),
@@ -166,7 +183,6 @@ export default function BuildPage() {
       price,
       savedAt: new Date().toISOString(),
     });
-
     refreshSavedBuilds();
     router.replace(`/build/${broncoConfig.slug}?saved=${id}`);
     flash("Saved as new.");
@@ -187,15 +203,12 @@ export default function BuildPage() {
       quantity: 1,
       addedAt: new Date().toISOString(),
     });
-
     router.push("/cart");
   };
 
   const handleShare = async () => {
     const id = crypto.randomUUID();
-
     try {
-      // POST to the API so the build is stored server-side and accessible cross-device
       const res = await fetch("/api/shared-builds", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -211,91 +224,61 @@ export default function BuildPage() {
           createdAt: new Date().toISOString(),
         }),
       });
-
-      if (!res.ok) {
-        flash("Could not create share link.");
-        return;
-      }
+      if (!res.ok) { flash("Could not create share link."); return; }
     } catch {
       flash("Could not create share link.");
       return;
     }
-
     const url = `${window.location.origin}/share/${id}`;
-
     try {
       await navigator.clipboard.writeText(url);
-      flash("Link copied.");
+      flash("Link copied to clipboard!");
     } catch {
       flash(url);
     }
   };
 
-  // Show a minimal loading state while we fetch the shared build from the API.
-  // This prevents the default configuration flashing before the correct one loads.
   if (isLoading) {
     return (
-      <main
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <p style={{ color: "#888", fontSize: 14 }}>Loading build…</p>
+      <main className="page" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "16px" }}>
+          <div className="spinner" aria-label="Loading build" />
+          <p className="text-muted text-sm">Loading build…</p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        padding: isMobile ? 16 : 24,
-        paddingBottom: isMobile ? 110 : 24,
-      }}
-    >
+    <main className="page">
       <div
+        className="page-inner"
         style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          display: "grid",
-          gap: 24,
-          gridTemplateColumns: isMobile ? "1fr" : "1.25fr 0.75fr",
+          gridTemplateColumns: isMobile ? "1fr" : "1.3fr 0.7fr",
+          alignItems: "start",
         }}
       >
-        <div style={{ display: "grid", gap: 20 }}>
-          <section
-            style={{
-              background: "#fff",
-              border: "1px solid #e5e5e5",
-              borderRadius: 22,
-              padding: isMobile ? 20 : 26,
-              boxShadow: "0 8px 24px rgba(0,0,0,0.04)",
-              display: "grid",
-              gap: 18,
-            }}
-          >
-            <div>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 12,
-                  fontWeight: 700,
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
-                  color: "#666",
-                }}
-              >
-                Build Your Bronco Buck
-              </p>
+        {/* ── LEFT: Preview + Summary + Actions ── */}
+        <div style={{ display: "grid", gap: "20px" }}>
 
+          {/* Configurator Panel */}
+          <section className="surface" style={{ padding: isMobile ? "20px" : "28px", display: "grid", gap: "20px" }}>
+
+            {/* Title */}
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
+                <div className="gold-line" />
+                <span className="label" style={{ color: "var(--color-gold)" }}>
+                  Build Your Bronco Buck
+                </span>
+              </div>
               <h1
                 style={{
-                  margin: "8px 0 0",
-                  fontSize: isMobile ? 34 : 48,
+                  fontFamily: "var(--font-heading)",
+                  fontSize: "clamp(1.75rem, 4vw, 2.75rem)",
                   fontWeight: 900,
+                  letterSpacing: "-0.03em",
+                  color: "var(--color-text)",
                   lineHeight: 1,
                 }}
               >
@@ -303,62 +286,46 @@ export default function BuildPage() {
               </h1>
             </div>
 
+            {/* Price */}
             <PriceSummary productName={broncoConfig.name} price={price} />
 
-            <div
-              style={{
-                display: "flex",
-                gap: 10,
-                flexWrap: "wrap",
-              }}
-            >
-              {["front", "side", "rear", "angle"].map((v) => {
-                const active = view === v;
-
-                return (
-                  <button
-                    key={v}
-                    onClick={() => setView(v)}
-                    style={{
-                      padding: "10px 14px",
-                      borderRadius: 999,
-                      border: active ? "1px solid #111" : "1px solid #ddd",
-                      background: active ? "#111" : "#fff",
-                      color: active ? "#fff" : "#111",
-                      cursor: "pointer",
-                      fontWeight: 700,
-                      textTransform: "capitalize",
-                    }}
-                  >
-                    {v}
-                  </button>
-                );
-              })}
+            {/* View Toggles */}
+            <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+              {["front", "side", "rear", "angle"].map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setView(v)}
+                  className={`view-btn${view === v ? " active" : ""}`}
+                  aria-pressed={view === v}
+                >
+                  {v}
+                </button>
+              ))}
             </div>
 
-            <BuilderPreview
-              layers={layers}
-              view={view}
-              nameplateText={buildState.customFields.nameplateText}
-            />
+            {/* Preview */}
+            <div className="preview-bg" style={{ padding: "20px" }}>
+              <BuilderPreview
+                layers={layers}
+                view={view}
+                nameplateText={buildState.customFields.nameplateText}
+              />
+            </div>
           </section>
 
+          {/* Build Summary */}
           <BuildSummary
             items={summaryItems}
             nameplateText={buildState.customFields.nameplateText}
             price={price}
           />
 
+          {/* Desktop Action Buttons */}
           {!isMobile && (
-            <div
-              style={{
-                display: "grid",
-                gap: 12,
-                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                alignItems: "stretch",
-              }}
-            >
+            <div style={{ display: "grid", gap: "10px", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))" }}>
               <ActionButton onClick={handlePrimarySave} variant="primary">
+                <SaveIcon />
                 {savedBuildId ? "Update Build" : "Save Build"}
               </ActionButton>
 
@@ -369,11 +336,12 @@ export default function BuildPage() {
               )}
 
               <ActionButton onClick={handleShare} variant="secondary">
+                <ShareIcon />
                 Share Build
               </ActionButton>
 
-
               <ActionButton onClick={handleAddToCart} variant="outline">
+                <CartIcon />
                 Add to Cart
               </ActionButton>
             </div>
@@ -382,7 +350,8 @@ export default function BuildPage() {
           <Toast message={message} />
         </div>
 
-        <div style={{ display: "grid", gap: 16 }}>
+        {/* ── RIGHT: Option Groups ── */}
+        <div style={{ display: "grid", gap: "14px" }}>
           {broncoConfig.groups.map((group) => (
             <OptionGroup
               key={group.id}
@@ -421,39 +390,20 @@ export default function BuildPage() {
         </div>
       </div>
 
+      {/* ── Mobile Sticky Bar ── */}
       {isMobile && (
-        <div
-          style={{
-            position: "fixed",
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 60,
-            background: "rgba(255,255,255,0.96)",
-            backdropFilter: "blur(10px)",
-            borderTop: "1px solid #e5e5e5",
-            padding: 12,
-          }}
-        >
-          <div
-            style={{
-              maxWidth: 1200,
-              margin: "0 auto",
-              display: "grid",
-              gap: 10,
-              gridTemplateColumns: "1fr 1fr 1fr",
-              alignItems: "center",
-            }}
-          >
+        <div className="mobile-sticky">
+          <div className="mobile-sticky-inner">
             <ActionButton onClick={handleShare} variant="secondary">
+              <ShareIcon />
               Share
             </ActionButton>
-
             <ActionButton onClick={handlePrimarySave} variant="outline">
+              <SaveIcon />
               {savedBuildId ? "Update" : "Save"}
             </ActionButton>
-
             <ActionButton onClick={handleAddToCart} variant="primary">
+              <CartIcon />
               Add to Cart
             </ActionButton>
           </div>

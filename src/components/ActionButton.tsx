@@ -6,9 +6,11 @@ interface ActionButtonProps {
   children: ReactNode;
   onClick?: () => void;
   href?: string;
-  variant?: "primary" | "secondary" | "outline";
+  variant?: "primary" | "secondary" | "outline" | "ghost";
   disabled?: boolean;
   type?: "button" | "submit";
+  size?: "sm" | "base" | "lg";
+  fullWidth?: boolean;
 }
 
 export function ActionButton({
@@ -17,40 +19,35 @@ export function ActionButton({
   variant = "secondary",
   disabled = false,
   type = "button",
+  size = "base",
+  fullWidth = false,
 }: ActionButtonProps) {
-  const styles =
-    variant === "primary"
-      ? {
-          background: "#111",
-          color: "#fff",
-          border: "1px solid #111",
-        }
-      : variant === "outline"
-        ? {
-            background: "#fff",
-            color: "#111",
-            border: "1px solid #111",
-          }
-        : {
-            background: "#fff",
-            color: "#111",
-            border: "1px solid #d4d4d4",
-          };
+  const variantClass = {
+    primary:   "btn-primary",
+    secondary: "btn-secondary",
+    outline:   "btn-outline",
+    ghost:     "btn-ghost",
+  }[variant];
+
+  const sizeClass = {
+    sm:   "btn-sm",
+    base: "",
+    lg:   "btn-lg",
+  }[size];
+
+  const classes = [
+    "btn",
+    variantClass,
+    sizeClass,
+    fullWidth ? "btn-full" : "",
+  ].filter(Boolean).join(" ");
 
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      style={{
-        padding: "14px 20px",
-        borderRadius: 12,
-        cursor: disabled ? "not-allowed" : "pointer",
-        fontWeight: 700,
-        opacity: disabled ? 0.6 : 1,
-        transition: "all 0.15s ease",
-        ...styles,
-      }}
+      className={classes}
     >
       {children}
     </button>
