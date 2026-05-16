@@ -27,6 +27,12 @@ export async function POST(req: Request) {
       );
     }
 
+    // Debug: log whether env vars are present (not their values)
+    console.log("DYNAMO_ACCESS_KEY_ID present:", !!process.env.DYNAMO_ACCESS_KEY_ID);
+    console.log("DYNAMO_SECRET_KEY present:", !!process.env.DYNAMO_SECRET_KEY);
+    console.log("DYNAMO_REGION:", process.env.DYNAMO_REGION);
+    console.log("DYNAMO_ORDERS_TABLE:", process.env.DYNAMO_ORDERS_TABLE);
+
     await createOrder(order);
 
     return NextResponse.json(order, { status: 201 });
