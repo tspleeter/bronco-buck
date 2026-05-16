@@ -1,15 +1,20 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
-// Shared DynamoDB client used by both dev-db.ts and orders-db.ts.
-// Uses DYNAMO_ prefixed env vars since Amplify blocks AWS_ prefix.
+// When running on AWS (Amplify/Lambda), credentials come automatically
+// from the IAM execution role — no explicit credentials needed.
+// The DYNAMO_ env vars for keys are only needed for local development.
+
+const isLocal = process.env.NODE_ENV === "development";
 
 const client = new DynamoDBClient({
   region: process.env.DYNAMO_REGION ?? "us-east-1",
-  credentials: {
-    accessKeyId: process.env.DYNAMO_ACCESS_KEY_ID ?? "",
-    secretAccessKey: process.env.DYNAMO_SECRET_KEY ?? "",
-  },
+  ...(isLocal && process.env.DYNAMO_ACCESS_KEY_ID ? {
+    credentials: {
+      accessKeyId: process.env.DYNAMO_ACCESS_KEY_ID,
+      secretAccessKey: process.env.DYNAMO_SECRET_KEY ?? "",
+    },
+  } : {}),
 });
 
 export const docClient = DynamoDBDocumentClient.from(client);
