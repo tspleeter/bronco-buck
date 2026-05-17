@@ -1,10 +1,30 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
+
+const ssm = new SSMClient({ region: process.env.DYNAMO_REGION ?? "us-east-1" });
+
+async function getStripeKey(): Promise<string> {
+  // Try env var first (local dev)
+  if (process.env.STRIPE_SECRET_KEY) {
+    return process.env.STRIPE_SECRET_KEY;
+  }
+
+  // Fall back to SSM Parameter Store (production)
+  const result = await ssm.send(
+    new GetParameterCommand({
+      Name: "/bronco-buck/stripe-secret-key",
+      WithDecryption: true,
+    })
+  );
+
+  return result.Parameter?.Value ?? "";
+}
 
 export async function POST(req: Request) {
   try {
-    const stripeKey = process.env.STRIPE_SECRET_KEY;
-    
+    const stripeKey = await getStripeKey();
+
     if (!stripeKey) {
       console.error("STRIPE_SECRET_KEY is not set");
       return NextResponse.json(
