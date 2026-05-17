@@ -1,20 +1,23 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
-// When running on AWS (Amplify/Lambda), credentials come automatically
-// from the IAM execution role — no explicit credentials needed.
-// The DYNAMO_ env vars for keys are only needed for local development.
+const accessKeyId = process.env.DYNAMO_ACCESS_KEY_ID;
+const secretAccessKey = process.env.DYNAMO_SECRET_KEY;
+const region = process.env.DYNAMO_REGION ?? "us-east-1";
 
-const isLocal = process.env.NODE_ENV === "development";
+if (!accessKeyId || !secretAccessKey) {
+  console.error("DynamoDB credentials missing:", {
+    hasKey: !!accessKeyId,
+    hasSecret: !!secretAccessKey,
+  });
+}
 
 const client = new DynamoDBClient({
-  region: process.env.DYNAMO_REGION ?? "us-east-1",
-  ...(isLocal && process.env.DYNAMO_ACCESS_KEY_ID ? {
-    credentials: {
-      accessKeyId: process.env.DYNAMO_ACCESS_KEY_ID,
-      secretAccessKey: process.env.DYNAMO_SECRET_KEY ?? "",
-    },
-  } : {}),
+  region,
+  credentials: accessKeyId && secretAccessKey ? {
+    accessKeyId,
+    secretAccessKey,
+  } : undefined,
 });
 
 export const docClient = DynamoDBDocumentClient.from(client);
