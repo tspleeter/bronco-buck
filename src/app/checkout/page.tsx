@@ -402,7 +402,7 @@ export default function CheckoutPage() {
 
     fetch("/api/create-payment-intent", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "Cache-Control": "no-cache, no-store" },
       body: JSON.stringify({ amount: total }),
     })
       .then((res) => res.json())

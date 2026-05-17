@@ -5,7 +5,6 @@ import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 const ssm = new SSMClient({ region: "us-east-1" });
 
 async function getStripeKey(): Promise<string> {
-  // Always use SSM in production — Amplify env vars don't reach the compute function
   try {
     const result = await ssm.send(
       new GetParameterCommand({
@@ -18,10 +17,11 @@ async function getStripeKey(): Promise<string> {
     return key;
   } catch (err) {
     console.error("SSM fetch failed:", err);
-    // Fall back to env var for local dev
     return process.env.STRIPE_SECRET_KEY ?? "";
   }
 }
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
@@ -50,7 +50,9 @@ export async function POST(req: Request) {
       automatic_payment_methods: { enabled: true },
     });
 
-    return NextResponse.json({ clientSecret: paymentIntent.client_secret });
+    const response = NextResponse.json({ clientSecret: paymentIntent.client_secret });
+    response.headers.set("Cache-Control", "no-store");
+    return response;
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err);
     console.error("Failed to create payment intent:", detail);
