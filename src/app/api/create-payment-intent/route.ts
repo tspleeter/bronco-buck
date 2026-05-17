@@ -2,23 +2,25 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 
-const ssm = new SSMClient({ region: process.env.DYNAMO_REGION ?? "us-east-1" });
+const ssm = new SSMClient({ region: "us-east-1" });
 
 async function getStripeKey(): Promise<string> {
-  // Try env var first (local dev)
-  if (process.env.STRIPE_SECRET_KEY) {
-    return process.env.STRIPE_SECRET_KEY;
+  // Always use SSM in production — Amplify env vars don't reach the compute function
+  try {
+    const result = await ssm.send(
+      new GetParameterCommand({
+        Name: "/bronco-buck/stripe-secret-key",
+        WithDecryption: true,
+      })
+    );
+    const key = result.Parameter?.Value ?? "";
+    console.log("SSM key prefix:", key.substring(0, 10));
+    return key;
+  } catch (err) {
+    console.error("SSM fetch failed:", err);
+    // Fall back to env var for local dev
+    return process.env.STRIPE_SECRET_KEY ?? "";
   }
-
-  // Fall back to SSM Parameter Store (production)
-  const result = await ssm.send(
-    new GetParameterCommand({
-      Name: "/bronco-buck/stripe-secret-key",
-      WithDecryption: true,
-    })
-  );
-
-  return result.Parameter?.Value ?? "";
 }
 
 export async function POST(req: Request) {
@@ -26,9 +28,8 @@ export async function POST(req: Request) {
     const stripeKey = await getStripeKey();
 
     if (!stripeKey) {
-      console.error("STRIPE_SECRET_KEY is not set");
       return NextResponse.json(
-        { message: "Stripe not configured", detail: "STRIPE_SECRET_KEY missing" },
+        { message: "Stripe not configured", detail: "No key found" },
         { status: 500 }
       );
     }
@@ -40,10 +41,7 @@ export async function POST(req: Request) {
     const { amount } = await req.json();
 
     if (!amount || amount <= 0) {
-      return NextResponse.json(
-        { message: "Invalid amount" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "Invalid amount" }, { status: 400 });
     }
 
     const paymentIntent = await stripe.paymentIntents.create({
@@ -52,9 +50,7 @@ export async function POST(req: Request) {
       automatic_payment_methods: { enabled: true },
     });
 
-    return NextResponse.json({
-      clientSecret: paymentIntent.client_secret,
-    });
+    return NextResponse.json({ clientSecret: paymentIntent.client_secret });
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err);
     console.error("Failed to create payment intent:", detail);
