@@ -20,7 +20,7 @@ import { ActionButton } from "@/components/ActionButton";
 import { Toast } from "@/components/Toast";
 
 const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? ""
+  "pk_test_51TYB7HJ9TiI7LNGEdWOcmEJyWdVNBABakB1hqf6JjpiAh7taJoVHrKKWkX0JabR94O6prothMEuojrgBsRrUe5zA00rG7t6iNK"
 );
 
 const initialForm: CheckoutFormData = {
