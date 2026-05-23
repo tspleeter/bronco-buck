@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 
+export const dynamic = "force-dynamic";
+
 const ssm = new SSMClient({ region: "us-east-1" });
 
-async function getStripeKey(): Promise<string> {
+export async function POST(req: Request) {
   try {
     const result = await ssm.send(
       new GetParameterCommand({
@@ -12,24 +14,13 @@ async function getStripeKey(): Promise<string> {
         WithDecryption: true,
       })
     );
-    const key = result.Parameter?.Value ?? "";
-    console.log("SSM key prefix:", key.substring(0, 10));
-    return key;
-  } catch (err) {
-    console.error("SSM fetch failed:", err);
-    return process.env.STRIPE_SECRET_KEY ?? "";
-  }
-}
 
-export const dynamic = "force-dynamic";
+    const stripeKey = result.Parameter?.Value ?? "";
+    console.log("Key type:", stripeKey.startsWith("sk_") ? "secret" : "WRONG KEY - starts with: " + stripeKey.substring(0, 7));
 
-export async function POST(req: Request) {
-  try {
-    const stripeKey = await getStripeKey();
-
-    if (!stripeKey) {
+    if (!stripeKey.startsWith("sk_")) {
       return NextResponse.json(
-        { message: "Stripe not configured", detail: "No key found" },
+        { message: "Wrong key type in SSM", detail: `Key starts with: ${stripeKey.substring(0, 7)}` },
         { status: 500 }
       );
     }
@@ -40,22 +31,16 @@ export async function POST(req: Request) {
 
     const { amount } = await req.json();
 
-    if (!amount || amount <= 0) {
-      return NextResponse.json({ message: "Invalid amount" }, { status: 400 });
-    }
-
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100),
       currency: "usd",
       automatic_payment_methods: { enabled: true },
     });
 
-    const response = NextResponse.json({ clientSecret: paymentIntent.client_secret });
-    response.headers.set("Cache-Control", "no-store");
-    return response;
+    return NextResponse.json({ clientSecret: paymentIntent.client_secret });
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err);
-    console.error("Failed to create payment intent:", detail);
+    console.error("Payment intent error:", detail);
     return NextResponse.json(
       { message: "Failed to create payment intent", detail },
       { status: 500 }
