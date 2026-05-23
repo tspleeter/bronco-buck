@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createOrder, getOrders } from "@/lib/orders-db";
 import { Order } from "@/types/order";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 export async function GET() {
   try {
@@ -27,13 +28,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // Debug: log whether env vars are present (not their values)
-    console.log("DYNAMO_ACCESS_KEY_ID present:", !!process.env.DYNAMO_ACCESS_KEY_ID);
-    console.log("DYNAMO_SECRET_KEY present:", !!process.env.DYNAMO_SECRET_KEY);
-    console.log("DYNAMO_REGION:", process.env.DYNAMO_REGION);
-    console.log("DYNAMO_ORDERS_TABLE:", process.env.DYNAMO_ORDERS_TABLE);
-
     await createOrder(order);
+
+    // Send confirmation email — non-blocking, don't fail the order if email fails
+    sendOrderConfirmationEmail(order).catch((err) => {
+      console.error("Failed to send confirmation email:", err);
+    });
 
     return NextResponse.json(order, { status: 201 });
   } catch (err) {
