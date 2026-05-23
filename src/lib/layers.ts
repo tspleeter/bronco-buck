@@ -5,6 +5,9 @@ export function getSelectedLayers(
   config: ProductConfig,
   state: BuildState,
 ): string[] {
+  // Guard against undefined/null state
+  if (!state || !state.selectedOptions) return [config.baseLayer];
+
   const layers: string[] = [config.baseLayer];
 
   for (const layerType of config.layerOrder) {
