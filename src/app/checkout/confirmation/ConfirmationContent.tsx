@@ -40,7 +40,7 @@ export default function ConfirmationContent() {
   }, [orderId]);
 
   return (
-    <main style={{ minHeight: "100vh", padding: isMobile ? 16 : 24 }}>
+    <main style={{ minHeight: "100vh", padding: isMobile ? 16 : 24, background: "#fff" }}>
       <div
         style={{
           maxWidth: 900,
@@ -54,23 +54,23 @@ export default function ConfirmationContent() {
         <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#666", textTransform: "uppercase", letterSpacing: "0.12em" }}>
           Order Confirmed
         </p>
-        <h1 style={{ marginTop: 12, fontSize: isMobile ? 36 : 48, fontWeight: 900 }}>
+        <h1 style={{ marginTop: 12, fontSize: isMobile ? 36 : 48, fontWeight: 900, color: "#111" }}>
           Thank you for your order
         </h1>
-        <p style={{ marginTop: 16, fontSize: isMobile ? 16 : 18, color: "#555" }}>
+        <p style={{ marginTop: 16, fontSize: isMobile ? 16 : 18, color: "#444" }}>
           Your Bronco Buck order has been placed.
         </p>
 
         {order ? (
-          <div style={{ marginTop: 24, display: "grid", gap: 20 }}>
-            <div><strong>Order ID:</strong> {order.orderId}</div>
-            <div><strong>Placed:</strong> {new Date(order.createdAt).toLocaleString()}</div>
-            <div><strong>Customer:</strong> {order.customer.firstName} {order.customer.lastName}</div>
-            <div><strong>Email:</strong> {order.customer.email}</div>
-            <div><strong>Total:</strong> ${order.pricing.total.toFixed(2)}</div>
-            <div>
+          <div style={{ marginTop: 24, display: "grid", gap: 16 }}>
+            <div style={{ color: "#111" }}><strong>Order ID:</strong> {order.orderId}</div>
+            <div style={{ color: "#111" }}><strong>Placed:</strong> {new Date(order.createdAt).toLocaleString()}</div>
+            <div style={{ color: "#111" }}><strong>Customer:</strong> {order.customer.firstName} {order.customer.lastName}</div>
+            <div style={{ color: "#111" }}><strong>Email:</strong> {order.customer.email}</div>
+            <div style={{ color: "#111" }}><strong>Total:</strong> ${order.pricing.total.toFixed(2)}</div>
+            <div style={{ color: "#111" }}>
               <strong>Items:</strong>
-              <ul style={{ marginTop: 8 }}>
+              <ul style={{ marginTop: 8, color: "#333" }}>
                 {order.items.map((item) => (
                   <li key={item.cartItemId}>
                     {item.productName} × {item.quantity} — ${(item.price * item.quantity).toFixed(2)}
