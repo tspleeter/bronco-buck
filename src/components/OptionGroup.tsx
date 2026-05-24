@@ -29,11 +29,17 @@ interface OptionGroupProps {
 }
 
 const COLOR_MAP: Record<string, string> = {
-  red:    "#C1121F",
-  blue:   "#1D4ED8",
-  black:  "#111111",
-  green:  "#2F7D32",
-  blonde: "#E6C27A",
+  "Ruby Red":       "#8B1A1A",
+  "Velocity Blue":  "#1A4FAD",
+  "Shadow Black":   "#111111",
+  "Eruption Green": "#2F7D32",
+  "Cactus Gray":    "#8C9B82",
+  "Carbonized Gray":"#5A5C5F",
+  "Oxford White":   "#F2F0EB",
+  "Cyber Orange":   "#D25514",
+  "Desert Sand":    "#C3A56E",
+  "Azure Gray":     "#6E8CAA",
+  blonde:           "#E6C27A",
 };
 
 export function OptionGroup({
