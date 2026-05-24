@@ -22,12 +22,12 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
 <body style="margin:0;padding:0;background-color:#0C0A09;font-family:system-ui,sans-serif;">
   <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
     <div style="text-align:center;margin-bottom:40px;">
-      <h1 style="color:#CA8A04;font-size:28px;font-weight:900;margin:0;">Bronco<span style="color:#FAFAF9;">Buck</span></h1>
+      <h1 style="color:#CA8A04;font-size:28px;font-weight:900;margin:0;">%uck<span style="color:#FAFAF9;">ThatDuck</span></h1>
     </div>
     <div style="background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;">
       <p style="color:#CA8A04;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin:0 0 12px;">Order Confirmed</p>
       <h2 style="color:#FAFAF9;font-size:24px;font-weight:800;margin:0 0 16px;">Thank you, ${order.customer.firstName}!</h2>
-      <p style="color:#A8A29E;margin:0;line-height:1.6;">Your Bronco Buck order has been placed and is being processed.</p>
+      <p style="color:#A8A29E;margin:0;line-height:1.6;">Your %uckThatDuck order has been placed and is being processed.</p>
     </div>
     <div style="background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;">
       <h3 style="color:#FAFAF9;font-size:16px;font-weight:700;margin:0 0 20px;">Order Details</h3>
@@ -82,7 +82,7 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
       Destination: { ToAddresses: [order.customer.email] },
       Message: {
         Subject: {
-          Data: `Order Confirmed - Bronco Buck #${order.orderId.slice(0, 8).toUpperCase()}`,
+          Data: `Order Confirmed - %uckThatDuck #${order.orderId.slice(0, 8).toUpperCase()}`,
           Charset: "UTF-8",
         },
         Body: {
