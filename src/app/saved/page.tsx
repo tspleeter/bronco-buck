@@ -144,7 +144,7 @@ export default function SavedBuildsPage() {
                       href={`/build/${broncoConfig.slug}?saved=${build.buildId}`}
                       style={{ textDecoration: "none" }}
                     >
-                      <ActionButton variant="outline">Edit</ActionButton>
+                      <ActionButton variant="secondary">Edit</ActionButton>
                     </Link>
 
                     <ActionButton

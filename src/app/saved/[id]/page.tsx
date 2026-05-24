@@ -221,7 +221,7 @@ export default function SavedBuildPage() {
               <ActionButton variant="primary">Edit Build</ActionButton>
             </Link>
 
-            <ActionButton onClick={handleAddToCart} variant="outline">
+            <ActionButton onClick={handleAddToCart} variant="secondary">
               Add to Cart
             </ActionButton>
 
