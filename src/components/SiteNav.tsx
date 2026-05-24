@@ -11,7 +11,7 @@ export default function SiteNav() {
       <div className="site-nav-inner">
         {/* Brand */}
         <Link href="/" className="site-nav-brand">
-          Bronco<span>Buck</span>
+          %uck<span>ThatDuck</span>
         </Link>
 
         {/* Links */}
