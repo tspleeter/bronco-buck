@@ -112,7 +112,7 @@ export function OptionGroup({
         <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
           {activeOptions.map((option) => {
             const selected = isSelected(option.id);
-            const color = COLOR_MAP[option.name.toLowerCase()] ?? "#888888";
+            const color = COLOR_MAP[option.name] ?? "#888888";
 
             return (
               <button
