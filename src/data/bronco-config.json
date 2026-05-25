@@ -23,10 +23,38 @@
       "required": true,
       "displayOrder": 1,
       "options": [
-        { "id": "V1", "name": "Red", "priceDelta": 0, "imageLayer": "body_red", "layerType": "body", "active": true },
-        { "id": "V2", "name": "Blue", "priceDelta": 0, "imageLayer": "body_blue", "layerType": "body", "active": true },
-        { "id": "V3", "name": "Black", "priceDelta": 0, "imageLayer": "body_black", "layerType": "body", "active": true },
-        { "id": "V15", "name": "Green", "priceDelta": 0, "imageLayer": "body_green", "layerType": "body", "active": true }
+        {
+          "id": "V1",
+          "name": "Ruby Red",
+          "priceDelta": 0,
+          "imageLayer": "body_red",
+          "layerType": "body",
+          "active": true
+        },
+        {
+          "id": "V2",
+          "name": "Velocity Blue",
+          "priceDelta": 0,
+          "imageLayer": "body_blue",
+          "layerType": "body",
+          "active": true
+        },
+        {
+          "id": "V3",
+          "name": "Shadow Black",
+          "priceDelta": 0,
+          "imageLayer": "body_black",
+          "layerType": "body",
+          "active": true
+        },
+        {
+          "id": "V15",
+          "name": "Eruption Green",
+          "priceDelta": 0,
+          "imageLayer": "body_green",
+          "layerType": "body",
+          "active": true
+        }
       ]
     },
     {
@@ -36,8 +64,22 @@
       "required": true,
       "displayOrder": 2,
       "options": [
-        { "id": "V4", "name": "Short", "priceDelta": 0, "imageLayer": "mane_short", "layerType": "mane-style", "active": true },
-        { "id": "V5", "name": "Punk", "priceDelta": 3, "imageLayer": "mane_punk", "layerType": "mane-style", "active": true }
+        {
+          "id": "V4",
+          "name": "Short",
+          "priceDelta": 0,
+          "imageLayer": "mane_short",
+          "layerType": "mane-style",
+          "active": true
+        },
+        {
+          "id": "V5",
+          "name": "Punk",
+          "priceDelta": 3,
+          "imageLayer": "mane_punk",
+          "layerType": "mane-style",
+          "active": true
+        }
       ]
     },
     {
@@ -47,8 +89,22 @@
       "required": true,
       "displayOrder": 3,
       "options": [
-        { "id": "V6", "name": "Black", "priceDelta": 0, "imageLayer": "mane_black", "layerType": "mane-color", "active": true },
-        { "id": "V7", "name": "Blonde", "priceDelta": 2, "imageLayer": "mane_blonde", "layerType": "mane-color", "active": true }
+        {
+          "id": "V6",
+          "name": "Black",
+          "priceDelta": 0,
+          "imageLayer": "mane_black",
+          "layerType": "mane-color",
+          "active": true
+        },
+        {
+          "id": "V7",
+          "name": "Blonde",
+          "priceDelta": 2,
+          "imageLayer": "mane_blonde",
+          "layerType": "mane-color",
+          "active": true
+        }
       ]
     },
     {
@@ -58,7 +114,14 @@
       "required": false,
       "displayOrder": 4,
       "options": [
-        { "id": "V8", "name": "Sunglasses", "priceDelta": 4, "imageLayer": "accessory_sunglasses", "layerType": "accessory", "active": true }
+        {
+          "id": "V8",
+          "name": "Sunglasses",
+          "priceDelta": 4,
+          "imageLayer": "accessory_sunglasses",
+          "layerType": "accessory",
+          "active": true
+        }
       ]
     },
     {
@@ -68,7 +131,14 @@
       "required": true,
       "displayOrder": 5,
       "options": [
-        { "id": "V9", "name": "Standard", "priceDelta": 0, "imageLayer": "stand_standard", "layerType": "stand-style", "active": true }
+        {
+          "id": "V9",
+          "name": "Standard",
+          "priceDelta": 0,
+          "imageLayer": "stand_standard",
+          "layerType": "stand-style",
+          "active": true
+        }
       ]
     },
     {
@@ -78,8 +148,22 @@
       "required": true,
       "displayOrder": 6,
       "options": [
-        { "id": "V10", "name": "Black", "priceDelta": 0, "imageLayer": "stand_black", "layerType": "stand-color", "active": true },
-        { "id": "V11", "name": "Red", "priceDelta": 1, "imageLayer": "stand_red", "layerType": "stand-color", "active": true }
+        {
+          "id": "V10",
+          "name": "Black",
+          "priceDelta": 0,
+          "imageLayer": "stand_black",
+          "layerType": "stand-color",
+          "active": true
+        },
+        {
+          "id": "V11",
+          "name": "Red",
+          "priceDelta": 1,
+          "imageLayer": "stand_red",
+          "layerType": "stand-color",
+          "active": true
+        }
       ]
     },
     {
@@ -89,9 +173,30 @@
       "required": false,
       "displayOrder": 7,
       "options": [
-        { "id": "V12", "name": "None", "priceDelta": 0, "imageLayer": "none", "layerType": "nameplate", "active": true },
-        { "id": "V16", "name": "Buck", "priceDelta": 2, "imageLayer": "nameplate_buck", "layerType": "nameplate", "active": true },
-        { "id": "V13", "name": "Custom", "priceDelta": 5, "imageLayer": "nameplate_custom", "layerType": "nameplate", "active": true }
+        {
+          "id": "V12",
+          "name": "None",
+          "priceDelta": 0,
+          "imageLayer": "none",
+          "layerType": "nameplate",
+          "active": true
+        },
+        {
+          "id": "V16",
+          "name": "Buck",
+          "priceDelta": 2,
+          "imageLayer": "nameplate_buck",
+          "layerType": "nameplate",
+          "active": true
+        },
+        {
+          "id": "V13",
+          "name": "Custom",
+          "priceDelta": 5,
+          "imageLayer": "nameplate_custom",
+          "layerType": "nameplate",
+          "active": true
+        }
       ]
     },
     {
@@ -101,7 +206,14 @@
       "required": true,
       "displayOrder": 8,
       "options": [
-        { "id": "V14", "name": "Standard Box", "priceDelta": 0, "imageLayer": "packaging_standard", "layerType": "packaging", "active": true }
+        {
+          "id": "V14",
+          "name": "Standard Box",
+          "priceDelta": 0,
+          "imageLayer": "packaging_standard",
+          "layerType": "packaging",
+          "active": true
+        }
       ]
     }
   ]
