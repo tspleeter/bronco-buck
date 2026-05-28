@@ -26,32 +26,80 @@
         {
           "id": "V1",
           "name": "Ruby Red",
+          "imageLayer": "body_ruby_red",
           "priceDelta": 0,
-          "imageLayer": "body_red",
           "layerType": "body",
           "active": true
         },
         {
           "id": "V2",
           "name": "Velocity Blue",
+          "imageLayer": "body_velocity_blue",
           "priceDelta": 0,
-          "imageLayer": "body_blue",
           "layerType": "body",
           "active": true
         },
         {
           "id": "V3",
           "name": "Shadow Black",
+          "imageLayer": "body_shadow_black",
           "priceDelta": 0,
-          "imageLayer": "body_black",
           "layerType": "body",
           "active": true
         },
         {
           "id": "V15",
           "name": "Eruption Green",
+          "imageLayer": "body_eruption_green",
           "priceDelta": 0,
-          "imageLayer": "body_green",
+          "layerType": "body",
+          "active": true
+        },
+        {
+          "id": "V16",
+          "name": "Oxford White",
+          "imageLayer": "body_oxford_white",
+          "priceDelta": 0,
+          "layerType": "body",
+          "active": true
+        },
+        {
+          "id": "V17",
+          "name": "Cyber Orange",
+          "imageLayer": "body_cyber_orange",
+          "priceDelta": 0,
+          "layerType": "body",
+          "active": true
+        },
+        {
+          "id": "V18",
+          "name": "Carbonized Gray",
+          "imageLayer": "body_carbonized_gray",
+          "priceDelta": 0,
+          "layerType": "body",
+          "active": true
+        },
+        {
+          "id": "V19",
+          "name": "Cactus Gray",
+          "imageLayer": "body_cactus_gray",
+          "priceDelta": 0,
+          "layerType": "body",
+          "active": true
+        },
+        {
+          "id": "V20",
+          "name": "Desert Sand",
+          "imageLayer": "body_desert_sand",
+          "priceDelta": 0,
+          "layerType": "body",
+          "active": true
+        },
+        {
+          "id": "V21",
+          "name": "Azure Gray",
+          "imageLayer": "body_azure_gray",
+          "priceDelta": 0,
           "layerType": "body",
           "active": true
         }
