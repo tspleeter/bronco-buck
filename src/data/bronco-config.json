@@ -103,7 +103,8 @@
           "layerType": "body",
           "active": true
         }
-      ]
+      ],
+      "default": "V1"
     },
     {
       "id": "G2",
@@ -116,7 +117,7 @@
           "id": "V4",
           "name": "Short",
           "priceDelta": 0,
-          "imageLayer": "mane_short",
+          "imageLayer": "none",
           "layerType": "mane-style",
           "active": true
         },
@@ -124,7 +125,7 @@
           "id": "V5",
           "name": "Punk",
           "priceDelta": 3,
-          "imageLayer": "mane_punk",
+          "imageLayer": "none",
           "layerType": "mane-style",
           "active": true
         }
@@ -141,7 +142,7 @@
           "id": "V6",
           "name": "Black",
           "priceDelta": 0,
-          "imageLayer": "mane_black",
+          "imageLayer": "none",
           "layerType": "mane-color",
           "active": true
         },
@@ -149,7 +150,7 @@
           "id": "V7",
           "name": "Blonde",
           "priceDelta": 2,
-          "imageLayer": "mane_blonde",
+          "imageLayer": "none",
           "layerType": "mane-color",
           "active": true
         }
@@ -166,7 +167,7 @@
           "id": "V8",
           "name": "Sunglasses",
           "priceDelta": 4,
-          "imageLayer": "accessory_sunglasses",
+          "imageLayer": "none",
           "layerType": "accessory",
           "active": true
         }
@@ -183,7 +184,7 @@
           "id": "V9",
           "name": "Standard",
           "priceDelta": 0,
-          "imageLayer": "stand_standard",
+          "imageLayer": "none",
           "layerType": "stand-style",
           "active": true
         }
@@ -200,7 +201,7 @@
           "id": "V10",
           "name": "Black",
           "priceDelta": 0,
-          "imageLayer": "stand_black",
+          "imageLayer": "none",
           "layerType": "stand-color",
           "active": true
         },
@@ -208,7 +209,7 @@
           "id": "V11",
           "name": "Red",
           "priceDelta": 1,
-          "imageLayer": "stand_red",
+          "imageLayer": "none",
           "layerType": "stand-color",
           "active": true
         }
@@ -233,7 +234,7 @@
           "id": "V16",
           "name": "Buck",
           "priceDelta": 2,
-          "imageLayer": "nameplate_buck",
+          "imageLayer": "none",
           "layerType": "nameplate",
           "active": true
         },
@@ -241,7 +242,7 @@
           "id": "V13",
           "name": "Custom",
           "priceDelta": 5,
-          "imageLayer": "nameplate_custom",
+          "imageLayer": "none",
           "layerType": "nameplate",
           "active": true
         }
@@ -258,7 +259,7 @@
           "id": "V14",
           "name": "Standard Box",
           "priceDelta": 0,
-          "imageLayer": "packaging_standard",
+          "imageLayer": "none",
           "layerType": "packaging",
           "active": true
         }
