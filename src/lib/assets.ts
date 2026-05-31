@@ -13,10 +13,10 @@ const VIEW_DEPENDENT_LAYERS = new Set([
 ]);
 
 // These views only have mane-baked images, no bare body image
-const MANE_ONLY_VIEWS = new Set(["right", "rear"]);
+const MANE_ONLY_VIEWS = new Set(["right", "back"]);
 
 // Map UI view names to filename tokens
-const VIEW_FILENAME_MAP: Record<string, string> = { rear: "back" };
+const VIEW_FILENAME_MAP: Record<string, string> = {};
 
 const LAYER_FOLDERS: Record<string, string> = {
   base_bronco: "base",
