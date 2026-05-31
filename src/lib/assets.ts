@@ -12,6 +12,9 @@ const VIEW_DEPENDENT_LAYERS = new Set([
   "body_azure_gray",
 ]);
 
+// These views only have mane-baked images, no bare body image
+const MANE_ONLY_VIEWS = new Set(["right"]);
+
 const LAYER_FOLDERS: Record<string, string> = {
   base_bronco: "base",
   body_ruby_red: "body",
@@ -51,7 +54,9 @@ export function getLayerAssetPath(
     if (mane) {
       return `/assets/${folder}/${layerName}_${view}_${mane.style}mane_${mane.color}.png`;
     }
-    return `/assets/${folder}/${layerName}_${view}.png`;
+    // Views that have no bare body image fall back to front
+    const resolvedView = MANE_ONLY_VIEWS.has(view) ? "front" : view;
+    return `/assets/${folder}/${layerName}_${resolvedView}.png`;
   }
 
   return `/assets/${folder}/${layerName}.png`;
