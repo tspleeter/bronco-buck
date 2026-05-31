@@ -5,7 +5,6 @@ export function getSelectedLayers(
   config: ProductConfig,
   state: BuildState,
 ): string[] {
-  // Guard against undefined/null state
   if (!state || !state.selectedOptions) return [config.baseLayer];
 
   const layers: string[] = [config.baseLayer];
@@ -16,11 +15,7 @@ export function getSelectedLayers(
 
       if (group.type === "single" && typeof selection === "string" && selection) {
         const option = group.options.find((item) => item.id === selection);
-        if (
-          option &&
-          option.layerType === layerType &&
-          option.imageLayer !== "none"
-        ) {
+        if (option && option.layerType === layerType && option.imageLayer !== "none") {
           layers.push(option.imageLayer);
         }
       }
@@ -28,11 +23,7 @@ export function getSelectedLayers(
       if (group.type === "multi" && Array.isArray(selection)) {
         for (const optionId of selection) {
           const option = group.options.find((item) => item.id === optionId);
-          if (
-            option &&
-            option.layerType === layerType &&
-            option.imageLayer !== "none"
-          ) {
+          if (option && option.layerType === layerType && option.imageLayer !== "none") {
             layers.push(option.imageLayer);
           }
         }
