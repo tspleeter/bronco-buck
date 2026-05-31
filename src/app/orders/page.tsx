@@ -67,7 +67,7 @@ export default function OrdersPage() {
               Orders
             </h1>
             {!isLoading && (
-              <p style={{ marginTop: 8, color: "#666" }}>
+              <p style={{ marginTop: 8, color: "var(--color-text-muted)" }}>
                 {orderCount} order{orderCount === 1 ? "" : "s"}
               </p>
             )}
@@ -88,13 +88,13 @@ export default function OrdersPage() {
           <div
             style={{
               marginTop: 24,
-              background: "#fff",
-              border: "1px solid #ddd",
+              background: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
               borderRadius: 16,
               padding: 24,
             }}
           >
-            <p style={{ margin: 0, color: "#888", fontSize: 14 }}>
+            <p style={{ margin: 0, color: "var(--color-text-muted)", fontSize: 14 }}>
               Loading orders…
             </p>
           </div>
@@ -102,8 +102,8 @@ export default function OrdersPage() {
           <div
             style={{
               marginTop: 24,
-              background: "#fff",
-              border: "1px solid #ddd",
+              background: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
               borderRadius: 16,
               padding: 24,
             }}
@@ -116,8 +116,8 @@ export default function OrdersPage() {
               <section
                 key={order.orderId}
                 style={{
-                  background: "#fff",
-                  border: "1px solid #ddd",
+                  background: "var(--color-surface)",
+                  border: "1px solid var(--color-border)",
                   borderRadius: 16,
                   padding: isMobile ? 16 : 22,
                 }}
@@ -145,7 +145,7 @@ export default function OrdersPage() {
                         <h2 style={{ margin: 0, fontSize: isMobile ? 22 : 26 }}>
                           Order #{order.orderId.slice(0, 8)}
                         </h2>
-                        <p style={{ marginTop: 8, color: "#666" }}>
+                        <p style={{ marginTop: 8, color: "var(--color-text-muted)" }}>
                           Placed {new Date(order.createdAt).toLocaleString()}
                         </p>
                       </div>
@@ -165,7 +165,7 @@ export default function OrdersPage() {
                     >
                       <div>
                         <h3 style={{ margin: 0, fontSize: 16 }}>Customer</h3>
-                        <div style={{ marginTop: 8, display: "grid", gap: 4, color: "#555" }}>
+                        <div style={{ marginTop: 8, display: "grid", gap: 4, color: "var(--color-text-muted)" }}>
                           <div>{order.customer.firstName} {order.customer.lastName}</div>
                           <div>{order.customer.email}</div>
                           {order.customer.phone ? <div>{order.customer.phone}</div> : null}
@@ -177,7 +177,7 @@ export default function OrdersPage() {
 
                       <div>
                         <h3 style={{ margin: 0, fontSize: 16 }}>Order Summary</h3>
-                        <div style={{ marginTop: 8, display: "grid", gap: 6, color: "#555" }}>
+                        <div style={{ marginTop: 8, display: "grid", gap: 6, color: "var(--color-text-muted)" }}>
                           <div>Status: {order.status}</div>
                           <div>Items: {order.items.length}</div>
                           <div>Subtotal: ${order.pricing.subtotal.toFixed(2)}</div>
@@ -199,10 +199,10 @@ export default function OrdersPage() {
                           <div
                             key={item.cartItemId}
                             style={{
-                              border: "1px solid #eee",
+                              border: "1px solid var(--color-border)",
                               borderRadius: 12,
                               padding: 12,
-                              background: "#fafafa",
+                              background: "var(--color-surface-2)",
                             }}
                           >
                             <div
@@ -216,11 +216,11 @@ export default function OrdersPage() {
                               <strong>{item.productName}</strong>
                               <strong>${(item.price * item.quantity).toFixed(2)}</strong>
                             </div>
-                            <div style={{ marginTop: 6, color: "#666" }}>
+                            <div style={{ marginTop: 6, color: "var(--color-text-muted)" }}>
                               Qty: {item.quantity}
                             </div>
                             {item.customFields?.nameplateText ? (
-                              <div style={{ marginTop: 6, color: "#666" }}>
+                              <div style={{ marginTop: 6, color: "var(--color-text-muted)" }}>
                                 Nameplate: {item.customFields.nameplateText}
                               </div>
                             ) : null}
