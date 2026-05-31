@@ -24,10 +24,10 @@ export default function BuilderPreview({
       style={{
         position: "relative",
         width: "100%",
-        aspectRatio: "3 / 4",
+        aspectRatio: "990 / 1294",
         borderRadius: 16,
         overflow: "hidden",
-        background: "#f5f5f5",
+        background: "rgb(84, 85, 90)",
         userSelect: "none",
       }}
     >
