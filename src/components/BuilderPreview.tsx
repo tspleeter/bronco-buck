@@ -1,16 +1,12 @@
 "use client";
 
-import { getLayerAssetPath } from "@/lib/assets";
-
-// Replaces the original BuilderPreview which was a prototype component
-// with its own internal state that ignored all props. The build page
-// passes layers, view, and nameplateText — this version uses all three.
-// Delegates asset path resolution to lib/assets.ts — single source of truth.
+import { getLayerAssetPath, ManeContext } from "@/lib/assets";
 
 interface BuilderPreviewProps {
   layers: string[];
   view: string;
   nameplateText?: string;
+  mane?: ManeContext;
 }
 
 const BODY_VIEWS = ["front", "side", "rear", "angle"];
@@ -19,8 +15,8 @@ export default function BuilderPreview({
   layers,
   view,
   nameplateText,
+  mane,
 }: BuilderPreviewProps) {
-  // Normalize view — fall back to "front" if unrecognized
   const normalizedView = BODY_VIEWS.includes(view) ? view : "front";
 
   return (
@@ -36,7 +32,7 @@ export default function BuilderPreview({
       }}
     >
       {layers.map((layer) => {
-        const src = getLayerAssetPath(layer, normalizedView);
+        const src = getLayerAssetPath(layer, normalizedView, mane);
         if (!src) return null;
 
         return (
@@ -56,7 +52,6 @@ export default function BuilderPreview({
         );
       })}
 
-      {/* Nameplate text overlay for custom nameplates */}
       {nameplateText && layers.includes("nameplate_custom") && (
         <div
           style={{
