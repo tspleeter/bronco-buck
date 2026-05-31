@@ -13,7 +13,10 @@ const VIEW_DEPENDENT_LAYERS = new Set([
 ]);
 
 // These views only have mane-baked images, no bare body image
-const MANE_ONLY_VIEWS = new Set(["right"]);
+const MANE_ONLY_VIEWS = new Set(["right", "rear"]);
+
+// Map UI view names to filename tokens
+const VIEW_FILENAME_MAP: Record<string, string> = { rear: "back" };
 
 const LAYER_FOLDERS: Record<string, string> = {
   base_bronco: "base",
@@ -51,11 +54,12 @@ export function getLayerAssetPath(
   if (!folder) return undefined;
 
   if (VIEW_DEPENDENT_LAYERS.has(layerName)) {
+    const fileView = VIEW_FILENAME_MAP[view] ?? view;
     if (mane) {
-      return `/assets/${folder}/${layerName}_${view}_${mane.style}mane_${mane.color}.png`;
+      return `/assets/${folder}/${layerName}_${fileView}_${mane.style}mane_${mane.color}.png`;
     }
     // Views that have no bare body image fall back to front
-    const resolvedView = MANE_ONLY_VIEWS.has(view) ? "front" : view;
+    const resolvedView = MANE_ONLY_VIEWS.has(view) ? "front" : fileView;
     return `/assets/${folder}/${layerName}_${resolvedView}.png`;
   }
 
