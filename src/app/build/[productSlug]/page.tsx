@@ -303,7 +303,7 @@ export default function BuildPage() {
 
             {/* View Toggles */}
             <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-              {["front", "right", "back", "angle"].map((v) => (
+              {["front", "right", "back", "left"].map((v) => (
                 <button
                   key={v}
                   type="button"
