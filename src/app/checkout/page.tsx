@@ -170,8 +170,8 @@ function CheckoutForm({
     >
       <section
         style={{
-          background: "#fff",
-          border: "1px solid #ddd",
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
           borderRadius: 16,
           padding: isMobile ? 18 : 24,
         }}
@@ -195,7 +195,7 @@ function CheckoutForm({
           </Link>
         </div>
 
-        <p style={{ marginTop: 12, color: "#666", fontSize: isMobile ? 16 : 18 }}>
+        <p style={{ marginTop: 12, color: "var(--color-text-muted)", fontSize: isMobile ? 16 : 18 }}>
           Enter your shipping details to place your order.
         </p>
 
@@ -276,7 +276,7 @@ function CheckoutForm({
             </label>
             <div
               style={{
-                border: "1px solid #ccc",
+                border: "1px solid var(--color-border)",
                 borderRadius: 12,
                 padding: "16px 14px",
               }}
@@ -289,8 +289,8 @@ function CheckoutForm({
 
       <aside
         style={{
-          background: "#fff",
-          border: "1px solid #ddd",
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
           borderRadius: 16,
           padding: isMobile ? 18 : 24,
           height: "fit-content",
@@ -301,7 +301,7 @@ function CheckoutForm({
         </h2>
 
         {items.length === 0 ? (
-          <p style={{ marginTop: 16, color: "#666" }}>Your cart is empty.</p>
+          <p style={{ marginTop: 16, color: "var(--color-text-muted)" }}>Your cart is empty.</p>
         ) : (
           <div style={{ marginTop: 16, display: "grid", gap: 16 }}>
             {items.map((item) => (
@@ -313,7 +313,7 @@ function CheckoutForm({
                   <strong>{item.productName}</strong>
                   <strong>${(item.price * item.quantity).toFixed(2)}</strong>
                 </div>
-                <div style={{ marginTop: 8, display: "grid", gap: 4, color: "#666" }}>
+                <div style={{ marginTop: 8, display: "grid", gap: 4, color: "var(--color-text-muted)" }}>
                   <div>Qty: {item.quantity}</div>
                   {Object.entries(item.selectedOptions).map(([groupId, value]) => {
                     if (Array.isArray(value)) {
@@ -350,7 +350,7 @@ function CheckoutForm({
               <div
                 style={{
                   ...summaryRowStyle,
-                  borderTop: "2px solid #111",
+                  borderTop: "2px solid var(--color-border)",
                   paddingTop: 12,
                   marginTop: 8,
                   fontSize: isMobile ? 20 : 22,
@@ -420,7 +420,7 @@ export default function CheckoutPage() {
           justifyContent: "center",
         }}
       >
-        <p style={{ color: "#888", fontSize: 14 }}>Loading checkout…</p>
+        <p style={{ color: "var(--color-text-muted)", fontSize: 14 }}>Loading checkout…</p>
       </main>
     );
   }
@@ -431,7 +431,7 @@ export default function CheckoutPage() {
         stripe={stripePromise}
         options={{
           clientSecret,
-          appearance: { theme: "stripe" },
+          appearance: { theme: "night" },
         }}
       >
         <CheckoutForm
@@ -447,7 +447,7 @@ export default function CheckoutPage() {
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
-  border: "1px solid #ccc",
+  border: "1px solid var(--color-border)",
   borderRadius: 12,
   padding: "12px 14px",
   fontSize: 16,
