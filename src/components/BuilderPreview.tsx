@@ -9,7 +9,7 @@ interface BuilderPreviewProps {
   mane?: ManeContext;
 }
 
-const BODY_VIEWS = ["front", "right", "back", "angle"];
+const BODY_VIEWS = ["front", "right", "back", "left"];
 
 export default function BuilderPreview({
   layers,
