@@ -384,7 +384,7 @@ export default function BuildPage() {
                     id === "G7" && val !== "V13"
                       ? {
                           ...prev.customFields,
-                          nameplateText: val === "V16" ? "Buck" : "",
+                          nameplateText: val === "V22" ? "Buck" : "",
                         }
                       : prev.customFields,
                 }))
