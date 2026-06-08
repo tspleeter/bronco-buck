@@ -33,7 +33,6 @@ export default function PoliciesPage() {
 
         {/* Header */}
         <div style={{ display: "grid", gap: "8px" }}>
-          <span className="label" style={{ color: "var(--color-gold)" }}>Pleeter LLC</span>
           <h1 style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 900, letterSpacing: "-0.02em" }}>
             Returns, Shipping & FAQ
           </h1>
