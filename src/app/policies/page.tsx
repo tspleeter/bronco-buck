@@ -39,6 +39,9 @@ export default function PoliciesPage() {
           <p style={{ color: "var(--color-text-muted)", lineHeight: 1.6 }}>
             Everything you need to know about your BuckThatDuck order.
           </p>
+          <p style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.875rem", fontWeight: 700, color: "var(--color-gold)" }}>
+            🇺🇸 Proudly made in the USA
+          </p>
         </div>
 
         {/* Returns */}
