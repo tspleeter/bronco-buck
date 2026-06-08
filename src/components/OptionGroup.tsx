@@ -40,6 +40,8 @@ const COLOR_MAP: Record<string, string> = {
   "Desert Sand":    "#C3A56E",
   "Azure Gray":     "#6E8CAA",
   blonde:           "#E6C27A",
+  "Black":          "#111111",
+  "White":          "#F2F0EB",
 };
 
 export function OptionGroup({
