@@ -95,7 +95,7 @@ export default function GalleryPage() {
                 key={color}
                 type="button"
                 onClick={() => setManeColor(color)}
-                className={}
+                className={`view-btn${maneColor === color ? " active" : ""}`}
                 aria-pressed={maneColor === color}
                 style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >
