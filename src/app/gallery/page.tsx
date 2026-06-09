@@ -1,25 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { ActionButton } from "@/components/ActionButton";
 
 const COLORS = [
-  { id: "V1",  name: "Ruby Red",        imageLayer: "body_ruby_red" },
-  { id: "V2",  name: "Velocity Blue",   imageLayer: "body_velocity_blue" },
-  { id: "V3",  name: "Shadow Black",    imageLayer: "body_shadow_black" },
-  { id: "V15", name: "Eruption Green",  imageLayer: "body_eruption_green" },
-  { id: "V16", name: "Oxford White",    imageLayer: "body_oxford_white" },
-  { id: "V17", name: "Cyber Orange",    imageLayer: "body_cyber_orange" },
-  { id: "V18", name: "Carbonized Gray", imageLayer: "body_carbonized_gray" },
-  { id: "V19", name: "Cactus Gray",     imageLayer: "body_cactus_gray" },
-  { id: "V20", name: "Desert Sand",     imageLayer: "body_desert_sand" },
-  { id: "V21", name: "Azure Gray",      imageLayer: "body_azure_gray" },
+  { id: "V1",  name: "Ruby Red",        imageLayer: "body_ruby_red",        mane: "white", maneId: "V7" },
+  { id: "V2",  name: "Velocity Blue",   imageLayer: "body_velocity_blue",   mane: "white", maneId: "V7" },
+  { id: "V3",  name: "Shadow Black",    imageLayer: "body_shadow_black",    mane: "white", maneId: "V7" },
+  { id: "V15", name: "Eruption Green",  imageLayer: "body_eruption_green",  mane: "black", maneId: "V6" },
+  { id: "V16", name: "Oxford White",    imageLayer: "body_oxford_white",    mane: "black", maneId: "V6" },
+  { id: "V17", name: "Cyber Orange",    imageLayer: "body_cyber_orange",    mane: "black", maneId: "V6" },
+  { id: "V18", name: "Carbonized Gray", imageLayer: "body_carbonized_gray", mane: "white", maneId: "V7" },
+  { id: "V19", name: "Cactus Gray",     imageLayer: "body_cactus_gray",     mane: "black", maneId: "V6" },
+  { id: "V20", name: "Desert Sand",     imageLayer: "body_desert_sand",     mane: "black", maneId: "V6" },
+  { id: "V21", name: "Azure Gray",      imageLayer: "body_azure_gray",      mane: "black", maneId: "V6" },
 ];
 
 export default function GalleryPage() {
-  const [maneColor, setManeColor] = useState<"black" | "white">("black");
-
   return (
     <main className="page">
       <div className="page-inner">
@@ -69,50 +66,17 @@ export default function GalleryPage() {
                 marginBottom: "28px",
               }}
             >
-              All 10 Ford Bronco colors, rendered in full 3D. Toggle the mane
-              color and click any Buck to start building yours.
+              All 10 Ford Bronco colors, rendered in full 3D. Click any Buck to
+              start customizing yours.
             </p>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
-              <Link href="/build/bronco-buck-classic">
-                <ActionButton variant="primary" size="lg">
-                  Start Building
-                </ActionButton>
-              </Link>
-            </div>
+            <Link href="/build/bronco-buck-classic">
+              <ActionButton variant="primary" size="lg">
+                Start Building
+              </ActionButton>
+            </Link>
           </div>
         </section>
-
-        {/* ── Mane Color Toggle ── */}
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--color-text-muted)" }}>
-            Mane Color
-          </span>
-          <div style={{ display: "flex", gap: "8px" }}>
-            {(["black", "white"] as const).map((color) => (
-              <button
-                key={color}
-                type="button"
-                onClick={() => setManeColor(color)}
-                className={`view-btn${maneColor === color ? " active" : ""}`}
-                aria-pressed={maneColor === color}
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                <span
-                  style={{
-                    width: 14,
-                    height: 14,
-                    borderRadius: "50%",
-                    background: color === "black" ? "#1a1a1a" : "#f5f5f0",
-                    border: "1.5px solid var(--color-border-hover)",
-                    flexShrink: 0,
-                  }}
-                />
-                {color.charAt(0).toUpperCase() + color.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
 
         {/* ── Color Grid ── */}
         <div
@@ -123,9 +87,8 @@ export default function GalleryPage() {
           }}
         >
           {COLORS.map((color) => {
-            const imgSrc = `/assets/body/${color.imageLayer}_front_regmane_${maneColor}.png`;
-            const maneOptionId = maneColor === "black" ? "V6" : "V7";
-            const buildHref = `/build/bronco-buck-classic?color=${color.id}&mane=${maneOptionId}`;
+            const imgSrc = `/assets/body/${color.imageLayer}_front_regmane_${color.mane}.png`;
+            const buildHref = `/build/bronco-buck-classic?color=${color.id}&mane=${color.maneId}`;
 
             return (
               <Link key={color.id} href={buildHref} style={{ display: "block" }}>
@@ -145,7 +108,7 @@ export default function GalleryPage() {
                   >
                     <img
                       src={imgSrc}
-                      alt={`${color.name} Buck with ${maneColor} mane`}
+                      alt={`${color.name} Buck with ${color.mane} mane`}
                       style={{
                         width: "100%",
                         height: "100%",
@@ -175,7 +138,7 @@ export default function GalleryPage() {
                         {color.name}
                       </div>
                       <div style={{ fontSize: "0.8rem", color: "var(--color-text-muted)", marginTop: 2 }}>
-                        {maneColor.charAt(0).toUpperCase() + maneColor.slice(1)} mane · from $24.99
+                        from $24.99
                       </div>
                     </div>
                     <svg
