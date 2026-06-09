@@ -35,7 +35,6 @@ export default function GalleryPage() {
             padding: "clamp(28px, 4vw, 56px)",
           }}
         >
-          {/* Glow */}
           <div
             aria-hidden="true"
             style={{
@@ -124,8 +123,9 @@ export default function GalleryPage() {
           }}
         >
           {COLORS.map((color) => {
-            const imgSrc = ;
-            const buildHref = ;
+            const imgSrc = `/assets/body/${color.imageLayer}_front_regmane_${maneColor}.png`;
+            const maneOptionId = maneColor === "black" ? "V6" : "V7";
+            const buildHref = `/build/bronco-buck-classic?color=${color.id}&mane=${maneOptionId}`;
 
             return (
               <Link key={color.id} href={buildHref} style={{ display: "block" }}>
@@ -133,7 +133,6 @@ export default function GalleryPage() {
                   className="card card-interactive"
                   style={{ overflow: "hidden", borderRadius: "var(--radius-xl)" }}
                 >
-                  {/* Image */}
                   <div
                     className="preview-bg"
                     style={{
@@ -146,7 +145,7 @@ export default function GalleryPage() {
                   >
                     <img
                       src={imgSrc}
-                      alt={}
+                      alt={`${color.name} Buck with ${maneColor} mane`}
                       style={{
                         width: "100%",
                         height: "100%",
@@ -162,7 +161,6 @@ export default function GalleryPage() {
                     />
                   </div>
 
-                  {/* Label */}
                   <div
                     style={{
                       padding: "16px 20px",
@@ -177,7 +175,7 @@ export default function GalleryPage() {
                         {color.name}
                       </div>
                       <div style={{ fontSize: "0.8rem", color: "var(--color-text-muted)", marginTop: 2 }}>
-                        {maneColor.charAt(0).toUpperCase() + maneColor.slice(1)} mane · from 4.99
+                        {maneColor.charAt(0).toUpperCase() + maneColor.slice(1)} mane · from $24.99
                       </div>
                     </div>
                     <svg
