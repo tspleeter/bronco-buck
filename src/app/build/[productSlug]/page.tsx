@@ -60,6 +60,8 @@ export default function BuildPage() {
   const featuredSlug = searchParams.get("featured");
   const savedBuildId = searchParams.get("saved");
   const shareId = searchParams.get("share");
+  const galleryColor = searchParams.get("color");
+  const gallerymane = searchParams.get("mane");
 
   const featuredBuild = featuredBuilds.find((b) => b.slug === featuredSlug);
 
@@ -121,11 +123,24 @@ export default function BuildPage() {
         return;
       }
 
+      if (galleryColor || gallerymane) {
+        const defaults = getDefaultBuildState(broncoConfig);
+        setBuildState({
+          ...defaults,
+          selectedOptions: {
+            ...defaults.selectedOptions,
+            ...(galleryColor ? { G1: galleryColor } : {}),
+            ...(gallerymane ? { G3: gallerymane } : {}),
+          },
+        });
+        return;
+      }
+
       setBuildState(getDefaultBuildState(broncoConfig));
     };
 
     load();
-  }, [shareId, savedBuildId, featuredBuild]);
+  }, [shareId, savedBuildId, featuredBuild, galleryColor, gallerymane]);
 
   const price = useMemo(
     () => calculateBuildPrice(broncoConfig, buildState),
