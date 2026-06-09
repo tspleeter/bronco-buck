@@ -1,97 +1,86 @@
-# BuckThatDuck — Project Context for Claude
+# BuckThatDuck — Project Context (buckthatduck.com)
 
-## Project Overview
-- **Site**: BuckThatDuck — custom Ford Bronco-themed 3D-printed horse figurine configurator
-- **Live URL**: https://www.buckthatduck.com
-- **Amplify URL**: https://main.d2s7zk4p5fxxak.amplifyapp.com
-- **GitHub**: https://github.com/tspleeter/bronco-buck (private)
-- **Company**: Pleeter LLC
-- **Owner**: Todd Pleeter (toddpleeter@outlook.com)
-- **Son Andrew** (andrewpleeter@gmail.com) contributed UI redesign and image set
+## Business
+- Company: **Pleeter LLC**
+- Product: Custom 3D-printed horse figurines ("Buck") based on Ford Bronco color themes
+- Repo: `tspleeter/bronco-buck` | Local: `/Users/home/bronco-buck/`
+- Hosting: AWS Amplify (auto-deploy on push to `main`)
+- Amplify URL: `main.d2s7zk4p5fxxak.amplifyapp.com`
 
-## Full Stack
-- **Frontend**: Next.js (App Router), TypeScript
-- **Backend**: AWS Amplify (auto-deploys from GitHub main)
-- **Database**: DynamoDB — BroncoBuckBuilds, BroncoBuckOrders tables
-- **Payments**: Stripe (secret key in SSM at /bronco-buck/stripe-secret-key)
-- **Email**: AWS SES from orders@buckthatduck.com
-- **DNS**: Route 53 (hosted zone Z01222682JOH1P1Z7BZ0R)
-- **IAM**: Compute role bronco-buck-compute-role assigned in Amplify
+## Stack
+- **Frontend:** Next.js
+- **Database:** DynamoDB (`BroncoBuckBuilds`, `BroncoBuckOrders`)
+- **Payments:** Stripe (secret key in SSM at `/bronco-buck/stripe-secret-key`; publishable key hardcoded due to `NEXT_PUBLIC_` SSR build limitations)
+- **Email:** AWS SES sending from `orders@buckthatduck.com`
+- **DNS:** Route 53 (hosted zone `Z01222682JOH1P1Z7BZ0R`)
+- **Auth/IAM:** Compute role `bronco-buck-compute-role` assigned in Amplify App Settings → IAM roles (required for SSR Lambda env var access)
+
+## Current Status (as of June 2026)
+- Stripe payment integration ✅
+- SES order confirmation emails ✅
+- Route 53 custom domain live ✅
+- `/policies` page (Returns, Shipping, FAQ) ✅
+- Sitewide footer with Pleeter LLC copyright and "🇺🇸 Proudly made in the USA" ✅
+- Dark theme UI with gold accents (Andrew's redesign) ✅
+- `/orders` route is password-gated ✅
+
+## Configurator — bronco-config.json
+- **Product:** Bronco Buck Classic (BB001), base price $24.99
+- **Base layer:** `base_bronco.png` (transparent)
+
+### Option Groups
+| ID | Group | Options |
+|----|-------|---------|
+| G1 | Body Color | V1 Ruby Red, V2 Velocity Blue, V3 Shadow Black, V15 Eruption Green, V16 Oxford White, V17 Cyber Orange, V18 Carbonized Gray, V19 Cactus Gray, V20 Desert Sand, V21 Azure Gray |
+| G2 | Mane Style | V4 Short (+$0), V5 Punk (+$3) |
+| G3 | Mane Color | V6 Black (+$0), V7 White (+$2) |
+| G4 | Accessories | V8 Sunglasses (+$4) |
+| G5 | Stand Style | V9 Standard (+$0) |
+| G6 | Stand Color | V10 Black (+$0), V11 Red (+$1) |
+| G7 | Nameplate | V12 None, V22 Buck (+$2), V13 Custom (+$5) |
+| G8 | Packaging | V14 Standard Box (+$0) |
+
+## Image Assets — `public/assets/body/`
+
+### Naming Convention
+- Body only: `body_{color}_{view}.png`
+- With mane: `body_{color}_{view}_regmane_{mane_color}.png`
+- Views: `front`, `side`, `back`, `left`, `right`
+- Mane colors: `black`, `white`
+
+### Coverage (all 10 colors)
+All 10 Ford Bronco colors have the following views complete:
+- `front` (body only)
+- `front_regmane_black`, `front_regmane_white`
+- `side_regmane_black`, `side_regmane_white`
+- `back_regmane_black`, `back_regmane_white`
+- `left_regmane_black`, `left_regmane_white`
+- `right_regmane_black`, `right_regmane_white`
+
+**Colors:** azure_gray, cactus_gray, carbonized_gray, cyber_orange, desert_sand, eruption_green, oxford_white, ruby_red, shadow_black, velocity_blue
+
+**Legacy/unused files** (safe to ignore): `body_black_*`, `body_blue.png`, `body_red.png`, `body_green.png`, `body_grey_front.png`, `body_cyan_front.png`, `body_yellow_front.png`, `body_eruption_green_front-regmane_white.png` (malformed name, duplicate of `_front_regmane_white`)
+
+### Pending image work
+- Stand style/color preview images (not yet available from Bambu Studio)
+- Accessory (sunglasses) layer images
+
+## Image Processing — Bambu Studio Screenshots
+- Remove gray background (RGB 84,85,90) via flood fill from borders, tolerance ~10–20 per channel
+- Crop to content with 20px padding
+- Normalize to 800×1100 canvas centered at 92% scale
+- Save as RGB PNG (no transparency) unless compositing requires it
+- **No recoloring** — background removal and size normalization only
 
 ## Key Learnings
-- Amplify SSR env vars don't reach Lambda — use SSM Parameter Store + compute role
-- Stripe publishable key hardcoded in src/app/checkout/page.tsx
-- Stripe secret key fetched from SSM at runtime
-- Amplify deploys on every push to main
+- **Amplify SSR Lambda env vars:** Console env vars do NOT reach SSR functions — use IAM compute role + SSM Parameter Store
+- **GitHub Contents API push:** GET SHA first → PUT with base64 + SHA (omit SHA for new files); sleep ~0.4s between pushes to avoid race conditions; token format `ghp_*` classic PAT with repo scope
+- **Local git auth:** Can be stale — GitHub Contents API is reliable fallback, then `git pull` to sync local
+- **Amplify deploy check:** Site returns 403 to external requests (Amplify auth) — not a failure; check Amplify console directly
+- **Preview aspect ratio:** 3/4 (800×1100 canvas)
 
-## Image Architecture
-Images live in public/assets/body/
-Naming: body_{color_name}_{view}_regmane_{mane_color}.png
-- Views: front, back, left, right, side
-- Mane colors: black, white
-- Also plain body_{color_name}_{view}.png (no mane variant)
-
-## 10 Ford Body Colors
-| Option ID | Color Name | Image Layer |
-|---|---|---|
-| V1 | Ruby Red | body_ruby_red |
-| V2 | Velocity Blue | body_velocity_blue |
-| V3 | Shadow Black | body_shadow_black |
-| V15 | Eruption Green | body_eruption_green |
-| V16 | Oxford White | body_oxford_white |
-| V17 | Cyber Orange | body_cyber_orange |
-| V18 | Carbonized Gray | body_carbonized_gray |
-| V19 | Cactus Gray | body_cactus_gray |
-| V20 | Desert Sand | body_desert_sand |
-| V21 | Azure Gray | body_azure_gray |
-
-## Ford Color Hex Codes (for Bambu Studio)
-- Shadow Black: #1C1C1E
-- Oxford White: #F2F0EB
-- Velocity Blue: #1A4FAD
-- Cyber Orange: #D25514
-- Carbonized Gray: #5A5C5F
-- Eruption Green: #2F7D3C
-- Cactus Gray: #8C9B82
-- Ruby Red: #8B1A1A
-- Desert Sand: #C3A56E
-- Azure Gray: #6E8CAA
-
-## Image Processing Workflow (Standard)
-1. Take Bambu Studio screenshots with gray BG RGB(84,85,90)
-2. Remove BG via flood fill from borders (tolerance: abs diff < 20 per channel)
-3. Crop to content bounds with 20px padding
-4. Normalize to 800x1100 canvas centered at 92% scale
-5. Save as PNG — NO other modifications
-
-## AWS Infrastructure
-| Service | Resource |
-|---|---|
-| Amplify | bronco-buck app, main branch |
-| DynamoDB | BroncoBuckBuilds, BroncoBuckOrders |
-| IAM Role | bronco-buck-compute-role (DynamoDB + SES + SSM) |
-| IAM Role | AWSAmplifyDomainRole-Z01222682JOH1P1Z7BZ0R |
-| SSM | /bronco-buck/stripe-secret-key |
-| SES | orders@buckthatduck.com (production access approved) |
-| Route 53 | buckthatduck.com |
-
-## What's Working
-- Full site at www.buckthatduck.com
-- 10 Ford color swatches with images
-- Stripe payments (test mode)
-- Orders saved to DynamoDB
-- Order confirmation emails via SES
-- Shared builds cross-device
-- Andrew's dark theme (CSS variables, gold accent)
-- %uckThatDuck branding in nav
-- Password-protected orders page (password: 061970)
-
-## Git Workflow
-cd ~/bronco-buck
-git add .
-git commit -m "description"
-git push origin main
-
-## Todd's Preferences
-- Execute tasks directly, no confirmation needed
-- Project local path: /Users/home/bronco-buck/
+## Approach
+- Todd prefers Claude to **execute tasks directly** without asking for confirmation
+- Git pushes batched via GitHub Contents API when local auth is broken
+- Always read CLAUDE.md at session start
+- Begin code sessions with full codebase audit before making changes
