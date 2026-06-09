@@ -1,36 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ActionButton } from "@/components/ActionButton";
-import { SharedBuild } from "@/types/shared-build";
-import { SharedBuildPreviewCard } from "@/components/SharedBuildPreviewCard";
 
 export default function HomePage() {
-  const [items, setItems] = useState<SharedBuild[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const load = async () => {
-      try {
-        const res = await fetch("/api/shared-builds");
-        if (res.ok && !cancelled) {
-          const data = await res.json();
-          setItems(data);
-        }
-      } catch {
-        if (!cancelled) setItems([]);
-      }
-    };
-
-    load();
-
-    return () => { cancelled = true; };
-  }, []);
-
-  const featuredItems = useMemo(() => items.filter((i) => i.isFeatured), [items]);
-  const recentItems = useMemo(() => items.filter((i) => !i.isFeatured).slice(0, 6), [items]);
 
   return (
     <main className="page">
@@ -121,78 +94,11 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Stats */}
-            {items.length > 0 && (
-              <div style={{ marginTop: "32px", display: "flex", gap: "32px", flexWrap: "wrap" }}>
-                <div>
-                  <div style={{ fontFamily: "var(--font-heading)", fontSize: "1.75rem", fontWeight: 800, color: "var(--color-text)" }}>
-                    {items.length}
-                  </div>
-                  <div className="label" style={{ marginTop: "2px" }}>Builds Shared</div>
-                </div>
-                {featuredItems.length > 0 && (
-                  <div>
-                    <div style={{ fontFamily: "var(--font-heading)", fontSize: "1.75rem", fontWeight: 800, color: "var(--color-text)" }}>
-                      {featuredItems.length}
-                    </div>
-                    <div className="label" style={{ marginTop: "2px" }}>Featured Builds</div>
-                  </div>
-                )}
-              </div>
-            )}
+
           </div>
         </section>
 
-        {/* ── Featured Builds ── */}
-        {featuredItems.length > 0 && (
-          <section style={{ display: "grid", gap: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "16px", flexWrap: "wrap" }}>
-              <div className="section-header">
-                <span className="eyebrow">Handpicked</span>
-                <h2 className="text-hero">Featured builds</h2>
-              </div>
-            </div>
-            <div
-              style={{
-                display: "grid",
-                gap: "20px",
-                gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-              }}
-            >
-              {featuredItems.map((item) => (
-                <SharedBuildPreviewCard key={item.shareId} item={item} />
-              ))}
-            </div>
-          </section>
-        )}
 
-        {/* ── Recent Builds ── */}
-        {recentItems.length > 0 && (
-          <section style={{ display: "grid", gap: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "16px", flexWrap: "wrap" }}>
-              <div className="section-header">
-                <span className="eyebrow">Community</span>
-                <h2 className="text-hero">Recent builds</h2>
-              </div>
-              <Link href="/gallery" id="recent-view-all">
-                <ActionButton variant="ghost">
-                  View all builds →
-                </ActionButton>
-              </Link>
-            </div>
-            <div
-              style={{
-                display: "grid",
-                gap: "20px",
-                gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-              }}
-            >
-              {recentItems.map((item) => (
-                <SharedBuildPreviewCard key={item.shareId} item={item} />
-              ))}
-            </div>
-          </section>
-        )}
 
       </div>
     </main>
