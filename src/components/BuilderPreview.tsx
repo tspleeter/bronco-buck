@@ -52,7 +52,7 @@ export default function BuilderPreview({
         );
       })}
 
-      {nameplateText && layers.includes("nameplate_custom") && (
+      {nameplateText && (
         <div
           style={{
             position: "absolute",
