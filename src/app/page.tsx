@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ActionButton } from "@/components/ActionButton";
 
 export default function HomePage() {
-
   return (
     <main className="page">
       <div className="page-inner">
@@ -16,50 +16,50 @@ export default function HomePage() {
             overflow: "hidden",
             borderRadius: "var(--radius-xl)",
             border: "1px solid var(--color-border)",
-            background: "linear-gradient(135deg, #1C1917 0%, #0C0A09 60%, #1A1510 100%)",
-            padding: "clamp(32px, 5vw, 64px)",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            minHeight: "520px",
           }}
         >
-          {/* Gold glow blob */}
+          {/* LEFT — text */}
           <div
-            aria-hidden="true"
             style={{
-              position: "absolute",
-              top: "-60px",
-              right: "-60px",
-              width: "360px",
-              height: "360px",
-              borderRadius: "50%",
-              background: "radial-gradient(circle, rgba(202,138,4,0.18) 0%, transparent 70%)",
-              pointerEvents: "none",
+              background: "linear-gradient(135deg, #1C1917 0%, #0C0A09 70%, #1A1510 100%)",
+              padding: "clamp(28px, 4vw, 52px)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              gap: "24px",
+              position: "relative",
+              zIndex: 1,
             }}
-          />
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              bottom: "-40px",
-              left: "20%",
-              width: "280px",
-              height: "280px",
-              borderRadius: "50%",
-              background: "radial-gradient(circle, rgba(202,138,4,0.08) 0%, transparent 70%)",
-              pointerEvents: "none",
-            }}
-          />
+          >
+            {/* Gold glow */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                top: "-60px",
+                right: "-60px",
+                width: "360px",
+                height: "360px",
+                borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(202,138,4,0.18) 0%, transparent 70%)",
+                pointerEvents: "none",
+              }}
+            />
 
-          <div style={{ position: "relative", zIndex: 1 }}>
             {/* Eyebrow */}
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <div className="gold-line" />
               <span className="label" style={{ color: "var(--color-gold)", letterSpacing: "0.14em" }}>
-                Custom Plush Builders
+                Ford Bronco Colors
               </span>
             </div>
 
             {/* Headline */}
-            <h1 className="text-display" style={{ maxWidth: "720px", marginBottom: "20px" }}>
-              Build your perfect{" "}
+            <h1 className="text-display" style={{ marginBottom: 0 }}>
+              Build your{" "}
               <span style={{ color: "var(--color-gold-light)" }}>Bronco Buck.</span>
             </h1>
 
@@ -68,9 +68,8 @@ export default function HomePage() {
               style={{
                 fontSize: "clamp(1rem, 2vw, 1.2rem)",
                 color: "var(--color-text-muted)",
-                maxWidth: "560px",
+                maxWidth: "480px",
                 lineHeight: 1.65,
-                marginBottom: "32px",
               }}
             >
               Customize every detail — body, mane, stand, accessories and more.
@@ -94,12 +93,42 @@ export default function HomePage() {
                 </ActionButton>
               </Link>
             </div>
+          </div>
 
-
+          {/* RIGHT — hero image */}
+          <div
+            style={{
+              position: "relative",
+              background: "#0C0A09",
+              overflow: "hidden",
+            }}
+          >
+            <Image
+              src="/assets/hero-buck-duck.png"
+              alt="Bronco Buck biting a rubber duck"
+              fill
+              style={{
+                objectFit: "contain",
+                objectPosition: "left top",
+                filter: "drop-shadow(0 24px 64px rgba(0,0,0,0.9))",
+              }}
+              priority
+            />
+            {/* Gold glow underneath */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: "10%",
+                width: "80%",
+                height: "80px",
+                background: "radial-gradient(ellipse, rgba(202,138,4,0.22) 0%, transparent 70%)",
+                pointerEvents: "none",
+              }}
+            />
           </div>
         </section>
-
-
 
       </div>
     </main>
