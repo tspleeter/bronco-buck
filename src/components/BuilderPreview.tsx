@@ -56,19 +56,33 @@ export default function BuilderPreview({
         <div
           style={{
             position: "absolute",
-            bottom: "14%",
-            left: "50%",
-            transform: "translateX(-50%)",
-            fontSize: "clamp(10px, 2.5vw, 16px)",
-            fontWeight: 900,
-            letterSpacing: "0.08em",
-            color: "#111",
-            textTransform: "uppercase",
-            whiteSpace: "nowrap",
+            top: "76.5%",
+            left: "10.5%",
+            width: "78.8%",
+            height: "21.1%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "#111",
+            border: "3px solid #ffffff",
+            boxSizing: "border-box",
             pointerEvents: "none",
+            overflow: "hidden",
           }}
         >
-          {nameplateText}
+          <span
+            style={{
+              lineHeight: 1,
+              fontWeight: 600,
+              letterSpacing: "0.06em",
+              color: "#ffffff",
+              fontFamily: "Arial, sans-serif",
+              /* 21.1% of container height × 80% = ~16.9% of total height */
+              fontSize: "16.9cqh",
+            }}
+          >
+            {nameplateText}
+          </span>
         </div>
       )}
     </div>
