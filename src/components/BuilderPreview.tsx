@@ -70,20 +70,19 @@ export default function BuilderPreview({
             overflow: "hidden",
           }}
         >
-          {/* SVG text scales perfectly with the container */}
           <svg
-            viewBox="0 0 100 100"
+            viewBox="0 0 200 100"
             preserveAspectRatio="xMidYMid meet"
-            style={{ width: "90%", height: "80%", overflow: "visible" }}
+            style={{ width: "92%", height: "92%" }}
           >
             <text
-              x="50"
-              y="78"
+              x="100"
+              y="82"
               textAnchor="middle"
               fontFamily="Arial, sans-serif"
               fontWeight="600"
-              letterSpacing="1.5"
-              fontSize="60"
+              letterSpacing="4"
+              fontSize="80"
               fill="#ffffff"
             >
               {nameplateText}
