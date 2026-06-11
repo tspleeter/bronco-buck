@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
 import { getLayerAssetPath, ManeContext } from "@/lib/assets";
 
 interface BuilderPreviewProps {
@@ -19,24 +18,9 @@ export default function BuilderPreview({
   mane,
 }: BuilderPreviewProps) {
   const normalizedView = BODY_VIEWS.includes(view) ? view : "front";
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [containerHeight, setContainerHeight] = useState(0);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => setContainerHeight(el.offsetHeight));
-    ro.observe(el);
-    setContainerHeight(el.offsetHeight);
-    return () => ro.disconnect();
-  }, []);
-
-  // Nameplate plate height is 21.1% of container; text fills 80% of that
-  const plateFontSize = containerHeight > 0 ? containerHeight * 0.211 * 0.80 : 0;
 
   return (
     <div
-      ref={containerRef}
       style={{
         position: "relative",
         width: "100%",
@@ -68,7 +52,7 @@ export default function BuilderPreview({
         );
       })}
 
-      {nameplateText && plateFontSize > 0 && (
+      {nameplateText && (
         <div
           style={{
             position: "absolute",
@@ -86,18 +70,25 @@ export default function BuilderPreview({
             overflow: "hidden",
           }}
         >
-          <span
-            style={{
-              lineHeight: 1,
-              fontWeight: 600,
-              letterSpacing: "0.06em",
-              color: "#ffffff",
-              fontFamily: "Arial, sans-serif",
-              fontSize: `${plateFontSize}px`,
-            }}
+          {/* SVG text scales perfectly with the container */}
+          <svg
+            viewBox="0 0 100 100"
+            preserveAspectRatio="xMidYMid meet"
+            style={{ width: "90%", height: "80%", overflow: "visible" }}
           >
-            {nameplateText}
-          </span>
+            <text
+              x="50"
+              y="78"
+              textAnchor="middle"
+              fontFamily="Arial, sans-serif"
+              fontWeight="600"
+              letterSpacing="1.5"
+              fontSize="60"
+              fill="#ffffff"
+            >
+              {nameplateText}
+            </text>
+          </svg>
         </div>
       )}
     </div>
