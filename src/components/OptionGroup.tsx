@@ -176,7 +176,7 @@ export function OptionGroup({
             placeholder="Enter a name…"
             value={customFieldValue ?? ""}
             onChange={(e) => onCustomFieldChange?.("nameplateText", e.target.value)}
-            maxLength={16}
+            maxLength={12}
             className="input"
           />
         </div>
