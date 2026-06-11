@@ -47,6 +47,11 @@ export function BuildSummary({
             <span>{nameplateText}</span>
           </div>
         )}
+
+        <div className="summary-row" style={{ color: "var(--color-gold)" }}>
+          <strong>🦆 Free Rubber Duck</strong>
+          <span>Included</span>
+        </div>
       </div>
     </section>
   );
