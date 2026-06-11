@@ -77,8 +77,10 @@ export default function BuilderPreview({
               letterSpacing: "0.06em",
               color: "#ffffff",
               fontFamily: "Arial, sans-serif",
-              /* 21.1% of container height × 80% = ~16.9% of total height */
-              fontSize: "16.9cqh",
+              /* 21.1% plate height × 80% text fill — expressed as % of the
+                 overall container height so it scales with the preview box.
+                 0.211 * 0.80 * 100 = 16.88% of container height */
+              fontSize: "16.88%",
             }}
           >
             {nameplateText}
