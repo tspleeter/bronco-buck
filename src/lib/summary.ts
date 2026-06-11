@@ -17,7 +17,11 @@ export function getBuildSummary(
     (a, b) => a.displayOrder - b.displayOrder,
   );
 
+  // Groups hidden from summary until imagery is ready
+  const HIDDEN_GROUPS = new Set(["G2", "G3", "G5", "G6"]);
+
   for (const group of sortedGroups) {
+    if (HIDDEN_GROUPS.has(group.id)) continue;
     const selection = state.selectedOptions[group.id];
 
     if (group.type === "single" && typeof selection === "string" && selection) {
