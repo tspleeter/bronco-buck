@@ -291,9 +291,13 @@ export default function CartPage() {
                     <span style={{ color: "var(--color-text-muted)" }}>Subtotal ({items.length} item{items.length === 1 ? "" : "s"})</span>
                     <span style={{ fontWeight: 600 }}>${subtotal.toFixed(2)}</span>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", fontSize: "0.9rem", borderBottom: "1px solid var(--color-border)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", fontSize: "0.9rem" }}>
                     <span style={{ color: "var(--color-text-muted)" }}>Shipping</span>
                     <span style={{ color: "var(--color-text-dim)", fontStyle: "italic" }}>Calculated at checkout</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", fontSize: "0.9rem", borderBottom: "1px solid var(--color-border)" }}>
+                    <span style={{ color: "var(--color-text-muted)" }}>🦆 Free rubber duck</span>
+                    <span style={{ color: "var(--color-gold)", fontWeight: 600 }}>FREE</span>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", padding: "16px 0 4px", alignItems: "baseline" }}>
                     <span style={{ fontWeight: 700 }}>Total</span>
