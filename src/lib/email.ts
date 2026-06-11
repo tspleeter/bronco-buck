@@ -47,6 +47,10 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
       </table>
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
         <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span style="color:#CA8A04;font-size:14px;">🦆 Free rubber duck</span>
+          <span style="color:#CA8A04;font-size:14px;font-weight:700;">FREE</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
           <span style="color:#A8A29E;font-size:14px;">Subtotal</span>
           <span style="color:#FAFAF9;font-size:14px;">$${order.pricing.subtotal.toFixed(2)}</span>
         </div>
