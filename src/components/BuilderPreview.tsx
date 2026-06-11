@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useEffect, useState } from "react";
 import { getLayerAssetPath, ManeContext } from "@/lib/assets";
 
 interface BuilderPreviewProps {
@@ -18,9 +19,24 @@ export default function BuilderPreview({
   mane,
 }: BuilderPreviewProps) {
   const normalizedView = BODY_VIEWS.includes(view) ? view : "front";
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerHeight, setContainerHeight] = useState(0);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setContainerHeight(el.offsetHeight));
+    ro.observe(el);
+    setContainerHeight(el.offsetHeight);
+    return () => ro.disconnect();
+  }, []);
+
+  // Nameplate plate height is 21.1% of container; text fills 80% of that
+  const plateFontSize = containerHeight > 0 ? containerHeight * 0.211 * 0.80 : 0;
 
   return (
     <div
+      ref={containerRef}
       style={{
         position: "relative",
         width: "100%",
@@ -52,7 +68,7 @@ export default function BuilderPreview({
         );
       })}
 
-      {nameplateText && (
+      {nameplateText && plateFontSize > 0 && (
         <div
           style={{
             position: "absolute",
@@ -77,10 +93,7 @@ export default function BuilderPreview({
               letterSpacing: "0.06em",
               color: "#ffffff",
               fontFamily: "Arial, sans-serif",
-              /* 21.1% plate height × 80% text fill — expressed as % of the
-                 overall container height so it scales with the preview box.
-                 0.211 * 0.80 * 100 = 16.88% of container height */
-              fontSize: "16.88%",
+              fontSize: `${plateFontSize}px`,
             }}
           >
             {nameplateText}
