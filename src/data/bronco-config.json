@@ -223,17 +223,17 @@
       "displayOrder": 7,
       "options": [
         {
-          "id": "V12",
-          "name": "None",
+          "id": "V22",
+          "name": "Buck",
           "priceDelta": 0,
           "imageLayer": "none",
           "layerType": "nameplate",
           "active": true
         },
         {
-          "id": "V22",
-          "name": "Buck",
-          "priceDelta": 2,
+          "id": "V12",
+          "name": "None",
+          "priceDelta": 0,
           "imageLayer": "none",
           "layerType": "nameplate",
           "active": true
