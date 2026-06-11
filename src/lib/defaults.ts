@@ -20,9 +20,13 @@ export function getDefaultBuildState(config: ProductConfig): BuildState {
     }
   }
 
+  // If Buck nameplate is the default selection, pre-fill the custom field
+  const defaultNameplateText =
+    selectedOptions["G7"] === "V22" ? "Buck" : "";
+
   return {
     productId: config.productId,
     selectedOptions,
-    customFields: {},
+    customFields: defaultNameplateText ? { nameplateText: defaultNameplateText } : {},
   };
 }
