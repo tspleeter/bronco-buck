@@ -25,8 +25,10 @@
 - `/orders` route is password-gated ✅
 - Multi-view builder (front/right/back/left) ✅
 - Gallery: 10 color grid, fixed mane defaults per color, links to builder with pre-selected color+mane ✅
-- Home page: Community/Recent builds sections removed ✅
-- Free rubber duck (SVG icon) included with every order — shown in build summary, cart, and confirmation email ✅
+- Home page: two-column hero — text left, Buck+duck photo right (anchored top-left) ✅
+- Hero image: `public/assets/hero-buck-duck.png` (Buck biting rubber duck, black bg removed) ✅
+- Free rubber duck SVG icon included with every order — shown in build summary, cart, confirmation email ✅
+- Nameplate overlay on front view only ✅
 
 ## Configurator — bronco-config.json
 - **Product:** Bronco Buck Classic (BB001), base price $24.99
@@ -47,35 +49,31 @@
 ### Nameplate
 - V22 "Buck" is the default — pre-selected on every new build, free, shows "BUCK" on the preview
 - Custom nameplate (V13) is capped at 12 characters
-- Nameplate overlay uses SVG text positioned precisely on the stand's front panel:
-  - Zone: top 76.5%, left 10.5%, width 78.8%, height 21.1% of preview container
-  - Black background, 3px white border all around
-  - SVG text: viewBox 200×100, fontSize 80, fontWeight 600, white fill
-- Hidden groups (G2, G3, G5, G6) are excluded from `getBuildSummary()` in `src/lib/summary.ts`
+- Nameplate overlay renders on **front view only**
+- Overlay zone: top 76.5%, left 10.5%, width 78.8%, height 21.1% of preview container
+- Black background, 3px white border all around
+- SVG text: viewBox 200×80, fontSize 68, fontWeight 600, white fill, letterSpacing 4
+- Hidden groups (G2, G3, G5, G6) excluded from `getBuildSummary()` in `src/lib/summary.ts`
 
 ### Gallery defaults (mane color per body color)
 - White mane: Ruby Red, Velocity Blue, Shadow Black, Carbonized Gray
 - Black mane: Eruption Green, Oxford White, Cyber Orange, Cactus Gray, Desert Sand, Azure Gray
 
-## Image Assets — `public/assets/body/`
+## Image Assets — `public/assets/`
 
-### Naming Convention
-- Body only: `body_{color}_{view}.png`
-- With mane: `body_{color}_{view}_regmane_{mane_color}.png`
-- Views: `front`, `back`, `left`, `right` (side exists in files but not used in UI)
+### Hero image
+- `hero-buck-duck.png` — photo of blue Buck biting a yellow rubber duck, black background removed
+- Used in homepage two-column hero, `objectPosition: left top`, `objectFit: contain`
+
+### Body renders — `public/assets/body/`
+- Naming: `body_{color}_{view}_regmane_{mane_color}.png`
+- Views in UI: `front`, `back`, `left`, `right` (`side` files exist but not used)
 - Mane colors: `black`, `white`
-
-### Coverage (all 10 colors)
-All 10 Ford Bronco colors have the following views complete:
-- `front` (body only)
-- `front_regmane_black`, `front_regmane_white`
-- `back_regmane_black`, `back_regmane_white`
-- `left_regmane_black`, `left_regmane_white`
-- `right_regmane_black`, `right_regmane_white`
+- All 10 colors complete for all 4 views + both mane colors
 
 **Colors:** azure_gray, cactus_gray, carbonized_gray, cyber_orange, desert_sand, eruption_green, oxford_white, ruby_red, shadow_black, velocity_blue
 
-**Legacy/unused files** (safe to ignore): `body_black_*`, `body_blue.png`, `body_red.png`, `body_green.png`, `body_grey_front.png`, `body_cyan_front.png`, `body_yellow_front.png`, `body_eruption_green_front-regmane_white.png`
+**Legacy/unused files** (safe to ignore): `body_black_*`, `body_blue.png`, `body_red.png`, `body_green.png`, `body_grey_front.png`, `body_cyan_front.png`, `body_yellow_front.png`
 
 ### Pending image work
 - Mane style images (Short vs Punk) — builder UI exists, layers disabled until photos arrive
@@ -102,7 +100,9 @@ All 10 Ford Bronco colors have the following views complete:
 - **Amplify deploy check:** Site returns 403 to external requests — not a failure; check Amplify console
 - **Preview aspect ratio:** 990/1294 (≈3/4)
 - **CSS font-size % on spans** is relative to inherited font-size, not container height — use SVG text for size-relative nameplate text
-- **`cqh` units** require container query context (`container-type`) to be set — don't use without it
+- **`cqh` units** require `container-type` to be set on the parent — don't use without it
+- **rembg / AI background removal** requires downloading a model (~170MB) from GitHub — blocked by network policy; use GrabCut (OpenCV) or remove.bg instead
+- **White subjects on white backgrounds** can't be cleanly separated with flood-fill — use remove.bg or photograph against a dark background
 
 ## Approach
 - Todd prefers Claude to **execute tasks directly** without asking for confirmation
