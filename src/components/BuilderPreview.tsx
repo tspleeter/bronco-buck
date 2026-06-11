@@ -52,7 +52,7 @@ export default function BuilderPreview({
         );
       })}
 
-      {nameplateText && (
+      {nameplateText && normalizedView === "front" && (
         <div
           style={{
             position: "absolute",
