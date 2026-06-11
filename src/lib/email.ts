@@ -47,7 +47,16 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
       </table>
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
         <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-          <span style="color:#CA8A04;font-size:14px;">🦆 Free rubber duck</span>
+          <span style="color:#CA8A04;font-size:14px;"><svg width="22" height="18" viewBox="0 0 200 165" xmlns="http://www.w3.org/2000/svg" style="display:inline;vertical-align:middle;margin-right:6px">
+  <path d="M18 138 C8 110,12 80,32 62 C48 48,72 38,96 38 C122 38,150 48,164 68 C178 90,176 125,164 142 C144 165,52 168,18 138Z" fill="#F5C800"/>
+  <path d="M20 118 C2 106,-4 88,6 74 C12 66,22 70,18 80 C14 90,18 102,28 108" fill="#F5C800" stroke="#D4A800" stroke-width="1"/>
+  <ellipse cx="118" cy="44" rx="18" ry="20" fill="#F5C800"/>
+  <circle cx="126" cy="26" r="26" fill="#F5C800"/>
+  <path d="M146 22 Q178 14 176 26 Q178 34 146 32Z" fill="#E86000"/>
+  <path d="M146 32 Q178 34 174 44 Q170 50 146 40Z" fill="#C84800"/>
+  <circle cx="140" cy="18" r="6" fill="#111"/>
+  <circle cx="142" cy="15" r="2" fill="white"/>
+</svg>Free rubber duck</span>
           <span style="color:#CA8A04;font-size:14px;font-weight:700;">FREE</span>
         </div>
         <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
