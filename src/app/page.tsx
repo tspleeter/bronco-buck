@@ -34,7 +34,6 @@ export default function HomePage() {
               zIndex: 1,
             }}
           >
-            {/* Gold glow */}
             <div
               aria-hidden="true"
               style={{
@@ -49,7 +48,6 @@ export default function HomePage() {
               }}
             />
 
-            {/* Eyebrow */}
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <div className="gold-line" />
               <span className="label" style={{ color: "var(--color-gold)", letterSpacing: "0.14em" }}>
@@ -57,13 +55,11 @@ export default function HomePage() {
               </span>
             </div>
 
-            {/* Headline */}
             <h1 className="text-display" style={{ marginBottom: 0 }}>
               Build your{" "}
               <span style={{ color: "var(--color-gold-light)" }}>Bronco Buck.</span>
             </h1>
 
-            {/* Subtitle */}
             <p
               style={{
                 fontSize: "clamp(1rem, 2vw, 1.2rem)",
@@ -77,7 +73,6 @@ export default function HomePage() {
               Proudly made in the USA. 🇺🇸
             </p>
 
-            {/* CTAs */}
             <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
               <Link href="/build/bronco-buck-classic" id="hero-start-building">
                 <ActionButton variant="primary" size="lg">
@@ -115,24 +110,24 @@ export default function HomePage() {
               priority
             />
 
-            {/* Free duck badge */}
+            {/* Free duck badge — upper area of image */}
             <div
               style={{
                 position: "absolute",
-                bottom: "16px",
+                top: "16px",
                 right: "16px",
-                background: "rgba(12,10,9,0.85)",
-                border: "1px solid rgba(202,138,4,0.5)",
+                background: "rgba(12,10,9,0.88)",
+                border: "1px solid rgba(202,138,4,0.6)",
                 borderRadius: "100px",
-                padding: "8px 16px",
+                padding: "12px 22px",
                 display: "flex",
                 alignItems: "center",
-                gap: "8px",
+                gap: "10px",
                 backdropFilter: "blur(8px)",
                 zIndex: 2,
               }}
             >
-              <svg width="20" height="16" viewBox="0 0 200 165" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <svg width="28" height="22" viewBox="0 0 200 165" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <path d="M18 138 C8 110,12 80,32 62 C48 48,72 38,96 38 C122 38,150 48,164 68 C178 90,176 125,164 142 C144 165,52 168,18 138Z" fill="#F5C800"/>
                 <path d="M18 138 C8 110,12 80,32 62 C24 85,24 120,40 148 C28 152,22 146,18 138Z" fill="#D4A800" opacity="0.5"/>
                 <path d="M20 118 C2 106,-4 88,6 74 C12 66,22 70,18 80 C14 90,18 102,28 108" fill="#F5C800" stroke="#D4A800" stroke-width="1"/>
@@ -143,12 +138,11 @@ export default function HomePage() {
                 <circle cx="140" cy="18" r="6" fill="#111"/>
                 <circle cx="142" cy="15" r="2" fill="white"/>
               </svg>
-              <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#fafaf9", whiteSpace: "nowrap" }}>
+              <span style={{ fontSize: "1rem", fontWeight: 700, color: "#fafaf9", whiteSpace: "nowrap" }}>
                 Free rubber duck with every order
               </span>
             </div>
 
-            {/* Gold glow underneath */}
             <div
               aria-hidden="true"
               style={{
