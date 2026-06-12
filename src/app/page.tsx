@@ -138,7 +138,7 @@ export default function HomePage() {
 
           </div>
 
-          {/* Free duck badge — below image, centered */}
+          {/* Free duck badge — below image, centered, links to builder */}
           <div
             style={{
               background: "#0C0A09",
@@ -147,6 +147,7 @@ export default function HomePage() {
               padding: "16px 24px 24px",
             }}
           >
+            <Link href="/build/bronco-buck-classic">
             <div
               style={{
                 background: "rgba(28,25,23,0.95)",
@@ -156,6 +157,8 @@ export default function HomePage() {
                 display: "flex",
                 alignItems: "center",
                 gap: "10px",
+                cursor: "pointer",
+                transition: "border-color 200ms, background 200ms",
               }}
             >
               <svg width="28" height="22" viewBox="0 0 200 165" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -173,6 +176,7 @@ export default function HomePage() {
                 Free rubber duck with every order
               </span>
             </div>
+            </Link>
           </div>
 
         </section>
