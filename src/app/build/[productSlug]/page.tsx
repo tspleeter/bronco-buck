@@ -23,6 +23,7 @@ import { PriceSummary } from "@/components/PriceSummary";
 import { BuildSummary } from "@/components/BuildSummary";
 import { Toast } from "@/components/Toast";
 import { ActionButton } from "@/components/ActionButton";
+import { ShareModal } from "@/components/ShareModal";
 import { useSavedBuilds } from "@/components/SavedBuildsProvider";
 
 /* ── Icons ── */
@@ -69,6 +70,7 @@ export default function BuildPage() {
   const [message, setMessage] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [isLoading, setIsLoading] = useState(!!shareId);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
 
   const [buildState, setBuildState] = useState(() =>
     getDefaultBuildState(broncoConfig),
@@ -257,12 +259,7 @@ export default function BuildPage() {
       return;
     }
     const url = `${window.location.origin}/share/${id}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      flash("Link copied to clipboard!");
-    } catch {
-      flash(url);
-    }
+    setShareUrl(url);
   };
 
   if (isLoading) {
@@ -438,5 +435,14 @@ export default function BuildPage() {
         </div>
       )}
     </main>
+
+      {/* Share modal */}
+      {shareUrl && (
+        <ShareModal
+          shareUrl={shareUrl}
+          buildName={getBuildName()}
+          onClose={() => setShareUrl(null)}
+        />
+      )}
   );
 }
