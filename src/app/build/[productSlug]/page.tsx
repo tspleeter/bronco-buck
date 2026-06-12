@@ -274,6 +274,7 @@ export default function BuildPage() {
   }
 
   return (
+    <>
     <main className="page">
       <div
         className="page-inner"
@@ -436,7 +437,6 @@ export default function BuildPage() {
       )}
     </main>
 
-      {/* Share modal */}
       {shareUrl && (
         <ShareModal
           shareUrl={shareUrl}
@@ -444,5 +444,6 @@ export default function BuildPage() {
           onClose={() => setShareUrl(null)}
         />
       )}
+    </>
   );
 }
