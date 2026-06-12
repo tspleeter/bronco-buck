@@ -10,14 +10,26 @@ interface ShareModalProps {
 
 export function ShareModal({ shareUrl, buildName, onClose }: ShareModalProps) {
   const [copied, setCopied] = useState(false);
+  const [copiedPlatform, setCopiedPlatform] = useState<string | null>(null);
 
   const encoded = encodeURIComponent(shareUrl);
-  const text = encodeURIComponent(`Check out my custom Bronco Buck: ${buildName}`);
+  const text = encodeURIComponent(`Check out my custom Bronco Buck: ${buildName} — ${shareUrl}`);
+
+  const handleCopy = async (platform?: string) => {
+    try { await navigator.clipboard.writeText(shareUrl); } catch { /* fallback */ }
+    if (platform) {
+      setCopiedPlatform(platform);
+      setTimeout(() => setCopiedPlatform(null), 2500);
+    } else {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
 
   const platforms = [
     {
       name: "Facebook",
-      href: `https://www.facebook.com/sharer/sharer.php?u=${encoded}`,
+      action: () => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encoded}`, "_blank", "noopener,noreferrer,width=600,height=500"),
       color: "#1877F2",
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -27,8 +39,8 @@ export function ShareModal({ shareUrl, buildName, onClose }: ShareModalProps) {
     },
     {
       name: "X / Twitter",
-      href: `https://twitter.com/intent/tweet?url=${encoded}&text=${text}`,
-      color: "#000000",
+      action: () => window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank", "noopener,noreferrer,width=600,height=500"),
+      color: "#fff",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
@@ -36,8 +48,8 @@ export function ShareModal({ shareUrl, buildName, onClose }: ShareModalProps) {
       ),
     },
     {
-      name: "Instagram",
-      href: null, // Instagram has no web share URL — copy link
+      name: copiedPlatform === "Instagram" ? "Link copied!" : "Instagram",
+      action: () => handleCopy("Instagram"),
       color: "#E1306C",
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -46,9 +58,9 @@ export function ShareModal({ shareUrl, buildName, onClose }: ShareModalProps) {
       ),
     },
     {
-      name: "TikTok",
-      href: null, // TikTok has no web share URL — copy link
-      color: "#000000",
+      name: copiedPlatform === "TikTok" ? "Link copied!" : "TikTok",
+      action: () => handleCopy("TikTok"),
+      color: "#fff",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
@@ -57,33 +69,13 @@ export function ShareModal({ shareUrl, buildName, onClose }: ShareModalProps) {
     },
   ];
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-    } catch {
-      /* fallback */
-    }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-  };
-
-  const handlePlatformClick = (platform: typeof platforms[0]) => {
-    if (platform.href) {
-      window.open(platform.href, "_blank", "noopener,noreferrer,width=600,height=500");
-    } else {
-      // Instagram / TikTok — copy link and show hint
-      handleCopy();
-    }
-  };
-
   return (
     <>
       {/* Backdrop */}
       <div
         onClick={onClose}
         style={{
-          position: "fixed",
-          inset: 0,
+          position: "fixed", inset: 0,
           background: "rgba(0,0,0,0.7)",
           backdropFilter: "blur(4px)",
           zIndex: 100,
@@ -92,10 +84,12 @@ export function ShareModal({ shareUrl, buildName, onClose }: ShareModalProps) {
 
       {/* Modal */}
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Share your build"
         style={{
           position: "fixed",
-          top: "50%",
-          left: "50%",
+          top: "50%", left: "50%",
           transform: "translate(-50%, -50%)",
           zIndex: 101,
           background: "#1C1917",
@@ -107,9 +101,6 @@ export function ShareModal({ shareUrl, buildName, onClose }: ShareModalProps) {
           flexDirection: "column",
           gap: "24px",
         }}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Share your build"
       >
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -117,26 +108,17 @@ export function ShareModal({ shareUrl, buildName, onClose }: ShareModalProps) {
             <h2 style={{ fontWeight: 800, fontSize: "1.25rem", color: "#fafaf9", marginBottom: 4 }}>
               Share your Buck
             </h2>
-            <p style={{ fontSize: "0.85rem", color: "#a8a29e" }}>
-              Show the world what you built
-            </p>
+            <p style={{ fontSize: "0.85rem", color: "#a8a29e" }}>Show the world what you built</p>
           </div>
           <button
             onClick={onClose}
-            style={{
-              background: "rgba(255,255,255,0.07)",
-              border: "none",
-              borderRadius: "50%",
-              width: 36,
-              height: 36,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              color: "#a8a29e",
-              flexShrink: 0,
-            }}
             aria-label="Close"
+            style={{
+              background: "rgba(255,255,255,0.07)", border: "none",
+              borderRadius: "50%", width: 36, height: 36,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer", color: "#a8a29e", flexShrink: 0,
+            }}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -149,23 +131,15 @@ export function ShareModal({ shareUrl, buildName, onClose }: ShareModalProps) {
           {platforms.map((p) => (
             <button
               key={p.name}
-              onClick={() => handlePlatformClick(p)}
+              onClick={p.action}
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                padding: "12px 16px",
-                borderRadius: 12,
+                display: "flex", alignItems: "center", gap: "10px",
+                padding: "12px 16px", borderRadius: 12,
                 border: "1px solid rgba(255,255,255,0.1)",
-                background: "rgba(255,255,255,0.04)",
-                color: "#fafaf9",
-                fontWeight: 600,
-                fontSize: "0.88rem",
-                cursor: "pointer",
-                transition: "background 150ms",
+                background: p.name.includes("copied") ? "rgba(202,138,4,0.15)" : "rgba(255,255,255,0.04)",
+                color: "#fafaf9", fontWeight: 600, fontSize: "0.85rem",
+                cursor: "pointer", transition: "background 150ms", textAlign: "left",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.09)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
             >
               <span style={{ color: p.color, flexShrink: 0 }}>{p.icon}</span>
               {p.name}
@@ -180,46 +154,32 @@ export function ShareModal({ shareUrl, buildName, onClose }: ShareModalProps) {
           <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.08)" }} />
         </div>
 
-        {/* Copy link */}
+        {/* Copy link bar */}
         <div style={{ display: "flex", gap: "8px" }}>
-          <div
-            style={{
-              flex: 1,
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: 10,
-              padding: "10px 14px",
-              fontSize: "0.8rem",
-              color: "#a8a29e",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
+          <div style={{
+            flex: 1, background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10,
+            padding: "10px 14px", fontSize: "0.8rem", color: "#a8a29e",
+            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          }}>
             {shareUrl}
           </div>
           <button
-            onClick={handleCopy}
+            onClick={() => handleCopy()}
             style={{
               background: copied ? "#CA8A04" : "rgba(255,255,255,0.08)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: 10,
-              padding: "10px 16px",
-              color: copied ? "#0C0A09" : "#fafaf9",
-              fontWeight: 700,
-              fontSize: "0.85rem",
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-              transition: "background 200ms, color 200ms",
+              border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10,
+              padding: "10px 16px", color: copied ? "#0C0A09" : "#fafaf9",
+              fontWeight: 700, fontSize: "0.85rem", cursor: "pointer",
+              whiteSpace: "nowrap", transition: "background 200ms, color 200ms",
             }}
           >
             {copied ? "Copied!" : "Copy"}
           </button>
         </div>
 
-        {/* Instagram / TikTok note */}
         <p style={{ fontSize: "0.78rem", color: "#57534e", textAlign: "center", marginTop: -8 }}>
-          For Instagram &amp; TikTok, copy the link and paste it in your post or bio.
+          For Instagram &amp; TikTok, tap the button to copy the link, then paste it in your post or bio.
         </p>
       </div>
     </>
