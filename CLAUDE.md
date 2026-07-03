@@ -20,6 +20,7 @@
 - SES order confirmation emails ✅
 - Route 53 custom domain live ✅
 - `/policies` page (Returns, Shipping, FAQ) ✅
+- `/policies/privacy` — Privacy Policy page (Pleeter LLC, 8 Nelke Ct, Hawthorne NJ 07506; Stripe carve-out for card data; AWS named as host; CCPA/GDPR/NJ + multi-state rights). Markdown source copy in `docs/privacy-policy.md`. Footer "Privacy" link added in `layout.tsx` ✅
 - Sitewide footer with Pleeter LLC copyright and "🇺🇸 Proudly made in the USA" ✅
 - Dark theme UI with gold accents (Andrew's redesign) ✅
 - `/orders` route is password-gated ✅
