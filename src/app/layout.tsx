@@ -37,6 +37,9 @@ export default function RootLayout({
             <Link href="/policies" style={{ color: "var(--color-text-dim)", textDecoration: "none" }}>
               FAQ
             </Link>
+            <Link href="/policies/privacy" style={{ color: "var(--color-text-dim)", textDecoration: "none" }}>
+              Privacy
+            </Link>
           </footer>
         </SavedBuildsProvider>
       </body>
