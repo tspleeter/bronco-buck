@@ -69,7 +69,7 @@ export default function OrdersLoginPage() {
               {error}
             </p>
           )}
-          <ActionButton variant="primary">Enter</ActionButton>
+          <ActionButton variant="primary" type="submit">Enter</ActionButton>
         </form>
       </div>
     </main>
