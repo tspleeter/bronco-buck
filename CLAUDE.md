@@ -30,6 +30,9 @@
 - Hero image: `public/assets/hero-buck-duck.png` (Buck biting rubber duck, black bg removed) ✅
 - Free rubber duck SVG icon included with every order — shown in build summary, cart, confirmation email ✅
 - Nameplate overlay on front view only ✅
+- `/policies/terms` — Terms of Service page (Pleeter LLC; Ford non-affiliation disclaimer; NJ governing law — **confirm state of registration**; references /policies for returns/shipping; markdown source in `docs/terms-of-service.md`). Footer "Terms" link added in `layout.tsx` ✅
+- `src/middleware.ts` → `src/proxy.ts` migration (Next 16; exported `proxy` function, stray `"use server"` removed) ✅
+- `npm run lint` fixed — `next lint` (removed in Next 16) replaced with `eslint .` + `eslint.config.mjs` flat config (FlatCompat extending next/core-web-vitals + next/typescript); `@eslint/eslintrc` added to devDependencies ✅
 
 ## Configurator — bronco-config.json
 - **Product:** Bronco Buck Classic (BB001), base price $24.99
