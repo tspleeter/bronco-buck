@@ -71,7 +71,7 @@ export default function BuilderPreview({
             top: "76.5%",
             left: "10.5%",
             width: "78.8%",
-            height: "21.1%",
+            height: "18.0%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
