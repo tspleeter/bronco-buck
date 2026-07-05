@@ -219,7 +219,7 @@
           "imageLayer": "stand_black",
           "priceDelta": 3,
           "layerType": "stand-color",
-          "active": false
+          "active": true
         },
         {
           "id": "V24",
@@ -227,7 +227,7 @@
           "imageLayer": "stand_brown",
           "priceDelta": 3,
           "layerType": "stand-color",
-          "active": false
+          "active": true
         },
         {
           "id": "V25",
@@ -235,7 +235,7 @@
           "imageLayer": "stand_sand",
           "priceDelta": 3,
           "layerType": "stand-color",
-          "active": false
+          "active": true
         },
         {
           "id": "V10",
