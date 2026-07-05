@@ -60,9 +60,9 @@
 - Overlay zone: top 76.5%, left 10.5%, width 78.8%, height 21.1% of preview container
 - Black background, 3px white border all around
 - SVG text: viewBox 200×80, fontSize 68, fontWeight 600, white fill, letterSpacing 4
-- Hidden groups (G2, G5) excluded from `getBuildSummary()` in `src/lib/summary.ts` (G3 + G6 unhidden July 2026)
+- Hidden groups (G5 only) excluded from `getBuildSummary()` in `src/lib/summary.ts` (G2 + G3 + G6 unhidden July 2026 — paid selections must be itemized)
 - **Defaults gotcha:** `getDefaultBuildState()` selects the FIRST active option in each group — the config `default` field is not read. Order options accordingly.
-- **KNOWN ISSUE:** G2 V5 "Punk" mane charges +$3 but renders as regular mane (MANE_STYLE_MAP maps V4 and V5 both to "reg") and is hidden from the summary — a customer can silently pay $3 for nothing. Needs either Punk renders or deactivation.
+- G2 V5 "Punk" is a real product style (+$3, confirmed by Todd July 2026) — now itemized in summary; preview still renders regular mane until punk renders land (then update MANE_STYLE_MAP V5→"punk"; files follow `body_{color}_{view}_punkmane_{mane_color}.png`)
 
 ### Gallery defaults (mane color per body color)
 - White mane: Ruby Red, Velocity Blue, Shadow Black, Carbonized Gray
