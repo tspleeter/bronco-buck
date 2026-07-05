@@ -8,6 +8,7 @@ import type { ProductConfig } from "@/types/product";
 const broncoConfig = broncoConfigJson as ProductConfig;
 import { getSavedBuildById } from "@/lib/saved-builds";
 import { getSelectedLayers } from "@/lib/layers";
+import { getManeContext } from "@/lib/mane";
 import { getBuildSummary } from "@/lib/summary";
 import { addToCart } from "@/lib/cart";
 import { SavedBuild } from "@/types/saved-build";
@@ -192,6 +193,7 @@ export default function SavedBuildPage() {
               layers={layers}
               view={view}
               nameplateText={build.customFields?.nameplateText}
+              mane={getManeContext(build.selectedOptions)}
             />
 
             <BuildSummary
