@@ -14,6 +14,7 @@ const COLORS = [
   { id: "V19", name: "Cactus Gray",     imageLayer: "body_cactus_gray",     mane: "black", maneId: "V6" },
   { id: "V20", name: "Desert Sand",     imageLayer: "body_desert_sand",     mane: "black", maneId: "V6" },
   { id: "V21", name: "Azure Gray",      imageLayer: "body_azure_gray",      mane: "black", maneId: "V6" },
+  { id: "V23", name: "Robin's Egg Blue", imageLayer: "body_robins_egg_blue", mane: "black", maneId: "V6" },
 ];
 
 export default function GalleryPage() {
@@ -66,7 +67,7 @@ export default function GalleryPage() {
                 marginBottom: "28px",
               }}
             >
-              All 10 Ford Bronco colors, rendered in full 3D. Click any Buck to
+              All 11 Ford Bronco colors, rendered in full 3D. Click any Buck to
               start customizing yours.
             </p>
 
