@@ -18,7 +18,7 @@ export function getBuildSummary(
   );
 
   // Groups hidden from summary until imagery is ready
-  const HIDDEN_GROUPS = new Set(["G2", "G3", "G5", "G6"]);
+  const HIDDEN_GROUPS = new Set(["G2", "G5"]);
 
   for (const group of sortedGroups) {
     if (HIDDEN_GROUPS.has(group.id)) continue;
