@@ -102,6 +102,14 @@
           "priceDelta": 0,
           "layerType": "body",
           "active": true
+        },
+        {
+          "id": "V23",
+          "name": "Robin's Egg Blue",
+          "imageLayer": "body_robins_egg_blue",
+          "priceDelta": 0,
+          "layerType": "body",
+          "active": true
         }
       ],
       "default": "V1"
