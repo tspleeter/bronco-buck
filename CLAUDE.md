@@ -46,10 +46,10 @@
 |----|-------|---------|
 | G1 | Body Color | V1 Ruby Red, V2 Velocity Blue, V3 Shadow Black, V15 Eruption Green, V16 Oxford White, V17 Cyber Orange, V18 Carbonized Gray, V19 Cactus Gray, V20 Desert Sand, V21 Azure Gray, V23 Robin's Egg Blue |
 | G2 | Mane Style | V4 Short (+$0), V5 Punk (+$3) — **hidden from cart summary until imagery ready** |
-| G3 | Mane Color | V6 Black (+$0), V7 White (+$2) — **hidden from cart summary until imagery ready** |
+| G3 | Mane Color | V6 Black (+$0), V7 White (+$2) — now shown in cart summary (imagery is baked into body renders) |
 | G4 | Accessories | V8 Sunglasses (+$4) |
 | G5 | Stand Style | V9 Standard (+$0) — **hidden from cart summary until imagery ready** |
-| G6 | Stand Color | V10 Black (+$0), V11 Red (+$1) — **hidden from cart summary until imagery ready** |
+| G6 | Stand Color | V26 Match Body (+$0, default, first), V27 Black (+$3, inactive until renders), V24 Brown (+$3, inactive), V25 Sand (+$3, inactive); V10/V11 retired but kept in config so old saved builds price correctly |
 | G7 | Nameplate | V22 Buck (+$0, default, pre-selected), V12 None, V13 Custom (+$5) |
 | G8 | Packaging | V14 Standard Box (+$0) |
 
@@ -60,7 +60,9 @@
 - Overlay zone: top 76.5%, left 10.5%, width 78.8%, height 21.1% of preview container
 - Black background, 3px white border all around
 - SVG text: viewBox 200×80, fontSize 68, fontWeight 600, white fill, letterSpacing 4
-- Hidden groups (G2, G3, G5, G6) excluded from `getBuildSummary()` in `src/lib/summary.ts`
+- Hidden groups (G2, G5) excluded from `getBuildSummary()` in `src/lib/summary.ts` (G3 + G6 unhidden July 2026)
+- **Defaults gotcha:** `getDefaultBuildState()` selects the FIRST active option in each group — the config `default` field is not read. Order options accordingly.
+- **KNOWN ISSUE:** G2 V5 "Punk" mane charges +$3 but renders as regular mane (MANE_STYLE_MAP maps V4 and V5 both to "reg") and is hidden from the summary — a customer can silently pay $3 for nothing. Needs either Punk renders or deactivation.
 
 ### Gallery defaults (mane color per body color)
 - White mane: Ruby Red, Velocity Blue, Shadow Black, Carbonized Gray
@@ -85,6 +87,7 @@
 **Legacy/unused files** (safe to ignore): `body_black_*`, `body_blue.png`, `body_red.png`, `body_green.png`, `body_grey_front.png`, `body_cyan_front.png`, `body_yellow_front.png`
 
 ### Pending image work
+- **Stand colors (V27 Black / V24 Brown / V25 Sand):** need 12 Bambu screenshots — the 4 standard views × 3 stand colors, rendered with any ONE existing body color (Robin's Egg Blue or Azure Gray recommended) and the SAME camera framing as body renders. Stand overlays get extracted by diffing against the matching existing body render, saved as `public/assets/stand-color/stand_{color}_{view}.png` (transparent PNG, 990×1294). Then flip V27/V24/V25 active:true.
 - Mane style images (Short vs Punk) — builder UI exists, layers disabled until photos arrive
 - Stand style/color preview images
 - Accessory (sunglasses) layer images
