@@ -206,20 +206,52 @@
       "displayOrder": 6,
       "options": [
         {
-          "id": "V10",
-          "name": "Black",
-          "priceDelta": 0,
+          "id": "V26",
+          "name": "Match Body",
           "imageLayer": "none",
+          "priceDelta": 0,
           "layerType": "stand-color",
           "active": true
         },
         {
+          "id": "V27",
+          "name": "Black",
+          "imageLayer": "stand_black",
+          "priceDelta": 3,
+          "layerType": "stand-color",
+          "active": false
+        },
+        {
+          "id": "V24",
+          "name": "Brown",
+          "imageLayer": "stand_brown",
+          "priceDelta": 3,
+          "layerType": "stand-color",
+          "active": false
+        },
+        {
+          "id": "V25",
+          "name": "Sand",
+          "imageLayer": "stand_sand",
+          "priceDelta": 3,
+          "layerType": "stand-color",
+          "active": false
+        },
+        {
+          "id": "V10",
+          "name": "Black",
+          "imageLayer": "none",
+          "priceDelta": 0,
+          "layerType": "stand-color",
+          "active": false
+        },
+        {
           "id": "V11",
           "name": "Red",
-          "priceDelta": 1,
           "imageLayer": "none",
+          "priceDelta": 1,
           "layerType": "stand-color",
-          "active": true
+          "active": false
         }
       ]
     },
