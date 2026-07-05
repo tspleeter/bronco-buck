@@ -52,6 +52,18 @@ export default function BuilderPreview({
         );
       })}
 
+      {/* Preload every layer for the other views so a view switch swaps all
+          layers together from cache instead of loading them one by one. */}
+      <div style={{ display: "none" }} aria-hidden="true">
+        {BODY_VIEWS.filter((v) => v !== normalizedView).map((v) =>
+          layers.map((layer) => {
+            const src = getLayerAssetPath(layer, v, mane);
+            if (!src) return null;
+            return <img key={`preload-${layer}-${v}`} src={src} alt="" />;
+          }),
+        )}
+      </div>
+
       {nameplateText && normalizedView === "front" && (
         <div
           style={{
