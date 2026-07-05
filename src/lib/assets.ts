@@ -10,6 +10,7 @@ const VIEW_DEPENDENT_LAYERS = new Set([
   "body_cactus_gray",
   "body_desert_sand",
   "body_azure_gray",
+  "body_robins_egg_blue",
 ]);
 
 // These views only have mane-baked images, no bare body image
@@ -30,6 +31,7 @@ const LAYER_FOLDERS: Record<string, string> = {
   body_cactus_gray: "body",
   body_desert_sand: "body",
   body_azure_gray: "body",
+  body_robins_egg_blue: "body",
   accessory_sunglasses: "accessories",
   stand_standard: "stand-style",
   stand_black: "stand-color",
