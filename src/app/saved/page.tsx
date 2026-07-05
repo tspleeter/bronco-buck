@@ -8,6 +8,7 @@ const broncoConfig = broncoConfigJson as ProductConfig;
 import { getSavedBuilds, removeSavedBuild } from "@/lib/saved-builds";
 import { useSavedBuilds } from "@/components/SavedBuildsProvider";
 import { getSelectedLayers } from "@/lib/layers";
+import { getManeContext } from "@/lib/mane";
 import { SavedBuild } from "@/types/saved-build";
 import BuilderPreview from "@/components/BuilderPreview";
 import { ActionButton } from "@/components/ActionButton";
@@ -123,6 +124,7 @@ export default function SavedBuildsPage() {
                     layers={layers}
                     view="front"
                     nameplateText={build.customFields?.nameplateText}
+                    mane={getManeContext(build.selectedOptions)}
                   />
 
                   <div>
