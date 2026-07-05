@@ -18,6 +18,7 @@ import {
 } from "@/lib/saved-builds";
 import BuilderPreview from "@/components/BuilderPreview";
 import type { ManeContext } from "@/lib/assets";
+import { getManeContext } from "@/lib/mane";
 import { OptionGroup } from "@/components/OptionGroup";
 import { PriceSummary } from "@/components/PriceSummary";
 import { BuildSummary } from "@/components/BuildSummary";
@@ -159,16 +160,10 @@ export default function BuildPage() {
     [buildState],
   );
 
-  const maneContext = useMemo((): ManeContext | undefined => {
-    const MANE_STYLE_MAP: Record<string, string> = { V4: "reg", V5: "reg" };
-    const MANE_COLOR_MAP: Record<string, string> = { V6: "black", V7: "white" };
-    const styleId = buildState.selectedOptions["G2"] as string | undefined;
-    const colorId = buildState.selectedOptions["G3"] as string | undefined;
-    const style = styleId ? MANE_STYLE_MAP[styleId] : undefined;
-    const color = colorId ? MANE_COLOR_MAP[colorId] : undefined;
-    if (style && color) return { style, color };
-    return undefined;
-  }, [buildState]);
+  const maneContext = useMemo(
+    (): ManeContext => getManeContext(buildState.selectedOptions),
+    [buildState],
+  );
 
   const getBuildName = () => {
     const body = buildState.selectedOptions["G1"];
