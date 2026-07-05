@@ -9,6 +9,7 @@ import { getCart, saveCart, clearCart } from "@/lib/cart";
 import { CartItem } from "@/types/cart";
 import { getGroupName, getOptionName } from "@/lib/product-display";
 import { getSelectedLayers } from "@/lib/layers";
+import { getManeContext } from "@/lib/mane";
 import { ActionButton } from "@/components/ActionButton";
 import { Toast } from "@/components/Toast";
 import BuilderPreview from "@/components/BuilderPreview";
@@ -188,6 +189,7 @@ export default function CartPage() {
                           layers={layers}
                           view="front"
                           nameplateText={item.customFields?.nameplateText}
+                          mane={getManeContext(item.selectedOptions)}
                         />
                       </div>
 
