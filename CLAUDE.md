@@ -86,6 +86,10 @@
 
 **Legacy/unused files** (safe to ignore): `body_black_*`, `body_blue.png`, `body_red.png`, `body_green.png`, `body_grey_front.png`, `body_cyan_front.png`, `body_yellow_front.png`
 
+### Preview rendering notes (July 2026)
+- `getManeContext()` in `src/lib/mane.ts` is the single source for deriving mane style/color from selections; it FALLS BACK to reg/black because body renders only exist mane-baked. Cart previously omitted the mane prop entirely → body img 404'd → empty cart pictures.
+- `BuilderPreview` preloads all 4 views of every selected layer via hidden imgs so view switches swap body + stand overlays together from cache.
+
 ### Pending image work
 - **Stand overlays learnings (July 2026):** side-view screenshots can have slight camera-orbit parallax vs originals (head shifts relative to stand). Alignment must refine on the stand band (y>850) after coarse global alignment. Light stand colors (sand) can fail diff-threshold extraction near highlights — use the black stand's alpha as the canonical stencil for all colors of the same view. Todd's Bambu layout has 4 filament slots, so non-black stand screenshots show recolored eyes — harmless, extraction only keeps the stand region.
 - Mane style images (Short vs Punk) — builder UI exists, layers disabled until photos arrive
