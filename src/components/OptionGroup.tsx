@@ -39,6 +39,7 @@ const COLOR_MAP: Record<string, string> = {
   "Cyber Orange":   "#D25514",
   "Desert Sand":    "#C3A56E",
   "Azure Gray":     "#6E8CAA",
+  "Robin's Egg Blue": "#BADBE4",
   blonde:           "#E6C27A",
   "Black":          "#111111",
   "White":          "#F2F0EB",
