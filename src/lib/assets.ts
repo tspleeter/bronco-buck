@@ -16,6 +16,13 @@ const VIEW_DEPENDENT_LAYERS = new Set([
 // These views only have mane-baked images, no bare body image
 const MANE_ONLY_VIEWS = new Set(["right", "back", "left"]);
 
+// View-dependent layers that do NOT take a mane suffix (e.g. stand_black_front.png)
+const VIEW_DEPENDENT_NO_MANE = new Set([
+  "stand_black",
+  "stand_brown",
+  "stand_sand",
+]);
+
 // Map UI view names to filename tokens
 const VIEW_FILENAME_MAP: Record<string, string> = {};
 
@@ -35,6 +42,8 @@ const LAYER_FOLDERS: Record<string, string> = {
   accessory_sunglasses: "accessories",
   stand_standard: "stand-style",
   stand_black: "stand-color",
+  stand_brown: "stand-color",
+  stand_sand: "stand-color",
   stand_red: "stand-color",
   nameplate_custom: "nameplate",
   packaging_standard: "packaging",
@@ -54,6 +63,11 @@ export function getLayerAssetPath(
 
   const folder = LAYER_FOLDERS[layerName];
   if (!folder) return undefined;
+
+  if (VIEW_DEPENDENT_NO_MANE.has(layerName)) {
+    const fileView = VIEW_FILENAME_MAP[view] ?? view;
+    return `/assets/${folder}/${layerName}_${fileView}.png`;
+  }
 
   if (VIEW_DEPENDENT_LAYERS.has(layerName)) {
     const fileView = VIEW_FILENAME_MAP[view] ?? view;
