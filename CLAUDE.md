@@ -91,9 +91,10 @@
 
 ## Image Processing — Bambu Studio Screenshots
 - Remove gray background (RGB 84,85,90) via flood fill from borders, tolerance ~10–20 per channel
-- Crop to content with 20px padding
-- Normalize to 800×1100 canvas centered at 92% scale
-- Save as RGB PNG (no transparency) unless compositing requires it
+- **Canvas is 990×1294** (matches preview aspect ratio) — NOT 800×1100 (old, incorrect note; caused a misaligned Robin's Egg Blue batch in July 2026)
+- Deployed renders fill the frame edge-to-edge (front/back clip at bottom, left/right clip at sides) — do NOT fit-with-margin
+- **Alignment method:** scale + position new renders by mask-matching against an existing color's file for the same view+mane (initial scale from the unclipped bbox dimension: width for front/back, height for left, exact bbox for right; then grid-search offset/scale to maximize silhouette IoU — expect ≥0.97)
+- Compose onto solid gray (84,85,90), save as RGB PNG
 - **No recoloring** — background removal and size normalization only
 
 ## File Authoring Rules
