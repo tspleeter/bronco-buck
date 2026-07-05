@@ -49,7 +49,7 @@
 | G3 | Mane Color | V6 Black (+$0), V7 White (+$2) — now shown in cart summary (imagery is baked into body renders) |
 | G4 | Accessories | V8 Sunglasses (+$4) |
 | G5 | Stand Style | V9 Standard (+$0) — **hidden from cart summary until imagery ready** |
-| G6 | Stand Color | V26 Match Body (+$0, default, first), V27 Black (+$3, inactive until renders), V24 Brown (+$3, inactive), V25 Sand (+$3, inactive); V10/V11 retired but kept in config so old saved builds price correctly |
+| G6 | Stand Color | V26 Match Body (+$0, default, first), V27 Black (+$3), V24 Brown (+$3), V25 Sand (+$3) — all live with overlay renders (July 2026); V10/V11 retired but kept in config so old saved builds price correctly |
 | G7 | Nameplate | V22 Buck (+$0, default, pre-selected), V12 None, V13 Custom (+$5) |
 | G8 | Packaging | V14 Standard Box (+$0) |
 
@@ -87,7 +87,7 @@
 **Legacy/unused files** (safe to ignore): `body_black_*`, `body_blue.png`, `body_red.png`, `body_green.png`, `body_grey_front.png`, `body_cyan_front.png`, `body_yellow_front.png`
 
 ### Pending image work
-- **Stand colors (V27 Black / V24 Brown / V25 Sand):** need 12 Bambu screenshots — the 4 standard views × 3 stand colors, rendered with any ONE existing body color (Robin's Egg Blue or Azure Gray recommended) and the SAME camera framing as body renders. Stand overlays get extracted by diffing against the matching existing body render, saved as `public/assets/stand-color/stand_{color}_{view}.png` (transparent PNG, 990×1294). Then flip V27/V24/V25 active:true.
+- **Stand overlays learnings (July 2026):** side-view screenshots can have slight camera-orbit parallax vs originals (head shifts relative to stand). Alignment must refine on the stand band (y>850) after coarse global alignment. Light stand colors (sand) can fail diff-threshold extraction near highlights — use the black stand's alpha as the canonical stencil for all colors of the same view. Todd's Bambu layout has 4 filament slots, so non-black stand screenshots show recolored eyes — harmless, extraction only keeps the stand region.
 - Mane style images (Short vs Punk) — builder UI exists, layers disabled until photos arrive
 - Stand style/color preview images
 - Accessory (sunglasses) layer images
