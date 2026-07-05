@@ -87,6 +87,7 @@
 **Legacy/unused files** (safe to ignore): `body_black_*`, `body_blue.png`, `body_red.png`, `body_green.png`, `body_grey_front.png`, `body_cyan_front.png`, `body_yellow_front.png`
 
 ### Preview rendering notes (July 2026)
+- **Nameplate calibration:** stand flat face (front view) spans y983-1228 on a 990x1294 canvas across all colors. Plate CSS = top 76.5% / height 18.0% (y990-1223). The old 21.1% height overflowed the bottom molding by ~35px. If stand geometry ever changes, re-measure the face band with a row-width profile.
 - `getManeContext()` in `src/lib/mane.ts` is the single source for deriving mane style/color from selections; it FALLS BACK to reg/black because body renders only exist mane-baked. Cart, /saved, /saved/[id], and /share/[shareId] all previously omitted the mane prop → body img 404'd → empty preview pictures. All four fixed July 2026 via getManeContext().
 - `BuilderPreview` preloads all 4 views of every selected layer via hidden imgs so view switches swap body + stand overlays together from cache.
 
