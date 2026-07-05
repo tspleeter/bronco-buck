@@ -104,6 +104,7 @@
 - **Alignment method:** scale + position new renders by mask-matching against an existing color's file for the same view+mane (initial scale from the unclipped bbox dimension: width for front/back, height for left, exact bbox for right; then grid-search offset/scale to maximize silhouette IoU — expect ≥0.97)
 - Compose onto solid gray (84,85,90), save as RGB PNG
 - **No recoloring** — background removal and size normalization only
+- **Carbonized Gray special case:** its body/stand colors are within 3-8 RGB points of the Bambu background (84,84,90) — color-threshold masking is impossible. Align via internal feature mask (pixels >25 from bg: mane, eyes, teeth, tongue, shadow creases) and paste the whole aligned screenshot rect (bg is already the same gray, no mask needed). Scale the screenshot so it fully covers the 990x1294 canvas to avoid fill seams.
 
 ## File Authoring Rules
 - **Always write TSX/JSX files to disk first** (`cat > /home/claude/file.tsx << 'ENDOFFILE'`), then push via GitHub Contents API with `open(...,'rb')` for base64 encoding
