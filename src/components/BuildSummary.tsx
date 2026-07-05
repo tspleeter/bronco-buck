@@ -32,9 +32,9 @@ export function BuildSummary({
       {/* Divider */}
       <div className="divider" style={{ marginBottom: "16px" }} />
 
-      {/* Summary Rows */}
+      {/* Summary Rows — Packaging (G8) always renders last */}
       <div style={{ display: "grid" }}>
-        {items.map((item) => (
+        {items.filter((item) => item.groupId !== "G8").map((item) => (
           <div key={item.groupId} className="summary-row">
             <strong>{item.groupName}</strong>
             <span>{item.optionName}</span>
@@ -63,6 +63,13 @@ export function BuildSummary({
 </svg>Free Rubber Duck</strong>
           <span>Included</span>
         </div>
+
+        {items.filter((item) => item.groupId === "G8").map((item) => (
+          <div key={item.groupId} className="summary-row">
+            <strong>{item.groupName}</strong>
+            <span>{item.optionName}</span>
+          </div>
+        ))}
       </div>
     </section>
   );
