@@ -25,7 +25,7 @@
 - Dark theme UI with gold accents (Andrew's redesign) ✅
 - `/orders` route is password-gated ✅
 - Multi-view builder (front/right/back/left) ✅
-- Gallery: 10 color grid, fixed mane defaults per color, links to builder with pre-selected color+mane ✅
+- Gallery: 11 color grid, fixed mane defaults per color, links to builder with pre-selected color+mane ✅
 - Home page: two-column hero — text left, Buck+duck photo right (anchored top-left) ✅
 - Hero image: `public/assets/hero-buck-duck.png` (Buck biting rubber duck, black bg removed) ✅
 - Free rubber duck SVG icon included with every order — shown in build summary, cart, confirmation email ✅
@@ -44,7 +44,7 @@
 ### Option Groups
 | ID | Group | Options |
 |----|-------|---------|
-| G1 | Body Color | V1 Ruby Red, V2 Velocity Blue, V3 Shadow Black, V15 Eruption Green, V16 Oxford White, V17 Cyber Orange, V18 Carbonized Gray, V19 Cactus Gray, V20 Desert Sand, V21 Azure Gray |
+| G1 | Body Color | V1 Ruby Red, V2 Velocity Blue, V3 Shadow Black, V15 Eruption Green, V16 Oxford White, V17 Cyber Orange, V18 Carbonized Gray, V19 Cactus Gray, V20 Desert Sand, V21 Azure Gray, V23 Robin's Egg Blue |
 | G2 | Mane Style | V4 Short (+$0), V5 Punk (+$3) — **hidden from cart summary until imagery ready** |
 | G3 | Mane Color | V6 Black (+$0), V7 White (+$2) — **hidden from cart summary until imagery ready** |
 | G4 | Accessories | V8 Sunglasses (+$4) |
@@ -64,7 +64,7 @@
 
 ### Gallery defaults (mane color per body color)
 - White mane: Ruby Red, Velocity Blue, Shadow Black, Carbonized Gray
-- Black mane: Eruption Green, Oxford White, Cyber Orange, Cactus Gray, Desert Sand, Azure Gray
+- Black mane: Eruption Green, Oxford White, Cyber Orange, Cactus Gray, Desert Sand, Azure Gray, Robin's Egg Blue
 
 ## Image Assets — `public/assets/`
 
@@ -76,9 +76,11 @@
 - Naming: `body_{color}_{view}_regmane_{mane_color}.png`
 - Views in UI: `front`, `back`, `left`, `right` (`side` files exist but not used)
 - Mane colors: `black`, `white`
-- All 10 colors complete for all 4 views + both mane colors
+- All 11 colors complete for all 4 views + both mane colors
 
-**Colors:** azure_gray, cactus_gray, carbonized_gray, cyber_orange, desert_sand, eruption_green, oxford_white, ruby_red, shadow_black, velocity_blue
+**Colors:** azure_gray, cactus_gray, carbonized_gray, cyber_orange, desert_sand, eruption_green, oxford_white, robins_egg_blue, ruby_red, shadow_black, velocity_blue
+
+**Robin's Egg Blue (V23):** Heritage Edition color (2023–2025, discontinued 2026 MY), Ford paint code CW/M7478, screen approx #BADBE4, solid non-metallic finish. Added July 2026.
 
 **Legacy/unused files** (safe to ignore): `body_black_*`, `body_blue.png`, `body_red.png`, `body_green.png`, `body_grey_front.png`, `body_cyan_front.png`, `body_yellow_front.png`
 
