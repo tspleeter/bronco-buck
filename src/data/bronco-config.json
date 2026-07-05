@@ -123,7 +123,7 @@
       "options": [
         {
           "id": "V4",
-          "name": "Short",
+          "name": "Regular",
           "priceDelta": 0,
           "imageLayer": "none",
           "layerType": "mane-style",
@@ -135,7 +135,7 @@
           "priceDelta": 3,
           "imageLayer": "none",
           "layerType": "mane-style",
-          "active": true
+          "active": false
         }
       ]
     },
