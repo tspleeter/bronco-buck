@@ -7,6 +7,7 @@ import broncoConfigJson from "@/data/bronco-config.json";
 import type { ProductConfig } from "@/types/product";
 const broncoConfig = broncoConfigJson as ProductConfig;
 import { getSelectedLayers } from "@/lib/layers";
+import { getManeContext } from "@/lib/mane";
 import { getBuildSummary } from "@/lib/summary";
 import BuilderPreview from "@/components/BuilderPreview";
 import { BuildSummary } from "@/components/BuildSummary";
@@ -161,6 +162,7 @@ export default function SharedBuildPage() {
               layers={layers}
               view={view}
               nameplateText={sharedBuild.customFields?.nameplateText}
+              mane={getManeContext(sharedBuild.selectedOptions)}
             />
 
             <BuildSummary
