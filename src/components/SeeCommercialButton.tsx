@@ -63,36 +63,38 @@ export default function SeeCommercialButton({ floating = false }: { floating?: b
       </button>
 
       {open && (
-        <>
-          {/* Backdrop */}
-          <div
-            onClick={close}
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(0,0,0,0.82)",
-              backdropFilter: "blur(6px)",
-              WebkitBackdropFilter: "blur(6px)",
-              zIndex: 200,
-            }}
-          />
-
-          {/* Dialog */}
+        <div
+          onClick={close}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 200,
+            background: "rgba(0,0,0,0.82)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+          }}
+        >
+          {/* Dialog — centered with flexbox, NOT position:fixed + transform.
+              A transformed fixed ancestor makes Safari promote the <video> to
+              its own layer and mis-place it (it jumps to the top of the screen).
+              stopPropagation keeps clicks on the video controls from closing. */}
           <div
             role="dialog"
             aria-modal="true"
             aria-label="Buck That Duck commercial"
+            onClick={(e) => e.stopPropagation()}
             style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%,-50%)",
-              zIndex: 201,
               background: "#1C1917",
               border: "1px solid rgba(255,255,255,0.1)",
               borderRadius: 20,
               padding: "18px",
               width: "min(920px, 94vw)",
+              maxHeight: "calc(100vh - 40px)",
+              overflowY: "auto",
               boxShadow: "0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(202,138,4,0.08)",
               display: "flex",
               flexDirection: "column",
@@ -204,7 +206,7 @@ export default function SeeCommercialButton({ floating = false }: { floating?: b
               </video>
             </div>
           </div>
-        </>
+        </div>
       )}
     </>
   );
