@@ -189,6 +189,7 @@ export default function SeeCommercialButton({ floating = false }: { floating?: b
                 controls
                 autoPlay
                 playsInline
+                {...{ "webkit-playsinline": "true" }}
                 preload="metadata"
                 poster="/assets/buck-commercial-poster.jpg"
                 style={{
