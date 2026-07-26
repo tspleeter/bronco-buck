@@ -36,6 +36,7 @@
 - `/orders-login` Enter button fixed — `ActionButton` defaults to `type="button"`; added `type="submit"` (button was a dead click since the page shipped; keyboard Enter had been masking it) ✅
 - Inbound email LIVE: `orders@buckthatduck.com` now forwards to Todd's inbox via forwardemail.net (free, DNS-only — MX `mx1/mx2.forwardemail.net` + apex TXT `forward-email=orders:...` in Route 53). Also added SPF (`v=spf1 include:amazonses.com -all`) and DMARC (`p=none`) for SES deliverability. **MX-records outstanding issue: RESOLVED** ✅
 - Governing law: Pleeter LLC registration **confirmed New Jersey** — ToS clause is correct as-is ✅
+- "See commercial" CTA: centered box in the top nav (`SeeCommercialButton.tsx`) opens a modal video player for the promo spot. Nav `.site-nav-inner` is now a 3-col grid (`1fr auto 1fr`) so the CTA sits dead-center; collapses to an icon-only pill under 560px. ✅
 
 ## Configurator — bronco-config.json
 - **Product:** Bronco Buck Classic (BB001), base price $24.99
@@ -73,6 +74,11 @@
 ### Hero image
 - `hero-buck-duck.png` — photo of blue Buck biting a yellow rubber duck, black background removed
 - Used in homepage two-column hero, `objectPosition: left top`, `objectFit: contain`
+
+### Commercial video
+- `buck-commercial.mp4` — 24s promo spot, H.264/AAC, +faststart, ~1.5 MB (transcoded from a 129 MB ProRes .mov; raw .mov exceeds GitHub's 100 MB limit and isn't browser-playable, so always transcode)
+- `buck-commercial-poster.jpg` — poster frame (~2s in)
+- Played by `SeeCommercialButton` modal; served from `/assets/` (Next public root)
 
 ### Body renders — `public/assets/body/`
 - Naming: `body_{color}_{view}_regmane_{mane_color}.png`
