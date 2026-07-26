@@ -2,7 +2,6 @@ import "./globals.css";
 import type { ReactNode } from "react";
 import SavedBuildsProvider from "@/components/SavedBuildsProvider";
 import SiteNav from "@/components/SiteNav";
-import SeeCommercialButton from "@/components/SeeCommercialButton";
 import Link from "next/link";
 
 export const metadata = {
@@ -28,7 +27,6 @@ export default function RootLayout({
       <body>
         <SavedBuildsProvider>
           <SiteNav />
-          <SeeCommercialButton floating />
           {children}
           <footer style={{
             borderTop: "1px solid var(--color-border)",
