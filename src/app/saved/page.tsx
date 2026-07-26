@@ -61,7 +61,7 @@ export default function SavedBuildsPage() {
             <h1 style={{ margin: 0, fontSize: isMobile ? 36 : 48, fontWeight: 900 }}>
               Saved Builds
             </h1>
-            <p style={{ marginTop: 8, color: "#666" }}>
+            <p style={{ marginTop: 8, color: "var(--color-text-muted)" }}>
               {builds.length} saved build{builds.length === 1 ? "" : "s"}
             </p>
           </div>
@@ -80,14 +80,14 @@ export default function SavedBuildsPage() {
         {builds.length === 0 ? (
           <div
             style={{
-              background: "#fff",
-              border: "1px solid #ddd",
+              background: "var(--color-surface)",
+              border: "1px solid var(--color-border)",
               borderRadius: 16,
               padding: 24,
             }}
           >
             <h2 style={{ marginTop: 0 }}>No saved builds yet</h2>
-            <p style={{ color: "#666" }}>
+            <p style={{ color: "var(--color-text-muted)" }}>
               Save a Bronco Buck build and it will show up here.
             </p>
           </div>
@@ -112,8 +112,8 @@ export default function SavedBuildsPage() {
                 <div
                   key={build.buildId}
                   style={{
-                    background: "#fff",
-                    border: "1px solid #ddd",
+                    background: "var(--color-surface)",
+                    border: "1px solid var(--color-border)",
                     borderRadius: 16,
                     padding: 18,
                     display: "grid",
@@ -129,7 +129,7 @@ export default function SavedBuildsPage() {
 
                   <div>
                     <h2 style={{ margin: 0, fontSize: 20 }}>{build.buildName}</h2>
-                    <p style={{ marginTop: 6, color: "#666", fontSize: 13 }}>
+                    <p style={{ marginTop: 6, color: "var(--color-text-muted)", fontSize: 13 }}>
                       Saved {new Date(build.savedAt).toLocaleString()}
                     </p>
                     <p style={{ margin: "4px 0 0", fontWeight: 700 }}>
