@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ActionButton } from "@/components/ActionButton";
+import SeeCommercialButton from "@/components/SeeCommercialButton";
 
 export default function HomePage() {
   return (
@@ -36,6 +37,19 @@ export default function HomePage() {
               }
             }
           `}</style>
+
+          {/* Commercial CTA — top of hero, centered */}
+          <div
+            style={{
+              background: "#0C0A09",
+              display: "flex",
+              justifyContent: "center",
+              padding: "18px 24px",
+              borderBottom: "1px solid var(--color-border)",
+            }}
+          >
+            <SeeCommercialButton />
+          </div>
 
           <div className="hero-grid">
 
