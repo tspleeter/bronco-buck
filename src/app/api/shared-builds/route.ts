@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     const item: SharedBuild = {
-      shareId: crypto.randomUUID(),
+      shareId: body.shareId ?? crypto.randomUUID(),
       buildName: body.buildName,
       productId: body.productId,
       productSlug: body.productSlug,
