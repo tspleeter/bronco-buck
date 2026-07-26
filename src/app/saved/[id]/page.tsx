@@ -16,7 +16,7 @@ import BuilderPreview from "@/components/BuilderPreview";
 import { BuildSummary } from "@/components/BuildSummary";
 import { PriceSummary } from "@/components/PriceSummary";
 import { ActionButton } from "@/components/ActionButton";
-import CopyLinkButton from "@/components/CopyLinkButton";
+import ShareSavedBuildButton from "@/components/ShareSavedBuildButton";
 
 export default function SavedBuildPage() {
   const params = useParams<{ id: string }>();
@@ -227,7 +227,7 @@ export default function SavedBuildPage() {
               Add to Cart
             </ActionButton>
 
-            <CopyLinkButton />
+            <ShareSavedBuildButton build={build} productSlug={broncoConfig.slug} />
           </div>
         </div>
       </div>
