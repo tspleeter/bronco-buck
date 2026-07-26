@@ -494,11 +494,13 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0 auto;
   padding: 0 24px;
   height: 68px;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
 }
+.site-nav-inner > .site-nav-brand { justify-self: start; }
+.site-nav-inner > .site-nav-links { justify-self: end; }
 .site-nav-brand {
   font-family: var(--font-heading);
   font-size: 1.25rem;
@@ -527,6 +529,62 @@ h1, h2, h3, h4, h5, h6 {
 .nav-link:hover {
   background: var(--color-surface-2);
   color: var(--color-text);
+}
+
+/* ─── "See commercial" CTA (centered in nav) ─── */
+.see-commercial-btn {
+  justify-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(202, 138, 4, 0.45);
+  background: linear-gradient(135deg, rgba(202, 138, 4, 0.18), rgba(202, 138, 4, 0.07));
+  color: var(--color-gold-light);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--dur-base) var(--ease-out),
+              border-color var(--dur-base) var(--ease-out),
+              box-shadow var(--dur-base) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out);
+}
+.see-commercial-btn:hover {
+  background: linear-gradient(135deg, rgba(202, 138, 4, 0.30), rgba(202, 138, 4, 0.13));
+  border-color: rgba(202, 138, 4, 0.72);
+  box-shadow: 0 6px 20px rgba(202, 138, 4, 0.22);
+  transform: translateY(-1px);
+}
+.see-commercial-btn:active { transform: translateY(0); }
+.see-commercial-btn:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+.see-commercial-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-gold);
+  color: #0c0a09;
+  flex-shrink: 0;
+}
+.see-commercial-btn__icon svg { margin-left: 1px; } /* optically center the play glyph */
+
+/* Tighten, then collapse to an icon-only pill on small screens so it
+   never crowds the brand or the nav links. */
+@media (max-width: 760px) {
+  .see-commercial-btn { padding: 7px 12px; font-size: 0.8rem; }
+}
+@media (max-width: 560px) {
+  .see-commercial-btn__label { display: none; }
+  .see-commercial-btn { gap: 0; padding: 8px; border-radius: 50%; }
 }
 
 /* ─── Page Layout ───────────────────────────── */
