@@ -10,6 +10,11 @@ export default function HomePage() {
     <main className="page">
       <div className="page-inner">
 
+        {/* Commercial CTA — top of page, centered */}
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <SeeCommercialButton />
+        </div>
+
         {/* ── Hero ── */}
         <section
           style={{
@@ -37,19 +42,6 @@ export default function HomePage() {
               }
             }
           `}</style>
-
-          {/* Commercial CTA — top of hero, centered */}
-          <div
-            style={{
-              background: "#0C0A09",
-              display: "flex",
-              justifyContent: "center",
-              padding: "18px 24px",
-              borderBottom: "1px solid var(--color-border)",
-            }}
-          >
-            <SeeCommercialButton />
-          </div>
 
           <div className="hero-grid">
 
