@@ -218,9 +218,9 @@ export default function SavedBuildPage() {
 
             <Link
               href={`/build/${broncoConfig.slug}?saved=${build.buildId}`}
-              style={{ textDecoration: "none" }}
+              style={{ textDecoration: "none", display: "block" }}
             >
-              <ActionButton variant="primary">Edit Build</ActionButton>
+              <ActionButton variant="primary" fullWidth>Edit Build</ActionButton>
             </Link>
 
             <ActionButton onClick={handleAddToCart} variant="secondary">
