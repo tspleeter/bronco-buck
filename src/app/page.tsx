@@ -3,17 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ActionButton } from "@/components/ActionButton";
-import SeeCommercialButton from "@/components/SeeCommercialButton";
 
 export default function HomePage() {
   return (
     <main className="page">
       <div className="page-inner">
-
-        {/* Commercial CTA — top of page, centered */}
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <SeeCommercialButton />
-        </div>
 
         {/* ── Hero ── */}
         <section
