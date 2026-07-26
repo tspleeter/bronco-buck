@@ -27,6 +27,9 @@ export async function readSharedBuildById(
     new GetCommand({
       TableName: TABLE_NAME,
       Key: { id: shareId },
+      // Strongly consistent so a share opened immediately after creation
+      // is never missed by read-after-write replication lag.
+      ConsistentRead: true,
     })
   );
 
