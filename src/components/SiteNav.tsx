@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSavedBuilds } from "@/components/SavedBuildsProvider";
+import SeeCommercialButton from "@/components/SeeCommercialButton";
 
 export default function SiteNav() {
   const { savedCount } = useSavedBuilds();
@@ -13,6 +14,9 @@ export default function SiteNav() {
         <Link href="/" className="site-nav-brand">
           %uck<span>ThatDuck</span>
         </Link>
+
+        {/* Centered commercial CTA */}
+        <SeeCommercialButton />
 
         {/* Links */}
         <div className="site-nav-links">
