@@ -36,7 +36,7 @@
 - `/orders-login` Enter button fixed — `ActionButton` defaults to `type="button"`; added `type="submit"` (button was a dead click since the page shipped; keyboard Enter had been masking it) ✅
 - Inbound email LIVE: `orders@buckthatduck.com` now forwards to Todd's inbox via forwardemail.net (free, DNS-only — MX `mx1/mx2.forwardemail.net` + apex TXT `forward-email=orders:...` in Route 53). Also added SPF (`v=spf1 include:amazonses.com -all`) and DMARC (`p=none`) for SES deliverability. **MX-records outstanding issue: RESOLVED** ✅
 - Governing law: Pleeter LLC registration **confirmed New Jersey** — ToS clause is correct as-is ✅
-- "See commercial" CTA: global **floating** gold pill (`SeeCommercialButton.tsx` with `floating` prop, rendered in `layout.tsx` right after `<SiteNav/>`) — fixed at top-center just below the nav (`top:78px`, `z-index:90`), so it shows on **every page** and never takes its own row. Opens a modal video player (`buck-commercial.mp4`). Iterated July 2026: nav-center → hero-top → global floating. `.see-commercial-btn--floating` in globals.css. ✅
+- "See commercial" CTA: gold pill in the **top nav**, between the `%uckThatDuck` wordmark and the Build link (`SeeCommercialButton.tsx`, rendered inline in `SiteNav.tsx`; nav is flex space-between with 3 children so it centers in the gap). Opens a modal video player (`buck-commercial.mp4`). Collapses to icon-only under 560px. `.see-commercial-btn` in globals.css. (Iterated July 2026 through nav-center → hero-top → global-floating before landing here.) ✅
 
 ## Configurator — bronco-config.json
 - **Product:** Bronco Buck Classic (BB001), base price $24.99
