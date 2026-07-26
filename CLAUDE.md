@@ -119,6 +119,7 @@
 - GET SHA before every PUT
 
 ## Key Learnings
+- **Modals rendered inside `.site-nav` must portal to `document.body`:** the nav has `backdrop-filter: blur(24px)`, which (per spec, and enforced by Safari) makes it the *containing block* for any `position:fixed` descendant. A fixed modal overlay rendered inside the nav gets trapped in the 68px nav strip and pins to the top of the screen. `SeeCommercialButton`'s video modal uses `createPortal(modal, document.body)` to escape it. (Also: center modals with flexbox, not `fixed + translate(-50%,-50%)` — the transform makes Safari mis-place `<video>`.)
 - **Amplify SSR Lambda env vars:** Console env vars do NOT reach SSR functions — use IAM compute role + SSM Parameter Store
 - **GitHub Contents API push:** GET SHA first → PUT with base64 + SHA; sleep ~0.4s between pushes; token `ghp_*` classic PAT with repo scope
 - **Local git auth:** Can be stale — GitHub Contents API is the reliable path
