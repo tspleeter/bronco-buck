@@ -36,7 +36,7 @@
 - `/orders-login` Enter button fixed — `ActionButton` defaults to `type="button"`; added `type="submit"` (button was a dead click since the page shipped; keyboard Enter had been masking it) ✅
 - Inbound email LIVE: `orders@buckthatduck.com` now forwards to Todd's inbox via forwardemail.net (free, DNS-only — MX `mx1/mx2.forwardemail.net` + apex TXT `forward-email=orders:...` in Route 53). Also added SPF (`v=spf1 include:amazonses.com -all`) and DMARC (`p=none`) for SES deliverability. **MX-records outstanding issue: RESOLVED** ✅
 - Governing law: Pleeter LLC registration **confirmed New Jersey** — ToS clause is correct as-is ✅
-- "See commercial" CTA: centered box in the top nav (`SeeCommercialButton.tsx`) opens a modal video player for the promo spot. Nav `.site-nav-inner` is now a 3-col grid (`1fr auto 1fr`) so the CTA sits dead-center; collapses to an icon-only pill under 560px. ✅
+- "See commercial" CTA: centered gold box at the **top of the hero** on the home page (`SeeCommercialButton.tsx`, rendered in `page.tsx` above the hero-grid) opens a modal video player for the promo spot. (Briefly lived in the nav; moved into the hero July 2026.) ✅
 
 ## Configurator — bronco-config.json
 - **Product:** Bronco Buck Classic (BB001), base price $24.99
