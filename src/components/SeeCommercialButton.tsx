@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
- * "See commercial" CTA — lives centered in the top nav bar.
+ * "See commercial" CTA. When `floating`, it pins itself at the top of the
+ * viewport (rendered globally in the layout so it shows on every page).
  * Opens a modal video player for the Buck That Duck commercial spot.
  * Video asset: /public/assets/buck-commercial.mp4 (poster: buck-commercial-poster.jpg)
  */
-export default function SeeCommercialButton() {
+export default function SeeCommercialButton({ floating = false }: { floating?: boolean }) {
   const [open, setOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -48,7 +49,7 @@ export default function SeeCommercialButton() {
     <>
       <button
         type="button"
-        className="see-commercial-btn"
+        className={"see-commercial-btn" + (floating ? " see-commercial-btn--floating" : "")}
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-label="See the Buck That Duck commercial"
