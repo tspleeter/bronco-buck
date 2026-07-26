@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 /**
  * "See commercial" CTA. When `floating`, it pins itself at the top of the
@@ -62,22 +63,23 @@ export default function SeeCommercialButton({ floating = false }: { floating?: b
         <span className="see-commercial-btn__label">See commercial</span>
       </button>
 
-      {open && (
-        <div
-          onClick={close}
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 200,
-            background: "rgba(0,0,0,0.82)",
-            backdropFilter: "blur(6px)",
-            WebkitBackdropFilter: "blur(6px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "20px",
-          }}
-        >
+      {open &&
+        createPortal(
+          <div
+            onClick={close}
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 200,
+              background: "rgba(0,0,0,0.82)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "20px",
+            }}
+          >
           {/* Dialog — centered with flexbox, NOT position:fixed + transform.
               A transformed fixed ancestor makes Safari promote the <video> to
               its own layer and mis-place it (it jumps to the top of the screen).
@@ -207,7 +209,8 @@ export default function SeeCommercialButton({ floating = false }: { floating?: b
               </video>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
