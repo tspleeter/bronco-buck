@@ -69,7 +69,7 @@ export default function HomePage() {
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <div className="gold-line" />
                 <span className="label" style={{ color: "var(--color-gold)", letterSpacing: "0.14em" }}>
-                  Ford Bronco Colors
+                  Broncos don&apos;t duck, they buck
                 </span>
               </div>
 
