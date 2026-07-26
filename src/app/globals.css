@@ -529,18 +529,18 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--color-text);
 }
 
-/* ─── "See commercial" CTA (top of hero) ─── */
+/* ─── "See commercial" CTA (in nav, between wordmark and links) ─── */
 .see-commercial-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
+  padding: 8px 16px;
   border-radius: var(--radius-full);
   border: 1px solid rgba(202, 138, 4, 0.45);
   background: linear-gradient(135deg, rgba(202, 138, 4, 0.18), rgba(202, 138, 4, 0.07));
   color: var(--color-gold-light);
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -565,8 +565,8 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--color-gold);
   color: #0c0a09;
@@ -574,24 +574,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 .see-commercial-btn__icon svg { margin-left: 1px; } /* optically center the play glyph */
 
-/* Floating variant: pinned at the top of the viewport, shown on every page.
-   Sits just below the sticky nav; overlays content so it never takes its own row. */
-.see-commercial-btn--floating {
-  position: fixed;
-  top: 78px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 90;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+/* Keep it from crowding the nav on small screens: tighten, then icon-only. */
+@media (max-width: 760px) {
+  .see-commercial-btn { padding: 7px 12px; font-size: 0.8rem; }
 }
-.see-commercial-btn--floating:hover {
-  transform: translateX(-50%) translateY(-1px);
-}
-.see-commercial-btn--floating:active {
-  transform: translateX(-50%);
-}
-@media (max-width: 700px) {
-  .see-commercial-btn--floating { top: 74px; }
+@media (max-width: 560px) {
+  .see-commercial-btn__label { display: none; }
+  .see-commercial-btn { gap: 0; padding: 8px; border-radius: 50%; }
 }
 
 /* ─── Page Layout ───────────────────────────── */
