@@ -6,6 +6,8 @@ export type OrderStatus =
   | "delivered"
   | "cancelled";
 
+export type Carrier = "usps" | "ups" | "fedex" | "dhl" | "other";
+
 export interface OrderCustomer {
   firstName: string;
   lastName: string;
@@ -52,6 +54,12 @@ export interface Order {
 
   createdAt: string;
   updatedAt: string;
+
+  // Fulfillment / shipping
+  carrier?: Carrier;
+  trackingNumber?: string;
+  trackingUrl?: string;
+  shippedAt?: string;
 
   notes?: string;
 }
