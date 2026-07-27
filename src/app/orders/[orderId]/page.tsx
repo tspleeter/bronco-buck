@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { getOrderById, updateOrderFulfillment } from "@/lib/orders";
+import { getOrderById, updateOrderFulfillment, resendShipmentEmail } from "@/lib/orders";
 import { Order, OrderStatus, Carrier } from "@/types/order";
 import { CARRIERS, CARRIER_LABELS } from "@/lib/shipping";
 import { ActionButton } from "@/components/ActionButton";
@@ -92,6 +92,7 @@ export default function OrderDetailPage() {
   const [carrier, setCarrier] = useState<Carrier | "">("");
   const [trackingNumber, setTrackingNumber] = useState("");
   const [saving, setSaving] = useState(false);
+  const [resending, setResending] = useState(false);
   const [message, setMessage] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
   function seedForm(o: Order) {
@@ -160,6 +161,23 @@ export default function OrderDetailPage() {
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!orderId) return;
+    setResending(true);
+    setMessage(null);
+    try {
+      const sentTo = await resendShipmentEmail(orderId);
+      setMessage({ kind: "ok", text: `Shipment email re-sent to ${sentTo}.` });
+    } catch (err) {
+      setMessage({
+        kind: "err",
+        text: err instanceof Error ? err.message : "Failed to resend shipment email",
+      });
+    } finally {
+      setResending(false);
     }
   };
 
@@ -333,6 +351,11 @@ export default function OrderDetailPage() {
             <span style={{ display: "inline-block" }} onClick={saving ? undefined : handleSave}>
               <ActionButton variant="primary" disabled={saving}>
                 {saving ? "Saving…" : "Save fulfillment"}
+              </ActionButton>
+            </span>
+            <span style={{ display: "inline-block" }} onClick={resending ? undefined : handleResend}>
+              <ActionButton variant="secondary" disabled={resending}>
+                {resending ? "Sending…" : "Resend shipment email"}
               </ActionButton>
             </span>
             {order.trackingUrl ? (
