@@ -36,6 +36,7 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
   <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
     <div style="text-align:center;margin-bottom:40px;">
       <h1 style="color:#CA8A04;font-size:28px;font-weight:900;margin:0;">%uck<span style="color:#FAFAF9;">ThatDuck</span></h1>
+      <p style="color:#78716C;font-size:13px;font-weight:600;letter-spacing:0.06em;margin:8px 0 0;">Broncos don't duck, they buck.</p>
     </div>
     <div style="background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;">
       <p style="color:#CA8A04;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin:0 0 12px;">Order Confirmed</p>
@@ -149,6 +150,7 @@ export async function sendShipmentEmail(order: Order): Promise<void> {
   <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
     <div style="text-align:center;margin-bottom:40px;">
       <h1 style="color:#CA8A04;font-size:28px;font-weight:900;margin:0;">%uck<span style="color:#FAFAF9;">ThatDuck</span></h1>
+      <p style="color:#78716C;font-size:13px;font-weight:600;letter-spacing:0.06em;margin:8px 0 0;">Broncos don't duck, they buck.</p>
     </div>
     <div style="background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;">
       <p style="color:#CA8A04;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin:0 0 12px;">Your order is on its way</p>
