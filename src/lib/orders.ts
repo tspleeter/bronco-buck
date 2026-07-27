@@ -1,4 +1,4 @@
-import { Order } from "@/types/order";
+import { Order, OrderStatus, Carrier } from "@/types/order";
 
 // Client-side wrapper around the orders API.
 // Previously this read/wrote orders to localStorage — meaning the store
@@ -46,6 +46,34 @@ export async function getOrders(): Promise<Order[]> {
 
   if (!res.ok) {
     throw new Error("Failed to fetch orders");
+  }
+
+  return res.json();
+}
+
+export interface FulfillmentPayload {
+  status: OrderStatus;
+  carrier?: Carrier;
+  trackingNumber?: string;
+}
+
+/**
+ * Update an order's status / tracking (admin). Returns the updated order.
+ * Requires the orders_auth cookie (set by the /orders-login gate).
+ */
+export async function updateOrderFulfillment(
+  orderId: string,
+  payload: FulfillmentPayload
+): Promise<Order> {
+  const res = await fetch(`/api/orders/${orderId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.message ?? "Failed to update order");
   }
 
   return res.json();
