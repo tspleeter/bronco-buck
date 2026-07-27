@@ -3,9 +3,19 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { getOrderById } from "@/lib/orders";
-import { Order } from "@/types/order";
+import { getOrderById, updateOrderFulfillment } from "@/lib/orders";
+import { Order, OrderStatus, Carrier } from "@/types/order";
+import { CARRIERS, CARRIER_LABELS } from "@/lib/shipping";
 import { ActionButton } from "@/components/ActionButton";
+
+const STATUSES: OrderStatus[] = [
+  "pending",
+  "paid",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled",
+];
 
 export default function OrderDetailPage() {
   const params = useParams<{ orderId: string }>();
@@ -14,6 +24,19 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Fulfillment form state
+  const [status, setStatus] = useState<OrderStatus>("paid");
+  const [carrier, setCarrier] = useState<Carrier | "">("");
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+
+  function seedForm(o: Order) {
+    setStatus(o.status);
+    setCarrier(o.carrier ?? "");
+    setTrackingNumber(o.trackingNumber ?? "");
+  }
 
   useEffect(() => {
     if (!orderId) {
@@ -26,7 +49,10 @@ export default function OrderDetailPage() {
     const load = async () => {
       try {
         const found = await getOrderById(orderId);
-        if (!cancelled) setOrder(found ?? null);
+        if (!cancelled) {
+          setOrder(found ?? null);
+          if (found) seedForm(found);
+        }
       } catch {
         if (!cancelled) setOrder(null);
       } finally {
@@ -45,6 +71,35 @@ export default function OrderDetailPage() {
       window.removeEventListener("resize", checkMobile);
     };
   }, [orderId]);
+
+  const handleSave = async () => {
+    if (!orderId) return;
+    setSaving(true);
+    setMessage(null);
+    try {
+      const willNotify = status === "shipped" && order?.status !== "shipped";
+      const updated = await updateOrderFulfillment(orderId, {
+        status,
+        carrier: carrier || undefined,
+        trackingNumber: trackingNumber.trim() || undefined,
+      });
+      setOrder(updated);
+      seedForm(updated);
+      setMessage({
+        kind: "ok",
+        text: willNotify
+          ? "Saved — shipment email sent to the customer."
+          : "Order updated.",
+      });
+    } catch (err) {
+      setMessage({
+        kind: "err",
+        text: err instanceof Error ? err.message : "Failed to update order",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -78,6 +133,26 @@ export default function OrderDetailPage() {
       </main>
     );
   }
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "10px 12px",
+    borderRadius: 10,
+    border: "1px solid #ccc",
+    fontSize: 14,
+    background: "#fff",
+    color: "#111",
+    boxSizing: "border-box",
+  };
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontSize: 12,
+    fontWeight: 700,
+    color: "#666",
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+    marginBottom: 6,
+  };
 
   return (
     <main style={{ minHeight: "100vh", padding: isMobile ? 16 : 24 }}>
@@ -150,6 +225,9 @@ export default function OrderDetailPage() {
                 <div>Status: {order.status}</div>
                 <div>Placed: {new Date(order.createdAt).toLocaleString()}</div>
                 <div>Updated: {new Date(order.updatedAt).toLocaleString()}</div>
+                {order.shippedAt ? (
+                  <div>Shipped: {new Date(order.shippedAt).toLocaleString()}</div>
+                ) : null}
                 <div>Subtotal: ${order.pricing.subtotal.toFixed(2)}</div>
                 <div>Shipping: ${order.pricing.shipping.toFixed(2)}</div>
                 {order.pricing.tax !== undefined ? (
@@ -160,6 +238,90 @@ export default function OrderDetailPage() {
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section
+          style={{
+            background: "#fff",
+            border: "1px solid #ddd",
+            borderRadius: 16,
+            padding: isMobile ? 18 : 24,
+          }}
+        >
+          <h2 style={{ marginTop: 0 }}>Fulfillment</h2>
+          <p style={{ color: "#666", marginTop: 0, fontSize: 14 }}>
+            Set the order status and shipment tracking. Moving the status to{" "}
+            <strong>shipped</strong> emails the customer their tracking details.
+          </p>
+
+          <div
+            style={{
+              display: "grid",
+              gap: 16,
+              gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+              alignItems: "end",
+              marginTop: 8,
+            }}
+          >
+            <div>
+              <label style={labelStyle} htmlFor="status">Status</label>
+              <select
+                id="status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value as OrderStatus)}
+                style={inputStyle}
+              >
+                {STATUSES.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={labelStyle} htmlFor="carrier">Carrier</label>
+              <select
+                id="carrier"
+                value={carrier}
+                onChange={(e) => setCarrier(e.target.value as Carrier | "")}
+                style={inputStyle}
+              >
+                <option value="">— None —</option>
+                {CARRIERS.map((c) => (
+                  <option key={c} value={c}>{CARRIER_LABELS[c]}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={labelStyle} htmlFor="tracking">Tracking number</label>
+              <input
+                id="tracking"
+                type="text"
+                value={trackingNumber}
+                onChange={(e) => setTrackingNumber(e.target.value)}
+                placeholder="e.g. 9400 1000 0000 0000 0000 00"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          <div style={{ marginTop: 20, display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+            <span style={{ display: "inline-block" }} onClick={saving ? undefined : handleSave}>
+              <ActionButton variant="primary" disabled={saving}>
+                {saving ? "Saving…" : "Save fulfillment"}
+              </ActionButton>
+            </span>
+            {order.trackingUrl ? (
+              <a href={order.trackingUrl} target="_blank" rel="noreferrer" style={{ color: "#CA8A04", fontSize: 14, fontWeight: 700 }}>
+                Open current tracking ↗
+              </a>
+            ) : null}
+            {message ? (
+              <span style={{ fontSize: 14, color: message.kind === "ok" ? "#166534" : "#b91c1c" }}>
+                {message.text}
+              </span>
+            ) : null}
           </div>
         </section>
 
