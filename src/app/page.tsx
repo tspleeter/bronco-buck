@@ -69,7 +69,7 @@ export default function HomePage() {
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <div className="gold-line" />
                 <span className="label" style={{ color: "var(--color-gold)", letterSpacing: "0.14em" }}>
-                  Broncos don&apos;t duck, they buck
+                  Ford Bronco Colors
                 </span>
               </div>
 
@@ -77,6 +77,13 @@ export default function HomePage() {
                 Build your{" "}
                 <span style={{ color: "var(--color-gold-light)" }}>Bronco Buck.</span>
               </h1>
+
+              <p
+                className="text-subtitle"
+                style={{ color: "var(--color-gold-light)", marginBottom: 0 }}
+              >
+                Broncos don&apos;t duck, they buck.
+              </p>
 
               <p
                 style={{
