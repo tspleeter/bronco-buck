@@ -117,6 +117,7 @@ export default function OrderDetailPage() {
             maxWidth: 900,
             margin: "0 auto",
             background: "#fff",
+            color: "#111",
             border: "1px solid #ddd",
             borderRadius: 16,
             padding: 24,
@@ -194,6 +195,7 @@ export default function OrderDetailPage() {
         <section
           style={{
             background: "#fff",
+            color: "#111",
             border: "1px solid #ddd",
             borderRadius: 16,
             padding: isMobile ? 18 : 24,
@@ -244,6 +246,7 @@ export default function OrderDetailPage() {
         <section
           style={{
             background: "#fff",
+            color: "#111",
             border: "1px solid #ddd",
             borderRadius: 16,
             padding: isMobile ? 18 : 24,
@@ -328,6 +331,7 @@ export default function OrderDetailPage() {
         <section
           style={{
             background: "#fff",
+            color: "#111",
             border: "1px solid #ddd",
             borderRadius: 16,
             padding: isMobile ? 18 : 24,
