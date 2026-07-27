@@ -17,6 +17,68 @@ const STATUSES: OrderStatus[] = [
   "cancelled",
 ];
 
+// Status → accent color (design tokens)
+const STATUS_COLOR: Record<OrderStatus, string> = {
+  pending: "var(--color-text-dim)",
+  paid: "var(--color-info)",
+  processing: "var(--color-gold)",
+  shipped: "var(--color-gold-light)",
+  delivered: "var(--color-success)",
+  cancelled: "var(--color-error)",
+};
+
+function StatusPill({ status }: { status: OrderStatus }) {
+  const c = STATUS_COLOR[status];
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        padding: "3px 10px",
+        borderRadius: "var(--radius-full)",
+        fontSize: 12,
+        fontWeight: 700,
+        textTransform: "uppercase",
+        letterSpacing: "0.06em",
+        border: `1px solid ${c}`,
+        color: c,
+      }}
+    >
+      {status}
+    </span>
+  );
+}
+
+const cardStyle = (isMobile: boolean): React.CSSProperties => ({
+  background: "var(--color-surface)",
+  border: "1px solid var(--color-border)",
+  borderRadius: "var(--radius-md)",
+  padding: isMobile ? 18 : 24,
+});
+
+const muted: React.CSSProperties = { color: "var(--color-text-muted)" };
+
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "10px 12px",
+  borderRadius: "var(--radius-sm)",
+  border: "1px solid var(--color-border)",
+  fontSize: 14,
+  background: "var(--color-surface-2)",
+  color: "var(--color-text)",
+  boxSizing: "border-box",
+};
+
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  fontSize: 12,
+  fontWeight: 700,
+  color: "var(--color-text-dim)",
+  textTransform: "uppercase",
+  letterSpacing: "0.08em",
+  marginBottom: 6,
+};
+
 export default function OrderDetailPage() {
   const params = useParams<{ orderId: string }>();
   const orderId = params?.orderId;
@@ -104,7 +166,7 @@ export default function OrderDetailPage() {
   if (isLoading) {
     return (
       <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ color: "#888", fontSize: 14 }}>Loading order…</p>
+        <p style={{ ...muted, fontSize: 14 }}>Loading order…</p>
       </main>
     );
   }
@@ -112,19 +174,9 @@ export default function OrderDetailPage() {
   if (!order) {
     return (
       <main style={{ minHeight: "100vh", padding: isMobile ? 16 : 24 }}>
-        <div
-          style={{
-            maxWidth: 900,
-            margin: "0 auto",
-            background: "#fff",
-            color: "#111",
-            border: "1px solid #ddd",
-            borderRadius: 16,
-            padding: 24,
-          }}
-        >
+        <div style={{ maxWidth: 900, margin: "0 auto", ...cardStyle(false) }}>
           <h1 style={{ marginTop: 0 }}>Order not found</h1>
-          <p style={{ color: "#666" }}>This order could not be found.</p>
+          <p style={muted}>This order could not be found.</p>
           <Link href="/orders">
             <span style={{ display: "inline-block", marginTop: 12 }}>
               <ActionButton variant="primary">Back to Orders</ActionButton>
@@ -134,26 +186,6 @@ export default function OrderDetailPage() {
       </main>
     );
   }
-
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "10px 12px",
-    borderRadius: 10,
-    border: "1px solid #ccc",
-    fontSize: 14,
-    background: "#fff",
-    color: "#111",
-    boxSizing: "border-box",
-  };
-  const labelStyle: React.CSSProperties = {
-    display: "block",
-    fontSize: 12,
-    fontWeight: 700,
-    color: "#666",
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
-    marginBottom: 6,
-  };
 
   return (
     <main style={{ minHeight: "100vh", padding: isMobile ? 16 : 24 }}>
@@ -173,15 +205,16 @@ export default function OrderDetailPage() {
                 margin: 0,
                 fontSize: 14,
                 fontWeight: 700,
-                color: "#666",
+                color: "var(--color-text-dim)",
                 textTransform: "uppercase",
                 letterSpacing: "0.12em",
               }}
             >
               Order Detail
             </p>
-            <h1 style={{ margin: "10px 0 0", fontSize: isMobile ? 34 : 44, fontWeight: 900 }}>
+            <h1 style={{ margin: "10px 0 0", fontSize: isMobile ? 34 : 44, fontWeight: 900, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
               Order #{order.orderId.slice(0, 8)}
+              <StatusPill status={order.status} />
             </h1>
           </div>
 
@@ -192,15 +225,7 @@ export default function OrderDetailPage() {
           </Link>
         </div>
 
-        <section
-          style={{
-            background: "#fff",
-            color: "#111",
-            border: "1px solid #ddd",
-            borderRadius: 16,
-            padding: isMobile ? 18 : 24,
-          }}
-        >
+        <section style={cardStyle(isMobile)}>
           <div
             style={{
               display: "grid",
@@ -210,7 +235,7 @@ export default function OrderDetailPage() {
           >
             <div>
               <h2 style={{ marginTop: 0 }}>Customer</h2>
-              <div style={{ display: "grid", gap: 6, color: "#555" }}>
+              <div style={{ display: "grid", gap: 6, ...muted }}>
                 <div>{order.customer.firstName} {order.customer.lastName}</div>
                 <div>{order.customer.email}</div>
                 {order.customer.phone ? <div>{order.customer.phone}</div> : null}
@@ -223,8 +248,10 @@ export default function OrderDetailPage() {
 
             <div>
               <h2 style={{ marginTop: 0 }}>Summary</h2>
-              <div style={{ display: "grid", gap: 6, color: "#555" }}>
-                <div>Status: {order.status}</div>
+              <div style={{ display: "grid", gap: 6, ...muted }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  Status: <StatusPill status={order.status} />
+                </div>
                 <div>Placed: {new Date(order.createdAt).toLocaleString()}</div>
                 <div>Updated: {new Date(order.updatedAt).toLocaleString()}</div>
                 {order.shippedAt ? (
@@ -235,7 +262,7 @@ export default function OrderDetailPage() {
                 {order.pricing.tax !== undefined ? (
                   <div>Tax: ${order.pricing.tax.toFixed(2)}</div>
                 ) : null}
-                <div style={{ fontWeight: 700 }}>
+                <div style={{ fontWeight: 700, color: "var(--color-text)" }}>
                   Total: ${order.pricing.total.toFixed(2)}
                 </div>
               </div>
@@ -243,19 +270,12 @@ export default function OrderDetailPage() {
           </div>
         </section>
 
-        <section
-          style={{
-            background: "#fff",
-            color: "#111",
-            border: "1px solid #ddd",
-            borderRadius: 16,
-            padding: isMobile ? 18 : 24,
-          }}
-        >
+        <section style={cardStyle(isMobile)}>
           <h2 style={{ marginTop: 0 }}>Fulfillment</h2>
-          <p style={{ color: "#666", marginTop: 0, fontSize: 14 }}>
+          <p style={{ ...muted, marginTop: 0, fontSize: 14 }}>
             Set the order status and shipment tracking. Moving the status to{" "}
-            <strong>shipped</strong> emails the customer their tracking details.
+            <strong style={{ color: "var(--color-gold-light)" }}>shipped</strong>{" "}
+            emails the customer their tracking details.
           </p>
 
           <div
@@ -316,37 +336,29 @@ export default function OrderDetailPage() {
               </ActionButton>
             </span>
             {order.trackingUrl ? (
-              <a href={order.trackingUrl} target="_blank" rel="noreferrer" style={{ color: "#CA8A04", fontSize: 14, fontWeight: 700 }}>
+              <a href={order.trackingUrl} target="_blank" rel="noreferrer" style={{ color: "var(--color-gold)", fontSize: 14, fontWeight: 700 }}>
                 Open current tracking ↗
               </a>
             ) : null}
             {message ? (
-              <span style={{ fontSize: 14, color: message.kind === "ok" ? "#166534" : "#b91c1c" }}>
+              <span style={{ fontSize: 14, color: message.kind === "ok" ? "var(--color-success)" : "var(--color-error)" }}>
                 {message.text}
               </span>
             ) : null}
           </div>
         </section>
 
-        <section
-          style={{
-            background: "#fff",
-            color: "#111",
-            border: "1px solid #ddd",
-            borderRadius: 16,
-            padding: isMobile ? 18 : 24,
-          }}
-        >
+        <section style={cardStyle(isMobile)}>
           <h2 style={{ marginTop: 0 }}>Items</h2>
           <div style={{ display: "grid", gap: 16 }}>
             {order.items.map((item) => (
               <div
                 key={item.cartItemId}
                 style={{
-                  border: "1px solid #eee",
-                  borderRadius: 12,
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "var(--radius-sm)",
                   padding: 14,
-                  background: "#fafafa",
+                  background: "var(--color-surface-2)",
                 }}
               >
                 <div
@@ -360,13 +372,13 @@ export default function OrderDetailPage() {
                   <strong>{item.productName}</strong>
                   <strong>${(item.price * item.quantity).toFixed(2)}</strong>
                 </div>
-                <div style={{ marginTop: 8, color: "#666" }}>Qty: {item.quantity}</div>
+                <div style={{ marginTop: 8, ...muted }}>Qty: {item.quantity}</div>
                 {item.customFields?.nameplateText ? (
-                  <div style={{ marginTop: 6, color: "#666" }}>
+                  <div style={{ marginTop: 6, ...muted }}>
                     Nameplate: {item.customFields.nameplateText}
                   </div>
                 ) : null}
-                <div style={{ marginTop: 8, color: "#666", fontSize: 14 }}>
+                <div style={{ marginTop: 8, ...muted, fontSize: 14 }}>
                   Product ID: {item.productId}
                 </div>
               </div>
