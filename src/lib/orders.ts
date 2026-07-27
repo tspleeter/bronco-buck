@@ -78,3 +78,25 @@ export async function updateOrderFulfillment(
 
   return res.json();
 }
+
+/**
+ * Resend the shipment notification email for an order (admin), regardless of
+ * status — bypasses the transition guard on PATCH. Requires the orders_auth
+ * cookie. Returns the address it was sent to; throws with the real error
+ * detail if the send fails.
+ */
+export async function resendShipmentEmail(orderId: string): Promise<string> {
+  const res = await fetch(`/api/orders/${orderId}/resend-shipment`, {
+    method: "POST",
+  });
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    throw new Error(
+      data.detail ?? data.message ?? "Failed to resend shipment email"
+    );
+  }
+
+  return data.sentTo as string;
+}
