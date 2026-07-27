@@ -1,11 +1,12 @@
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import { Order } from "@/types/order";
+import { CARRIER_LABELS } from "@/lib/shipping";
 
 const ses = new SESClient({ region: "us-east-1" });
 const FROM_ADDRESS = "orders@buckthatduck.com";
 
-export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
-  const itemsList = order.items
+function renderItemRows(order: Order): string {
+  return order.items
     .map(
       (item) =>
         `<tr>
@@ -15,6 +16,18 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
         </tr>`
     )
     .join("");
+}
+
+function shippingAddressBlock(order: Order): string {
+  return `<p style="color:#A8A29E;font-size:14px;line-height:1.8;margin:0;">
+        ${order.customer.firstName} ${order.customer.lastName}<br>
+        ${order.customer.address1}${order.customer.address2 ? "<br>" + order.customer.address2 : ""}<br>
+        ${order.customer.city}, ${order.customer.state} ${order.customer.zip}
+      </p>`;
+}
+
+export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
+  const itemsList = renderItemRows(order);
 
   const html = `<!DOCTYPE html>
 <html>
@@ -75,11 +88,7 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
     </div>
     <div style="background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;">
       <h3 style="color:#FAFAF9;font-size:16px;font-weight:700;margin:0 0 16px;">Shipping To</h3>
-      <p style="color:#A8A29E;font-size:14px;line-height:1.8;margin:0;">
-        ${order.customer.firstName} ${order.customer.lastName}<br>
-        ${order.customer.address1}${order.customer.address2 ? "<br>" + order.customer.address2 : ""}<br>
-        ${order.customer.city}, ${order.customer.state} ${order.customer.zip}
-      </p>
+      ${shippingAddressBlock(order)}
     </div>
     <div style="text-align:center;padding-top:24px;">
       <p style="color:#78716C;font-size:13px;margin:0 0 8px;">Questions? Reply to this email or visit</p>
@@ -104,6 +113,100 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
             Data: `Order Confirmed\n\nThank you ${order.customer.firstName}!\n\nOrder ID: ${order.orderId}\nTotal: $${order.pricing.total.toFixed(2)}\n\nwww.buckthatduck.com`,
             Charset: "UTF-8",
           },
+        },
+      },
+    })
+  );
+}
+
+export async function sendShipmentEmail(order: Order): Promise<void> {
+  const itemsList = renderItemRows(order);
+  const carrierLabel = order.carrier ? CARRIER_LABELS[order.carrier] : undefined;
+  const shippedDate = order.shippedAt
+    ? new Date(order.shippedAt).toLocaleString("en-US", { dateStyle: "long" })
+    : new Date().toLocaleString("en-US", { dateStyle: "long" });
+
+  // Tracking card — only rendered when we have a tracking number
+  const trackingCard = order.trackingNumber
+    ? `<div style="background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;">
+      <h3 style="color:#FAFAF9;font-size:16px;font-weight:700;margin:0 0 16px;">Tracking</h3>
+      ${carrierLabel ? `<p style="color:#A8A29E;font-size:14px;margin:0 0 4px;">Carrier</p>
+      <p style="color:#FAFAF9;font-size:14px;margin:0 0 16px;">${carrierLabel}</p>` : ""}
+      <p style="color:#A8A29E;font-size:14px;margin:0 0 4px;">Tracking number</p>
+      <p style="color:#FAFAF9;font-size:14px;font-family:monospace;margin:0 0 20px;">${order.trackingNumber}</p>
+      ${
+        order.trackingUrl
+          ? `<a href="${order.trackingUrl}" style="display:inline-block;background:#CA8A04;color:#0C0A09;font-size:14px;font-weight:700;text-decoration:none;padding:12px 24px;border-radius:10px;">Track your package →</a>`
+          : ""
+      }
+    </div>`
+    : "";
+
+  const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body style="margin:0;padding:0;background-color:#0C0A09;font-family:system-ui,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+    <div style="text-align:center;margin-bottom:40px;">
+      <h1 style="color:#CA8A04;font-size:28px;font-weight:900;margin:0;">%uck<span style="color:#FAFAF9;">ThatDuck</span></h1>
+    </div>
+    <div style="background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;">
+      <p style="color:#CA8A04;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin:0 0 12px;">Your order is on its way</p>
+      <h2 style="color:#FAFAF9;font-size:24px;font-weight:800;margin:0 0 16px;">It shipped, ${order.customer.firstName}! 🦆</h2>
+      <p style="color:#A8A29E;margin:0;line-height:1.6;">Your %uckThatDuck order shipped on ${shippedDate} and is headed your way.</p>
+    </div>
+    ${trackingCard}
+    <div style="background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;">
+      <h3 style="color:#FAFAF9;font-size:16px;font-weight:700;margin:0 0 20px;">In this shipment</h3>
+      <p style="color:#A8A29E;font-size:14px;margin:0 0 4px;">Order ID</p>
+      <p style="color:#FAFAF9;font-size:14px;font-family:monospace;margin:0 0 16px;">${order.orderId}</p>
+      <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+        <thead>
+          <tr>
+            <th style="color:#A8A29E;font-size:12px;font-weight:600;text-align:left;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08);">Item</th>
+            <th style="color:#A8A29E;font-size:12px;font-weight:600;text-align:center;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08);">Qty</th>
+            <th style="color:#A8A29E;font-size:12px;font-weight:600;text-align:right;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08);">Price</th>
+          </tr>
+        </thead>
+        <tbody>${itemsList}</tbody>
+      </table>
+    </div>
+    <div style="background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;">
+      <h3 style="color:#FAFAF9;font-size:16px;font-weight:700;margin:0 0 16px;">Shipping To</h3>
+      ${shippingAddressBlock(order)}
+    </div>
+    <div style="text-align:center;padding-top:24px;">
+      <p style="color:#78716C;font-size:13px;margin:0 0 8px;">Questions? Reply to this email or visit</p>
+      <a href="https://www.buckthatduck.com" style="color:#CA8A04;font-size:13px;">www.buckthatduck.com</a>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  const textLines = [
+    "Your order shipped!",
+    "",
+    `Hi ${order.customer.firstName}, your %uckThatDuck order is on its way.`,
+    "",
+    `Order ID: ${order.orderId}`,
+  ];
+  if (carrierLabel) textLines.push(`Carrier: ${carrierLabel}`);
+  if (order.trackingNumber) textLines.push(`Tracking: ${order.trackingNumber}`);
+  if (order.trackingUrl) textLines.push(`Track: ${order.trackingUrl}`);
+  textLines.push("", "www.buckthatduck.com");
+
+  await ses.send(
+    new SendEmailCommand({
+      Source: FROM_ADDRESS,
+      Destination: { ToAddresses: [order.customer.email] },
+      Message: {
+        Subject: {
+          Data: `Your %uckThatDuck order has shipped - #${order.orderId.slice(0, 8).toUpperCase()}`,
+          Charset: "UTF-8",
+        },
+        Body: {
+          Html: { Data: html, Charset: "UTF-8" },
+          Text: { Data: textLines.join("\n"), Charset: "UTF-8" },
         },
       },
     })
