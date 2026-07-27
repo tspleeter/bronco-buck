@@ -6,7 +6,7 @@ import {
   DeleteCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { docClient } from "@/lib/dynamo-client";
-import { Order } from "@/types/order";
+import { Order, OrderStatus, Carrier } from "@/types/order";
 
 const TABLE_NAME = process.env.DYNAMO_ORDERS_TABLE ?? "BroncoBuckOrders";
 
@@ -58,6 +58,59 @@ export async function updateOrderStatus(
       },
     })
   );
+}
+
+export interface FulfillmentUpdate {
+  status: OrderStatus;
+  carrier?: Carrier;
+  trackingNumber?: string;
+  trackingUrl?: string;
+  shippedAt?: string;
+}
+
+/**
+ * Update an order's fulfillment fields (status + optional tracking) and return
+ * the full updated order. Only the fields present on `update` are written.
+ */
+export async function updateOrderFulfillment(
+  orderId: string,
+  update: FulfillmentUpdate
+): Promise<Order | undefined> {
+  const names: Record<string, string> = { "#status": "status" };
+  const values: Record<string, unknown> = {
+    ":status": update.status,
+    ":updatedAt": new Date().toISOString(),
+  };
+  const sets: string[] = ["#status = :status", "updatedAt = :updatedAt"];
+
+  const optional: [keyof FulfillmentUpdate, string][] = [
+    ["carrier", "carrier"],
+    ["trackingNumber", "trackingNumber"],
+    ["trackingUrl", "trackingUrl"],
+    ["shippedAt", "shippedAt"],
+  ];
+
+  for (const [key, attr] of optional) {
+    const val = update[key];
+    if (val !== undefined) {
+      names[`#${attr}`] = attr;
+      values[`:${attr}`] = val;
+      sets.push(`#${attr} = :${attr}`);
+    }
+  }
+
+  const result = await docClient.send(
+    new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: { orderId },
+      UpdateExpression: "SET " + sets.join(", "),
+      ExpressionAttributeNames: names,
+      ExpressionAttributeValues: values,
+      ReturnValues: "ALL_NEW",
+    })
+  );
+
+  return result.Attributes as Order | undefined;
 }
 
 export async function deleteOrder(orderId: string): Promise<void> {
