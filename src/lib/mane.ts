@@ -1,6 +1,7 @@
 import type { ManeContext } from "@/lib/assets";
 
-const MANE_STYLE_MAP: Record<string, string> = { V4: "reg", V5: "reg" };
+// V5 Punk & V28 Long map to "reg" until their full render sets land; flip to "punk"/"long" on relaunch
+const MANE_STYLE_MAP: Record<string, string> = { V4: "reg", V5: "reg", V28: "reg" };
 const MANE_COLOR_MAP: Record<string, string> = { V6: "black", V7: "white" };
 
 /**
