@@ -47,7 +47,7 @@
 | ID | Group | Options |
 |----|-------|---------|
 | G1 | Body Color | V1 Ruby Red, V2 Velocity Blue, V3 Shadow Black, V15 Eruption Green, V16 Oxford White, V17 Cyber Orange, V18 Carbonized Gray, V19 Cactus Gray, V20 Desert Sand, V21 Azure Gray, V23 Robin's Egg Blue |
-| G2 | Mane Style | V4 Regular (+$0), V5 Punk (+$3, **deactivated** July 2026 pending punk renders), V28 Long (+$3, **deactivated** July 2026 — 3 of 11 colors done, black mane only, pending full render set) |
+| G2 | Mane Style | V4 Regular (+$0), V5 Punk (+$3, **deactivated** July 2026 pending punk renders), V28 Long (+$3, **deactivated** July 2026 — 27 of 88 renders done, pending full render set) |
 | G3 | Mane Color | V6 Black (+$0), V7 White (+$2) — now shown in cart summary (imagery is baked into body renders) |
 | G4 | Accessories | V8 Sunglasses (+$4) |
 | G5 | Stand Style | V9 Standard (+$0) — **hidden from cart summary until imagery ready** |
@@ -65,7 +65,7 @@
 - Hidden groups (G5 only) excluded from `getBuildSummary()` in `src/lib/summary.ts` (G2 + G3 + G6 unhidden July 2026 — paid selections must be itemized)
 - **Defaults gotcha:** `getDefaultBuildState()` selects the FIRST active option in each group — the config `default` field is not read. Order options accordingly.
 - G2 V5 "Punk" is a real product style (+$3) but **deactivated** until punk renders land (88 images: 11 colors × 4 views × 2 mane colors, `body_{color}_{view}_punkmane_{mane_color}.png`); to relaunch: flip active:true and update MANE_STYLE_MAP V5→"punk". V4 renamed "Short"→"Regular" July 2026.
-- G2 V28 "Long" is a real product style (+$3), **deactivated** July 2026 pending its full render set. Done so far: Velocity Blue, Ruby Red, Shadow Black × 4 views × **black mane only** (12 images, `body_{color}_{view}_longmane_black.png`). Still needed before relaunch: white-mane versions of those 3 colors, the remaining 8 colors (both mane colors), and the **tabled 4th uploaded color** (a charcoal/dark gray — identity TBD, Todd to confirm; its 4 renders `Untitled_9..12` were set aside unprocessed). "except for a few" — a few colors may ship black-only; Todd to specify. To relaunch: flip active:true and update MANE_STYLE_MAP V28→"long". Full set = 88 images (11 colors × 4 views × 2 mane colors).
+- G2 V28 "Long" is a real product style (+$3), **deactivated** July 2026 pending its full render set. **Done (27 of 88):** Velocity Blue / Ruby Red / Shadow Black — black mane only (4 views each); Oxford White — complete (black + white, 8); Cactus Gray — black complete (4) + white 3/4 (**missing left view**). **Still needed before relaunch:** white manes for Velocity Blue / Ruby Red / Shadow Black (12); Cactus Gray white *left* (1); all of Eruption Green, Cyber Orange, Carbonized Gray, Azure Gray, Desert Sand, Robin's Egg Blue (6 colors × 8 = 48). The **tabled 4th uploaded color** from the first batch (a charcoal/dark gray, `Untitled_9..12`, identity TBD — likely Carbonized or Azure Gray) is still set aside. To relaunch: flip active:true and update MANE_STYLE_MAP V28→"long". Full set = 88 (11 colors × 4 views × 2 mane colors).
 
 ### Gallery defaults (mane color per body color)
 - White mane: Ruby Red, Velocity Blue, Shadow Black, Carbonized Gray
@@ -101,7 +101,7 @@
 
 ### Pending image work
 - **Stand overlays learnings (July 2026):** side-view screenshots can have slight camera-orbit parallax vs originals (head shifts relative to stand). Alignment must refine on the stand band (y>850) after coarse global alignment. Light stand colors (sand) can fail diff-threshold extraction near highlights — use the black stand's alpha as the canonical stencil for all colors of the same view. Todd's Bambu layout has 4 filament slots, so non-black stand screenshots show recolored eyes — harmless, extraction only keeps the stand region.
-- Mane style images: Punk (no renders yet); Long (V28 — 12 of 88 done: Velocity Blue/Ruby Red/Shadow Black × 4 views × black only; white manes + 8 more colors + tabled 4th color pending Todd) — builder UI exists, layers disabled until full sets arrive
+- Mane style images: Punk (no renders yet); Long (V28 — **27 of 88 done**: Velocity Blue/Ruby Red/Shadow Black black-only, Oxford White complete, Cactus Gray black complete + white missing left; still need white manes for blue/red/black, cactus white left, and 6 untouched colors) — builder UI exists, layers disabled until full sets arrive
 - Stand style/color preview images
 - Accessory (sunglasses) layer images
 
