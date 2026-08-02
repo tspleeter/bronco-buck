@@ -143,7 +143,7 @@
           "priceDelta": 3,
           "imageLayer": "none",
           "layerType": "mane-style",
-          "active": false
+          "active": true
         }
       ]
     },
