@@ -1,25 +1,29 @@
 import type { ManeContext } from "@/lib/assets";
 
 // Mane style option (G2) -> asset filename token.
-// V5 Punk has no renders yet (stays "reg"). V28 Long is LIVE, but only for the
-// colors listed in LONG_SUPPORTED_G1 (complete render sets); others fall back to "reg".
+// V5 Punk has no renders yet (stays "reg"). V28 Long is LIVE for ALL 11 body
+// colors (complete render sets); LONG_SUPPORTED_G1 now covers every G1 id.
 const MANE_STYLE_MAP: Record<string, string> = { V4: "reg", V5: "reg", V28: "long" };
 const MANE_COLOR_MAP: Record<string, string> = { V6: "black", V7: "white" };
 
 // G1 body-color option ids that have a COMPLETE Long-mane render set
-// (all 4 views × both mane colors). Live: Ruby Red (V1), Oxford White (V16),
-// Desert Sand (V20), Velocity Blue (V2), Shadow Black (V3), Carbonized Gray (V18),
-// Eruption Green (V15), Azure Gray (V21), Cactus Gray (V19).
+// (all 4 views × both mane colors). Now ALL 11 colors: Ruby Red (V1),
+// Velocity Blue (V2), Shadow Black (V3), Eruption Green (V15), Oxford White (V16),
+// Cyber Orange (V17), Carbonized Gray (V18), Cactus Gray (V19), Desert Sand (V20),
+// Azure Gray (V21), Robin's Egg Blue (V23). Cyber Orange + Robin's Egg Blue
+// completed the 88/88 Long batch.
 export const LONG_SUPPORTED_G1 = new Set<string>([
   "V1",
   "V2",
   "V3",
   "V15",
   "V16",
+  "V17",
   "V18",
   "V19",
   "V20",
   "V21",
+  "V23",
 ]);
 
 /**
