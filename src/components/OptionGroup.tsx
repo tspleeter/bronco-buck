@@ -26,6 +26,8 @@ interface OptionGroupProps {
   onChange: (groupId: string, value: OptionValue) => void;
   onCustomFieldChange?: (field: string, value: string) => void;
   customFieldValue?: string;
+  /** Option ids to hide even if active (e.g. Long mane for colors without a render set). */
+  hiddenOptionIds?: string[];
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -54,11 +56,14 @@ export function OptionGroup({
   onChange,
   onCustomFieldChange,
   customFieldValue,
+  hiddenOptionIds,
 }: OptionGroupProps) {
   const isColorGroup = group.name.toLowerCase().includes("color");
   const isNameplateGroup = group.id === "G7";
 
-  const activeOptions = group.options.filter((o) => o.active);
+  const activeOptions = group.options.filter(
+    (o) => o.active && !hiddenOptionIds?.includes(o.id),
+  );
 
   const selectedValue = typeof value === "string" ? value : undefined;
   const isCustomSelected = isNameplateGroup && selectedValue === "V13";
