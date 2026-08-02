@@ -18,7 +18,7 @@ import {
 } from "@/lib/saved-builds";
 import BuilderPreview from "@/components/BuilderPreview";
 import type { ManeContext } from "@/lib/assets";
-import { getManeContext } from "@/lib/mane";
+import { getManeContext, LONG_SUPPORTED_G1 } from "@/lib/mane";
 import { OptionGroup } from "@/components/OptionGroup";
 import { PriceSummary } from "@/components/PriceSummary";
 import { BuildSummary } from "@/components/BuildSummary";
@@ -164,6 +164,12 @@ export default function BuildPage() {
     (): ManeContext => getManeContext(buildState.selectedOptions),
     [buildState],
   );
+
+  // Long mane is only offered for body colors with a complete render set.
+  const longSupported = useMemo(() => {
+    const g1 = buildState.selectedOptions["G1"];
+    return typeof g1 === "string" && LONG_SUPPORTED_G1.has(g1);
+  }, [buildState]);
 
   const getBuildName = () => {
     const body = buildState.selectedOptions["G1"];
@@ -381,21 +387,38 @@ export default function BuildPage() {
               customFieldValue={
                 group.id === "G7" ? buildState.customFields.nameplateText ?? "" : ""
               }
+              hiddenOptionIds={
+                group.id === "G2" && !longSupported ? ["V28"] : undefined
+              }
               onChange={(id, val) =>
-                setBuildState((prev) => ({
-                  ...prev,
-                  selectedOptions: {
+                setBuildState((prev) => {
+                  const selectedOptions = {
                     ...prev.selectedOptions,
                     [id]: val,
-                  },
-                  customFields:
-                    id === "G7" && val !== "V13"
-                      ? {
-                          ...prev.customFields,
-                          nameplateText: val === "V22" ? "Buck" : "",
-                        }
-                      : prev.customFields,
-                }))
+                  };
+                  // Long mane isn't rendered for every color; if the user picks a
+                  // body color without a Long set while Long is selected, fall the
+                  // mane style back to Regular so preview/price stay consistent.
+                  if (
+                    id === "G1" &&
+                    typeof val === "string" &&
+                    !LONG_SUPPORTED_G1.has(val) &&
+                    prev.selectedOptions["G2"] === "V28"
+                  ) {
+                    selectedOptions["G2"] = "V4";
+                  }
+                  return {
+                    ...prev,
+                    selectedOptions,
+                    customFields:
+                      id === "G7" && val !== "V13"
+                        ? {
+                            ...prev.customFields,
+                            nameplateText: val === "V22" ? "Buck" : "",
+                          }
+                        : prev.customFields,
+                  };
+                })
               }
               onCustomFieldChange={(field, val) =>
                 setBuildState((prev) => ({
