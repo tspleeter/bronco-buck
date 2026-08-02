@@ -9,7 +9,7 @@ const MANE_COLOR_MAP: Record<string, string> = { V6: "black", V7: "white" };
 // G1 body-color option ids that have a COMPLETE Long-mane render set
 // (all 4 views × both mane colors). Live: Ruby Red (V1), Oxford White (V16),
 // Desert Sand (V20), Velocity Blue (V2), Shadow Black (V3), Carbonized Gray (V18),
-// Eruption Green (V15), Azure Gray (V21).
+// Eruption Green (V15), Azure Gray (V21), Cactus Gray (V19).
 export const LONG_SUPPORTED_G1 = new Set<string>([
   "V1",
   "V2",
@@ -17,6 +17,7 @@ export const LONG_SUPPORTED_G1 = new Set<string>([
   "V15",
   "V16",
   "V18",
+  "V19",
   "V20",
   "V21",
 ]);
