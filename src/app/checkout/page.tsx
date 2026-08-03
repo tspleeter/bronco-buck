@@ -20,7 +20,7 @@ import { ActionButton } from "@/components/ActionButton";
 import { Toast } from "@/components/Toast";
 
 const stripePromise = loadStripe(
-  "pk_test_51TYB7HJ9TiI7LNGEdWOcmEJyWdVNBABakB1hqf6JjpiAh7taJoVHrKKWkX0JabR94O6prothMEuojrgBsRrUe5zA00rG7t6iNK"
+  "pk_live_51TYB6eQxnWViL6pk6T03aow2two706HTaMsVMolL13dACQu1M8p4TCnkrJI524FHu9Pnd9qhk8jIdQpYJ9OZLBdm0060sRbsAK"
 );
 
 const initialForm: CheckoutFormData = {
