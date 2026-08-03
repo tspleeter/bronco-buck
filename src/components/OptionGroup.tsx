@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+
 type OptionValue = string | string[];
 
 interface ProductOption {
@@ -9,6 +11,8 @@ interface ProductOption {
   imageLayer: string;
   layerType: string;
   active: boolean;
+  /** When false, the option renders but is not selectable (shows a "coming soon" notice). Absent = available. */
+  available?: boolean;
 }
 
 interface ProductGroup {
@@ -61,6 +65,15 @@ export function OptionGroup({
   const isColorGroup = group.name.toLowerCase().includes("color");
   const isNameplateGroup = group.id === "G7";
 
+  const [notice, setNotice] = useState<{ text: string; key: number } | null>(null);
+
+  // Auto-dismiss the "coming soon" notice a few seconds after it appears.
+  useEffect(() => {
+    if (!notice) return;
+    const t = setTimeout(() => setNotice(null), 4000);
+    return () => clearTimeout(t);
+  }, [notice]);
+
   const activeOptions = group.options.filter(
     (o) => o.active && !hiddenOptionIds?.includes(o.id),
   );
@@ -68,23 +81,34 @@ export function OptionGroup({
   const selectedValue = typeof value === "string" ? value : undefined;
   const isCustomSelected = isNameplateGroup && selectedValue === "V13";
 
+  const isAvailable = (option: ProductOption) => option.available !== false;
+
   const isSelected = (optionId: string) => {
     if (group.type === "single") return value === optionId;
     return Array.isArray(value) ? value.includes(optionId) : false;
   };
 
-  const handleClick = (optionId: string) => {
+  const handleClick = (option: ProductOption) => {
+    // Not-yet-available options aren't selectable — surface a notice instead.
+    if (!isAvailable(option)) {
+      setNotice({
+        text: `${option.name} is coming soon — not available yet.`,
+        key: Date.now(),
+      });
+      return;
+    }
+
     if (group.type === "single") {
-      onChange(group.id, optionId);
+      onChange(group.id, option.id);
       return;
     }
 
     const current = Array.isArray(value) ? value : [];
 
-    if (current.includes(optionId)) {
-      onChange(group.id, current.filter((id) => id !== optionId));
+    if (current.includes(option.id)) {
+      onChange(group.id, current.filter((id) => id !== option.id));
     } else {
-      onChange(group.id, [...current, optionId]);
+      onChange(group.id, [...current, option.id]);
     }
   };
 
@@ -122,17 +146,24 @@ export function OptionGroup({
       {isColorGroup ? (
         <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
           {activeOptions.map((option) => {
-            const selected = isSelected(option.id);
+            const available = isAvailable(option);
+            const selected = isSelected(option.id) && available;
             const color = COLOR_MAP[option.name] ?? "#888888";
 
             return (
               <button
                 key={option.id}
                 type="button"
-                onClick={() => handleClick(option.id)}
+                onClick={() => handleClick(option)}
                 className="color-swatch-btn"
-                title={`${option.name} — ${formatPrice(option.priceDelta)}`}
+                title={
+                  available
+                    ? `${option.name} — ${formatPrice(option.priceDelta)}`
+                    : `${option.name} — coming soon`
+                }
                 aria-pressed={selected}
+                aria-disabled={!available}
+                style={available ? undefined : { opacity: 0.5 }}
               >
                 <div
                   className={`color-swatch${selected ? " selected" : ""}`}
@@ -140,7 +171,7 @@ export function OptionGroup({
                 />
                 <span className="swatch-label">{option.name}</span>
                 <span style={{ fontSize: "0.7rem", color: selected ? "var(--color-gold)" : "var(--color-text-dim)" }}>
-                  {formatPrice(option.priceDelta)}
+                  {available ? formatPrice(option.priceDelta) : "Coming soon"}
                 </span>
               </button>
             );
@@ -156,20 +187,65 @@ export function OptionGroup({
           }}
         >
           {activeOptions.map((option) => {
-            const selected = isSelected(option.id);
+            const available = isAvailable(option);
+            const selected = isSelected(option.id) && available;
             return (
               <button
                 key={option.id}
                 type="button"
-                onClick={() => handleClick(option.id)}
+                onClick={() => handleClick(option)}
                 className={`option-chip${selected ? " selected" : ""}`}
                 aria-pressed={selected}
+                aria-disabled={!available}
+                title={available ? undefined : `${option.name} — coming soon`}
+                style={available ? undefined : { opacity: 0.5 }}
               >
                 <span className="chip-name">{option.name}</span>
-                <span className="chip-price">{formatPrice(option.priceDelta)}</span>
+                <span className="chip-price">
+                  {available ? formatPrice(option.priceDelta) : "Coming soon"}
+                </span>
               </button>
             );
           })}
+        </div>
+      )}
+
+      {/* Coming-soon notice (shown when a not-yet-available option is pressed) */}
+      {notice && (
+        <div
+          role="status"
+          aria-live="polite"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "10px 12px",
+            borderRadius: "var(--radius-md, 10px)",
+            border: "1px solid var(--color-gold)",
+            background: "rgba(202, 138, 4, 0.12)",
+            color: "var(--color-text)",
+            fontSize: "0.85rem",
+            fontWeight: 600,
+          }}
+        >
+          <span
+            aria-hidden="true"
+            style={{
+              flexShrink: 0,
+              width: "18px",
+              height: "18px",
+              display: "grid",
+              placeItems: "center",
+              borderRadius: "var(--radius-full, 999px)",
+              background: "var(--color-gold)",
+              color: "#0C0A09",
+              fontSize: "0.7rem",
+              fontWeight: 900,
+            }}
+          >
+            !
+          </span>
+          <span>{notice.text}</span>
         </div>
       )}
 
