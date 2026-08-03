@@ -91,7 +91,7 @@
 
 **Colors:** azure_gray, cactus_gray, carbonized_gray, cyber_orange, desert_sand, eruption_green, oxford_white, robins_egg_blue, ruby_red, shadow_black, velocity_blue
 
-**Robin's Egg Blue (V23):** Heritage Edition color (2023–2025, discontinued 2026 MY), Ford paint code CW/M7478, screen approx #BADBE4, solid non-metallic finish. Added July 2026.
+**Robin's Egg Blue (V23):** Heritage Edition color (2023–2025, discontinued 2026 MY), Ford paint code CW/M7478, solid non-metallic finish. Added July 2026. **Color-value note (Aug 2026):** no single official Ford digital RGB exists. Automotive color DBs (encycolorpedia) map CW/M7478 to **#BADBE4** (186,219,228) — the best-sourced *Ford-paint* approximation. Do NOT use **#96DED1** or #00CCCC — those are the *generic named web color* “robin egg blue,” not the Ford paint (a common AI/search conflation via htmlcolorcodes-type sources). Neither drives anything in-app: G1 options carry no hex field, swatches render from the body image. **Ground-truth product color = the actual PETG render, plinth samples ~(149,195,204)** — use this if a swatch hex is ever needed so the chip matches the preview.
 
 **Legacy/unused files** (safe to ignore): `body_black_*`, `body_blue.png`, `body_red.png`, `body_green.png`, `body_grey_front.png`, `body_cyan_front.png`, `body_yellow_front.png`
 
