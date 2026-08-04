@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loadStripe } from "@stripe/stripe-js";
@@ -41,11 +41,13 @@ function CheckoutForm({
   form,
   setForm,
   isMobile,
+  paymentIntentId,
 }: {
   items: CartItem[];
   form: CheckoutFormData;
   setForm: React.Dispatch<React.SetStateAction<CheckoutFormData>>;
   isMobile: boolean;
+  paymentIntentId: string;
 }) {
   const router = useRouter();
   const stripe = useStripe();
@@ -53,6 +55,11 @@ function CheckoutForm({
 
   const [message, setMessage] = useState("");
   const [placingOrder, setPlacingOrder] = useState(false);
+  // Sales tax is calculated by Stripe from the shipping address. It stays 0
+  // (and the Tax row stays hidden) until a calculation returns a non-zero
+  // amount, so the checkout behaves exactly as before until tax applies.
+  const [tax, setTax] = useState(0);
+  const [taxTotal, setTaxTotal] = useState<number | null>(null);
 
   const subtotal = useMemo(
     () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
@@ -65,6 +72,91 @@ function CheckoutForm({
   }, [items, subtotal]);
 
   const total = useMemo(() => subtotal + shipping, [subtotal, shipping]);
+
+  // What the customer is actually charged: the tax-inclusive total once a
+  // calculation has run, otherwise subtotal + shipping.
+  const displayTotal = taxTotal ?? total;
+
+  // Calls the server to calculate tax for the current address and link the
+  // resulting calculation to the PaymentIntent. Returns the final tax + total.
+  const runTaxCalc = useCallback(async (): Promise<{
+    tax: number;
+    total: number;
+  }> => {
+    const fallback = { tax: 0, total: subtotal + shipping };
+    if (!paymentIntentId || subtotal <= 0) return fallback;
+
+    try {
+      const res = await fetch("/api/calculate-tax", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache, no-store",
+        },
+        body: JSON.stringify({
+          paymentIntentId,
+          subtotal,
+          address: {
+            line1: form.address1,
+            line2: form.address2,
+            city: form.city,
+            state: form.state,
+            postal_code: form.zip,
+            country: "US",
+          },
+        }),
+      });
+      const data = await res.json();
+      const t = Number(data.tax) || 0;
+      const tot = Number(data.total) || subtotal + shipping;
+      setTax(t);
+      setTaxTotal(tot);
+      return { tax: t, total: tot };
+    } catch {
+      setTax(0);
+      setTaxTotal(subtotal + shipping);
+      return fallback;
+    }
+  }, [
+    paymentIntentId,
+    subtotal,
+    shipping,
+    form.address1,
+    form.address2,
+    form.city,
+    form.state,
+    form.zip,
+  ]);
+
+  // Recalculate tax (debounced) once the shipping address looks complete.
+  useEffect(() => {
+    const addressComplete =
+      form.address1.trim() &&
+      form.city.trim() &&
+      form.state.trim() &&
+      /^\d{5}(-\d{4})?$/.test(form.zip.trim());
+
+    if (!addressComplete || !paymentIntentId) return;
+
+    const handle = setTimeout(async () => {
+      await runTaxCalc();
+      try {
+        await elements?.fetchUpdates();
+      } catch {
+        /* amount refresh is best-effort */
+      }
+    }, 600);
+
+    return () => clearTimeout(handle);
+  }, [
+    form.address1,
+    form.city,
+    form.state,
+    form.zip,
+    paymentIntentId,
+    runTaxCalc,
+    elements,
+  ]);
 
   const handleChange =
     (field: keyof CheckoutFormData) =>
@@ -99,6 +191,15 @@ function CheckoutForm({
     setPlacingOrder(true);
 
     try {
+      // Authoritative tax calculation for the final address — this also sets the
+      // PaymentIntent amount that Stripe is about to charge.
+      const finalPricing = await runTaxCalc();
+      try {
+        await elements.fetchUpdates();
+      } catch {
+        /* amount refresh is best-effort */
+      }
+
       // Confirm payment with Stripe
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
@@ -143,7 +244,12 @@ function CheckoutForm({
           price: item.price,
           quantity: item.quantity,
         })),
-        pricing: { subtotal, shipping, total },
+        pricing: {
+          subtotal,
+          shipping,
+          tax: finalPricing.tax,
+          total: finalPricing.total,
+        },
         createdAt: now,
         updatedAt: now,
         notes: `Stripe payment intent: ${paymentIntent.id}`,
@@ -347,6 +453,12 @@ function CheckoutForm({
                 <span>Shipping</span>
                 <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
               </div>
+              {tax > 0 ? (
+                <div style={summaryRowStyle}>
+                  <span>Tax</span>
+                  <span>${tax.toFixed(2)}</span>
+                </div>
+              ) : null}
               <div
                 style={{
                   ...summaryRowStyle,
@@ -358,7 +470,7 @@ function CheckoutForm({
                 }}
               >
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>${displayTotal.toFixed(2)}</span>
               </div>
             </div>
 
@@ -367,7 +479,7 @@ function CheckoutForm({
               disabled={placingOrder || !stripe}
               variant="primary"
             >
-              {placingOrder ? "Processing..." : `Pay $${total.toFixed(2)}`}
+              {placingOrder ? "Processing..." : `Pay $${displayTotal.toFixed(2)}`}
             </ActionButton>
           </div>
         )}
@@ -381,6 +493,7 @@ export default function CheckoutPage() {
   const [items, setItems] = useState<CartItem[]>([]);
   const [form, setForm] = useState<CheckoutFormData>(initialForm);
   const [clientSecret, setClientSecret] = useState("");
+  const [paymentIntentId, setPaymentIntentId] = useState("");
   const [isMobile, setIsMobile] = useState(false);
 
   const total = useMemo(() => {
@@ -406,7 +519,10 @@ export default function CheckoutPage() {
       body: JSON.stringify({ amount: total }),
     })
       .then((res) => res.json())
-      .then((data) => setClientSecret(data.clientSecret))
+      .then((data) => {
+        setClientSecret(data.clientSecret);
+        setPaymentIntentId(data.paymentIntentId ?? "");
+      })
       .catch(console.error);
   }, [total]);
 
@@ -439,6 +555,7 @@ export default function CheckoutPage() {
           form={form}
           setForm={setForm}
           isMobile={isMobile}
+          paymentIntentId={paymentIntentId}
         />
       </Elements>
     </main>

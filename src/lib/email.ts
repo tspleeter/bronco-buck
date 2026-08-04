@@ -81,6 +81,14 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
           <span style="color:#A8A29E;font-size:14px;">Shipping</span>
           <span style="color:#FAFAF9;font-size:14px;">${order.pricing.shipping === 0 ? "Free" : "$" + order.pricing.shipping.toFixed(2)}</span>
         </div>
+        ${
+          order.pricing.tax && order.pricing.tax > 0
+            ? `<div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span style="color:#A8A29E;font-size:14px;">Tax</span>
+          <span style="color:#FAFAF9;font-size:14px;">$${order.pricing.tax.toFixed(2)}</span>
+        </div>`
+            : ""
+        }
         <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
           <span style="color:#FAFAF9;font-size:16px;font-weight:700;">Total</span>
           <span style="color:#CA8A04;font-size:16px;font-weight:700;">$${order.pricing.total.toFixed(2)}</span>

@@ -37,7 +37,10 @@ export async function POST(req: Request) {
       automatic_payment_methods: { enabled: true },
     });
 
-    return NextResponse.json({ clientSecret: paymentIntent.client_secret });
+    return NextResponse.json({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+    });
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err);
     console.error("Payment intent error:", detail);
