@@ -25,7 +25,7 @@
 - Dark theme UI with gold accents (Andrew's redesign) ✅
 - `/orders` route is password-gated ✅
 - Multi-view builder (front/right/back/left) ✅
-- Gallery: 11 color grid, fixed mane defaults per color, links to builder with pre-selected color+mane ✅
+- Gallery: 11 color grid, **assorted manes** (Aug 2026 — mix of Long/Regular style + black/white color per tile, chosen for contrast), links to builder with pre-selected color + mane color + **mane style** ✅
 - Home page: two-column hero — text left, Buck+duck photo right (anchored top-left) ✅
 - Hero image: `public/assets/hero-buck-duck.png` (Buck biting rubber duck, black bg removed) ✅
 - Free rubber duck SVG icon included with every order — shown in build summary, cart, confirmation email ✅
@@ -80,9 +80,12 @@
 
 - **Accessories (G4) — ALL not available (Aug 2026):** both **V8 Sunglasses** and **V29 Eyelashes** carry `active:true` (so they still render) plus a new **`available:false`** flag on the option. `OptionGroup.tsx` treats `available:false` as "coming soon": the chip is dimmed, its price is replaced with **"Coming soon"**, it can't be selected, and **pressing it shows an inline gold notice** ("{name} is coming soon — not available yet.", auto-dismisses after 4s). Mechanism: `isAvailable(o) = o.available !== false`; `handleClick` short-circuits to the notice for unavailable options. `available` is an **optional** field (absent ⇒ available) so every other group is unaffected. **To relaunch an accessory:** set `available:true` (or delete the field) on its option in `bronco-config.json` G4 (and add its preview/layer image). Old saved builds that already selected Sunglasses keep their price via `summary.ts` (unchanged); new builds can't add either accessory.
 
-### Gallery defaults (mane color per body color)
-- White mane: Ruby Red, Velocity Blue, Shadow Black, Carbonized Gray
-- Black mane: Eruption Green, Oxford White, Cyber Orange, Cactus Gray, Desert Sand, Azure Gray, Robin's Egg Blue
+### Gallery manes (assorted — Aug 2026)
+Each tile shows a different mane so the grid reads as an assortment, not one repeated style. Style alternates down the flat array (so no two array-neighbors match at any responsive column count); mane color is contrast-picked per body.
+- **Style:** 6 Long (V28) / 5 Regular (V4). Long: Ruby Red, Shadow Black, Oxford White, Carbonized Gray, Desert Sand, Robin's Egg Blue. Regular: Velocity Blue, Eruption Green, Cyber Orange, Cactus Gray, Azure Gray.
+- **Mane color:** 6 white / 5 black. White (pops on dark/mid bodies): Ruby Red, Velocity Blue, Shadow Black, Eruption Green, Cyber Orange, Carbonized Gray. Black (pops on light bodies): Oxford White, Cactus Gray, Desert Sand, Azure Gray, Robin's Egg Blue.
+- Gallery is **front-view only**, so only the 44 front renders matter here. Each card shows a small gold "{Long|Regular} mane" caption next to the price. `STYLE_LABEL` maps reg→Regular, long→Long.
+- **Builder link carries the mane style:** tiles link `?color=G1&mane=G3&style=G2` (e.g. `&style=V28`). `build/[productSlug]/page.tsx` reads `style` → G2 with the **LONG_SUPPORTED_G1 fallback guard** (Long on an unsupported color → V4 Regular, so no 404 / preview-price mismatch). Before Aug 2026 the tiles passed only color + mane color, so a Long preview opened the builder on Regular — fixed.
 
 ## Image Assets — `public/assets/`
 
