@@ -16,9 +16,14 @@ Repo audited: `tspleeter/bronco-buck` @ `main`. Most infrastructure is already s
 
 - [ ] **Activate the Stripe account for payouts.** In the Stripe dashboard: complete business profile (Pleeter LLC, EIN, address), add the bank account for payouts, and confirm the account shows "activated / can accept live charges." A live key on an un-activated account still won't settle funds.
 
-- [ ] **Resolve sales tax.** Checkout computes only subtotal + shipping + total — there is **no tax line**. Selling a physical good from NJ almost certainly triggers NJ sales tax, plus possible economic nexus elsewhere.
-  - Decide on collection approach (Stripe Tax is the least-code option — it plugs into the PaymentIntent).
-  - _Not tax advice — confirm treatment with an accountant before launch._
+- [ ] **Finish Stripe Tax setup — the code is done, the dashboard is not.** Stripe Tax is integrated and deployed **inert**: checkout calls the Tax Calculation API and links the result to the PaymentIntent, but with no tax registration on file the calc returns $0, so every order currently records **Tax $0.00** (now always shown on the `/orders` list + detail pages). No code change or deploy is needed to turn it on — it activates automatically once the account is registered. Complete these in **Stripe Dashboard → Tax → Settings**:
+  - [ ] Set the **origin / ship-from address** (head office) to **8 Nelke Ct, Hawthorne NJ 07506**.
+  - [ ] Set the preset **product tax code** to general tangible goods.
+  - [ ] Set the preset **shipping tax code**.
+  - [ ] Set **tax behavior = exclusive** (USD).
+  - [ ] Add a **tax registration — NJ at minimum.** _This is the gate:_ without a registration for a given jurisdiction, tax there stays $0 even with everything else set.
+  - _Verify:_ place one live test order and confirm a **Tax** line shows at checkout and a matching entry lands under **Stripe → Tax → Transactions**. On the pinned API version, Stripe auto-commits the transaction on payment success and auto-reverses on refund — no webhook to wire up.
+  - _Not tax advice — confirm your nexus/registration obligations with an accountant. Physical goods shipped from NJ trigger NJ sales tax; economic nexus may require registrations in other states too._
 
 - [ ] **Run one full end-to-end order in LIVE mode.** With live keys in place, place a real order start to finish and confirm every hop:
   1. Payment succeeds in Stripe (real charge, live dashboard).
