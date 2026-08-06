@@ -7,6 +7,11 @@ import { Order } from "@/types/order";
 import { ActionButton } from "@/components/ActionButton";
 import { Toast } from "@/components/Toast";
 import { OrderPreviewCard } from "@/components/OrderPreviewCard";
+import { BuildSummary } from "@/components/BuildSummary";
+import { getBuildSummary } from "@/lib/summary";
+import broncoConfigJson from "@/data/bronco-config.json";
+import type { ProductConfig } from "@/types/product";
+const broncoConfig = broncoConfigJson as ProductConfig;
 // removeOrder and clearOrders removed — orders are now in DynamoDB.
 // Deleting orders from the customer-facing UI is not appropriate for
 // a real store. Order management should happen in an admin interface.
@@ -193,37 +198,26 @@ export default function OrdersPage() {
                     </div>
 
                     <div style={{ marginTop: 16 }}>
-                      <h3 style={{ margin: 0, fontSize: 16 }}>Items</h3>
-                      <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
+                      <h3 style={{ margin: 0, fontSize: 16 }}>
+                        {order.items.length === 1 ? "Build" : "Builds"}
+                      </h3>
+                      <div style={{ marginTop: 10, display: "grid", gap: 14 }}>
                         {order.items.map((item) => (
-                          <div
-                            key={item.cartItemId}
-                            style={{
-                              border: "1px solid var(--color-border)",
-                              borderRadius: 12,
-                              padding: 12,
-                              background: "var(--color-surface-2)",
-                            }}
-                          >
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                gap: 12,
-                                flexWrap: "wrap",
-                              }}
-                            >
-                              <strong>{item.productName}</strong>
-                              <strong>${(item.price * item.quantity).toFixed(2)}</strong>
-                            </div>
-                            <div style={{ marginTop: 6, color: "var(--color-text-muted)" }}>
-                              Qty: {item.quantity}
-                            </div>
-                            {item.customFields?.nameplateText ? (
-                              <div style={{ marginTop: 6, color: "var(--color-text-muted)" }}>
-                                Nameplate: {item.customFields.nameplateText}
+                          <div key={item.cartItemId} style={{ display: "grid", gap: 8 }}>
+                            {item.quantity > 1 ? (
+                              <div style={{ color: "var(--color-text-muted)", fontSize: 14 }}>
+                                Quantity: {item.quantity} × ${item.price.toFixed(2)}
                               </div>
                             ) : null}
+                            <BuildSummary
+                              items={getBuildSummary(broncoConfig, {
+                                productId: item.productId,
+                                selectedOptions: item.selectedOptions,
+                                customFields: item.customFields,
+                              })}
+                              nameplateText={item.customFields?.nameplateText}
+                              price={item.price}
+                            />
                           </div>
                         ))}
                       </div>

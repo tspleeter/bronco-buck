@@ -7,6 +7,12 @@ import { getOrderById, updateOrderFulfillment, resendShipmentEmail } from "@/lib
 import { Order, OrderStatus, Carrier } from "@/types/order";
 import { CARRIERS, CARRIER_LABELS } from "@/lib/shipping";
 import { ActionButton } from "@/components/ActionButton";
+import { OrderItemPreview } from "@/components/OrderPreviewCard";
+import { BuildSummary } from "@/components/BuildSummary";
+import { getBuildSummary } from "@/lib/summary";
+import broncoConfigJson from "@/data/bronco-config.json";
+import type { ProductConfig } from "@/types/product";
+const broncoConfig = broncoConfigJson as ProductConfig;
 
 const STATUSES: OrderStatus[] = [
   "pending",
@@ -372,37 +378,46 @@ export default function OrderDetailPage() {
         </section>
 
         <section style={cardStyle(isMobile)}>
-          <h2 style={{ marginTop: 0 }}>Items</h2>
-          <div style={{ display: "grid", gap: 16 }}>
+          <h2 style={{ marginTop: 0 }}>
+            {order.items.length === 1 ? "Build" : "Builds"}
+          </h2>
+          <div style={{ display: "grid", gap: 24 }}>
             {order.items.map((item) => (
               <div
                 key={item.cartItemId}
                 style={{
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "var(--radius-sm)",
-                  padding: 14,
-                  background: "var(--color-surface-2)",
+                  display: "grid",
+                  gap: 18,
+                  gridTemplateColumns: isMobile ? "1fr" : "minmax(220px, 300px) 1fr",
+                  alignItems: "start",
                 }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: 12,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <strong>{item.productName}</strong>
-                  <strong>${(item.price * item.quantity).toFixed(2)}</strong>
-                </div>
-                <div style={{ marginTop: 8, ...muted }}>Qty: {item.quantity}</div>
-                {item.customFields?.nameplateText ? (
-                  <div style={{ marginTop: 6, ...muted }}>
-                    Nameplate: {item.customFields.nameplateText}
+                <OrderItemPreview item={item} />
+
+                <div style={{ display: "grid", gap: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                    <strong>{item.productName}</strong>
+                    <strong>${(item.price * item.quantity).toFixed(2)}</strong>
                   </div>
-                ) : null}
-                <div style={{ marginTop: 8, ...muted, fontSize: 14 }}>
-                  Product ID: {item.productId}
+                  {item.quantity > 1 ? (
+                    <div style={{ ...muted, fontSize: 14 }}>
+                      Quantity: {item.quantity} × ${item.price.toFixed(2)}
+                    </div>
+                  ) : null}
+
+                  <BuildSummary
+                    items={getBuildSummary(broncoConfig, {
+                      productId: item.productId,
+                      selectedOptions: item.selectedOptions,
+                      customFields: item.customFields,
+                    })}
+                    nameplateText={item.customFields?.nameplateText}
+                    price={item.price}
+                  />
+
+                  <div style={{ ...muted, fontSize: 13 }}>
+                    Product ID: {item.productId}
+                  </div>
                 </div>
               </div>
             ))}

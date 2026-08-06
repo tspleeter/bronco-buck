@@ -17,8 +17,10 @@ export function getBuildSummary(
     (a, b) => a.displayOrder - b.displayOrder,
   );
 
-  // Groups hidden from summary until imagery is ready
-  const HIDDEN_GROUPS = new Set(["G5"]);
+  // Groups hidden from the summary.
+  //  - G5 (Stand Style): hidden until imagery is ready
+  //  - G8 (Packaging): intentionally not shown to customers/admins
+  const HIDDEN_GROUPS = new Set(["G5", "G8"]);
 
   for (const group of sortedGroups) {
     if (HIDDEN_GROUPS.has(group.id)) continue;
