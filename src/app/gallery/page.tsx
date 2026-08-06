@@ -3,19 +3,28 @@
 import Link from "next/link";
 import { ActionButton } from "@/components/ActionButton";
 
+// Each tile showcases a different mane so the gallery reads as an assortment,
+// not one repeated style. Now that Long (V28) is LIVE for all 11 colors, styles
+// alternate down the grid (reg V4 / long V28) and mane colors are mixed while
+// keeping good contrast against each body (white pops on near-black bodies like
+// Shadow/Carbonized; black on light bodies like Oxford/Desert/Azure/Robin's).
+// style token feeds the filename (`_{styleToken}mane_`); styleId feeds the
+// builder link so the pre-selected mane matches the tile preview.
 const COLORS = [
-  { id: "V1",  name: "Ruby Red",        imageLayer: "body_ruby_red",        mane: "white", maneId: "V7" },
-  { id: "V2",  name: "Velocity Blue",   imageLayer: "body_velocity_blue",   mane: "white", maneId: "V7" },
-  { id: "V3",  name: "Shadow Black",    imageLayer: "body_shadow_black",    mane: "white", maneId: "V7" },
-  { id: "V15", name: "Eruption Green",  imageLayer: "body_eruption_green",  mane: "black", maneId: "V6" },
-  { id: "V16", name: "Oxford White",    imageLayer: "body_oxford_white",    mane: "black", maneId: "V6" },
-  { id: "V17", name: "Cyber Orange",    imageLayer: "body_cyber_orange",    mane: "black", maneId: "V6" },
-  { id: "V18", name: "Carbonized Gray", imageLayer: "body_carbonized_gray", mane: "white", maneId: "V7" },
-  { id: "V19", name: "Cactus Gray",     imageLayer: "body_cactus_gray",     mane: "black", maneId: "V6" },
-  { id: "V20", name: "Desert Sand",     imageLayer: "body_desert_sand",     mane: "black", maneId: "V6" },
-  { id: "V21", name: "Azure Gray",      imageLayer: "body_azure_gray",      mane: "black", maneId: "V6" },
-  { id: "V23", name: "Robin's Egg Blue", imageLayer: "body_robins_egg_blue", mane: "black", maneId: "V6" },
+  { id: "V1",  name: "Ruby Red",         imageLayer: "body_ruby_red",        style: "long", styleId: "V28", mane: "white", maneId: "V7" },
+  { id: "V2",  name: "Velocity Blue",    imageLayer: "body_velocity_blue",   style: "reg",  styleId: "V4",  mane: "white", maneId: "V7" },
+  { id: "V3",  name: "Shadow Black",     imageLayer: "body_shadow_black",    style: "long", styleId: "V28", mane: "white", maneId: "V7" },
+  { id: "V15", name: "Eruption Green",   imageLayer: "body_eruption_green",  style: "reg",  styleId: "V4",  mane: "white", maneId: "V7" },
+  { id: "V16", name: "Oxford White",     imageLayer: "body_oxford_white",    style: "long", styleId: "V28", mane: "black", maneId: "V6" },
+  { id: "V17", name: "Cyber Orange",     imageLayer: "body_cyber_orange",    style: "reg",  styleId: "V4",  mane: "white", maneId: "V7" },
+  { id: "V18", name: "Carbonized Gray",  imageLayer: "body_carbonized_gray", style: "long", styleId: "V28", mane: "white", maneId: "V7" },
+  { id: "V19", name: "Cactus Gray",      imageLayer: "body_cactus_gray",     style: "reg",  styleId: "V4",  mane: "black", maneId: "V6" },
+  { id: "V20", name: "Desert Sand",      imageLayer: "body_desert_sand",     style: "long", styleId: "V28", mane: "black", maneId: "V6" },
+  { id: "V21", name: "Azure Gray",       imageLayer: "body_azure_gray",      style: "reg",  styleId: "V4",  mane: "black", maneId: "V6" },
+  { id: "V23", name: "Robin's Egg Blue", imageLayer: "body_robins_egg_blue", style: "long", styleId: "V28", mane: "black", maneId: "V6" },
 ];
+
+const STYLE_LABEL: Record<string, string> = { reg: "Regular", long: "Long" };
 
 export default function GalleryPage() {
   return (
@@ -88,8 +97,8 @@ export default function GalleryPage() {
           }}
         >
           {COLORS.map((color) => {
-            const imgSrc = `/assets/body/${color.imageLayer}_front_regmane_${color.mane}.png`;
-            const buildHref = `/build/bronco-buck-classic?color=${color.id}&mane=${color.maneId}`;
+            const imgSrc = `/assets/body/${color.imageLayer}_front_${color.style}mane_${color.mane}.png`;
+            const buildHref = `/build/bronco-buck-classic?color=${color.id}&mane=${color.maneId}&style=${color.styleId}`;
 
             return (
               <Link key={color.id} href={buildHref} style={{ display: "block" }}>
@@ -109,7 +118,7 @@ export default function GalleryPage() {
                   >
                     <img
                       src={imgSrc}
-                      alt={`${color.name} Buck with ${color.mane} mane`}
+                      alt={`${color.name} Buck with a ${color.mane} ${STYLE_LABEL[color.style].toLowerCase()} mane`}
                       style={{
                         width: "100%",
                         height: "100%",
@@ -138,8 +147,21 @@ export default function GalleryPage() {
                       <div style={{ fontWeight: 700, fontSize: "1rem", color: "var(--color-text)" }}>
                         {color.name}
                       </div>
-                      <div style={{ fontSize: "0.8rem", color: "var(--color-text-muted)", marginTop: 2 }}>
-                        from $24.99
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          fontSize: "0.8rem",
+                          color: "var(--color-text-muted)",
+                          marginTop: 3,
+                        }}
+                      >
+                        <span style={{ color: "var(--color-gold-light)", fontWeight: 600 }}>
+                          {STYLE_LABEL[color.style]} mane
+                        </span>
+                        <span aria-hidden="true" style={{ opacity: 0.5 }}>·</span>
+                        <span>from $24.99</span>
                       </div>
                     </div>
                     <svg
