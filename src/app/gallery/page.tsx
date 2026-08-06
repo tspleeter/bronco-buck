@@ -10,18 +10,26 @@ import { ActionButton } from "@/components/ActionButton";
 // Shadow/Carbonized; black on light bodies like Oxford/Desert/Azure/Robin's).
 // style token feeds the filename (`_{styleToken}mane_`); styleId feeds the
 // builder link so the pre-selected mane matches the tile preview.
+// Tiles are ordered so the mane COLOR alternates down the flat array
+// (blond / black / blond / black ...) instead of clustering — light bodies
+// (Oxford, Desert, Azure, Robin's) must take a black mane and near-black bodies
+// (Shadow, Carbonized) a blond one for contrast, so we interleave by reordering
+// rather than recoloring. Styles are spread so all four style×color combos
+// appear (long-blond, reg-blond, long-black, reg-black) with no 3-in-a-row run.
+// style token feeds the filename (`_{styleToken}mane_`); styleId feeds the
+// builder link so the pre-selected mane matches the tile preview.
 const COLORS = [
   { id: "V1",  name: "Ruby Red",         imageLayer: "body_ruby_red",        style: "long", styleId: "V28", mane: "white", maneId: "V7" },
+  { id: "V16", name: "Oxford White",     imageLayer: "body_oxford_white",    style: "reg",  styleId: "V4",  mane: "black", maneId: "V6" },
   { id: "V2",  name: "Velocity Blue",    imageLayer: "body_velocity_blue",   style: "reg",  styleId: "V4",  mane: "white", maneId: "V7" },
+  { id: "V19", name: "Cactus Gray",      imageLayer: "body_cactus_gray",     style: "long", styleId: "V28", mane: "black", maneId: "V6" },
   { id: "V3",  name: "Shadow Black",     imageLayer: "body_shadow_black",    style: "long", styleId: "V28", mane: "white", maneId: "V7" },
-  { id: "V15", name: "Eruption Green",   imageLayer: "body_eruption_green",  style: "reg",  styleId: "V4",  mane: "white", maneId: "V7" },
-  { id: "V16", name: "Oxford White",     imageLayer: "body_oxford_white",    style: "long", styleId: "V28", mane: "black", maneId: "V6" },
+  { id: "V20", name: "Desert Sand",      imageLayer: "body_desert_sand",     style: "reg",  styleId: "V4",  mane: "black", maneId: "V6" },
   { id: "V17", name: "Cyber Orange",     imageLayer: "body_cyber_orange",    style: "reg",  styleId: "V4",  mane: "white", maneId: "V7" },
-  { id: "V18", name: "Carbonized Gray",  imageLayer: "body_carbonized_gray", style: "long", styleId: "V28", mane: "white", maneId: "V7" },
-  { id: "V19", name: "Cactus Gray",      imageLayer: "body_cactus_gray",     style: "reg",  styleId: "V4",  mane: "black", maneId: "V6" },
-  { id: "V20", name: "Desert Sand",      imageLayer: "body_desert_sand",     style: "long", styleId: "V28", mane: "black", maneId: "V6" },
-  { id: "V21", name: "Azure Gray",       imageLayer: "body_azure_gray",      style: "reg",  styleId: "V4",  mane: "black", maneId: "V6" },
-  { id: "V23", name: "Robin's Egg Blue", imageLayer: "body_robins_egg_blue", style: "long", styleId: "V28", mane: "black", maneId: "V6" },
+  { id: "V21", name: "Azure Gray",       imageLayer: "body_azure_gray",      style: "long", styleId: "V28", mane: "black", maneId: "V6" },
+  { id: "V15", name: "Eruption Green",   imageLayer: "body_eruption_green",  style: "long", styleId: "V28", mane: "white", maneId: "V7" },
+  { id: "V23", name: "Robin's Egg Blue", imageLayer: "body_robins_egg_blue", style: "reg",  styleId: "V4",  mane: "black", maneId: "V6" },
+  { id: "V18", name: "Carbonized Gray",  imageLayer: "body_carbonized_gray", style: "reg",  styleId: "V4",  mane: "white", maneId: "V7" },
 ];
 
 const STYLE_LABEL: Record<string, string> = { reg: "Regular", long: "Long" };
