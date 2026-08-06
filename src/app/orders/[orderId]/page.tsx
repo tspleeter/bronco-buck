@@ -283,9 +283,7 @@ export default function OrderDetailPage() {
                 ) : null}
                 <div>Subtotal: ${order.pricing.subtotal.toFixed(2)}</div>
                 <div>Shipping: ${order.pricing.shipping.toFixed(2)}</div>
-                {order.pricing.tax !== undefined ? (
-                  <div>Tax: ${order.pricing.tax.toFixed(2)}</div>
-                ) : null}
+                <div>Tax: ${(order.pricing.tax ?? 0).toFixed(2)}</div>
                 <div style={{ fontWeight: 700, color: "var(--color-text)" }}>
                   Total: ${order.pricing.total.toFixed(2)}
                 </div>
