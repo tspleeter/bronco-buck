@@ -64,6 +64,7 @@ export default function BuildPage() {
   const shareId = searchParams.get("share");
   const galleryColor = searchParams.get("color");
   const gallerymane = searchParams.get("mane");
+  const galleryStyle = searchParams.get("style");
 
   const featuredBuild = featuredBuilds.find((b) => b.slug === featuredSlug);
 
@@ -126,16 +127,27 @@ export default function BuildPage() {
         return;
       }
 
-      if (galleryColor || gallerymane) {
+      if (galleryColor || gallerymane || galleryStyle) {
         const defaults = getDefaultBuildState(broncoConfig);
-        setBuildState({
-          ...defaults,
-          selectedOptions: {
-            ...defaults.selectedOptions,
-            ...(galleryColor ? { G1: galleryColor } : {}),
-            ...(gallerymane ? { G3: gallerymane } : {}),
-          },
-        });
+        const nextOptions: Record<string, string | string[]> = {
+          ...defaults.selectedOptions,
+          ...(galleryColor ? { G1: galleryColor } : {}),
+          ...(gallerymane ? { G3: gallerymane } : {}),
+        };
+        if (galleryStyle) {
+          // Long (V28) only has renders for supported colors; if the tile passes
+          // Long for a color without a set, fall back to Regular so the preview
+          // and price stay consistent (all 11 colors currently support Long).
+          const g1 =
+            typeof nextOptions["G1"] === "string"
+              ? (nextOptions["G1"] as string)
+              : undefined;
+          nextOptions["G2"] =
+            galleryStyle === "V28" && !(g1 && LONG_SUPPORTED_G1.has(g1))
+              ? "V4"
+              : galleryStyle;
+        }
+        setBuildState({ ...defaults, selectedOptions: nextOptions });
         return;
       }
 
@@ -143,7 +155,7 @@ export default function BuildPage() {
     };
 
     load();
-  }, [shareId, savedBuildId, featuredBuild, galleryColor, gallerymane]);
+  }, [shareId, savedBuildId, featuredBuild, galleryColor, gallerymane, galleryStyle]);
 
   const price = useMemo(
     () => calculateBuildPrice(broncoConfig, buildState),
