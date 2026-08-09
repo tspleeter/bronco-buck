@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { getOrderById } from "@/lib/orders";
+import { trackPixel } from "@/lib/meta-pixel";
 import { Order } from "@/types/order";
 import { ActionButton } from "@/components/ActionButton";
 
@@ -13,6 +14,32 @@ export default function ConfirmationContent() {
 
   const [order, setOrder] = useState<Order | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const firedPurchase = useRef<string | null>(null);
+
+  // Browser-side Purchase event. eventID = orderId so it deduplicates with the
+  // server-side Conversions API event fired from /api/orders. Guarded so it
+  // fires at most once per order (React re-renders / strict mode).
+  useEffect(() => {
+    if (!order) return;
+    if (firedPurchase.current === order.orderId) return;
+    firedPurchase.current = order.orderId;
+    trackPixel(
+      "Purchase",
+      {
+        currency: "USD",
+        value: Number(order.pricing.total.toFixed(2)),
+        num_items: order.items.reduce((n, i) => n + i.quantity, 0),
+        order_id: order.orderId,
+        content_type: "product",
+        contents: order.items.map((i) => ({
+          id: i.productId,
+          quantity: i.quantity,
+          item_price: i.price,
+        })),
+      },
+      { eventID: order.orderId }
+    );
+  }, [order]);
 
   useEffect(() => {
     let cancelled = false;
