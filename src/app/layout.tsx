@@ -2,6 +2,7 @@ import "./globals.css";
 import type { ReactNode } from "react";
 import SavedBuildsProvider from "@/components/SavedBuildsProvider";
 import SiteNav from "@/components/SiteNav";
+import MetaPixel from "@/components/MetaPixel";
 import Link from "next/link";
 
 export const metadata = {
@@ -25,6 +26,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <MetaPixel />
         <SavedBuildsProvider>
           <SiteNav />
           {children}
