@@ -52,6 +52,15 @@
 - **DASHBOARD PREREQUISITES (Todd — gate everything; without a registration, calc returns $0 in that jurisdiction):** (1) set head office / ship-from to 8 Nelke Ct, Hawthorne NJ 07506; (2) preset product tax code = general tangible goods; (3) preset shipping tax code; (4) tax behavior = exclusive; (5) **add a tax registration (NJ at minimum).** Verify with one live test order: watch for the Tax line at checkout and a matching entry on the Tax → Transactions page.
 - **Files:** `src/app/api/calculate-tax/route.ts` (new), `src/app/api/create-payment-intent/route.ts` (returns `paymentIntentId`), `src/app/checkout/page.tsx` (reactive calc + tax row + taxed total), `src/lib/email.ts` (conditional Tax row).
 
+## Meta Pixel + Conversions API (Aug 2026)
+- **Purpose:** conversion tracking for the Facebook/Instagram ad test. Browser Pixel + server-side Conversions API (CAPI), deduplicated.
+- **Deploys INERT (same pattern as Stripe Tax):** two activation gates in `src/lib/meta-config.ts` — (1) `META_PIXEL_ID` is `""` (a plain constant, NOT secret; same reasoning as the hardcoded Stripe publishable key — `NEXT_PUBLIC_` doesn't reach the Amplify SSR build reliably); (2) the CAPI access token in **SSM at `/bronco-buck/meta-capi-token`** (SecureString, read by `bronco-buck-compute-role`). Until `META_PIXEL_ID` is set the base pixel renders nothing and every client event no-ops; until the SSM token is set the server CAPI call no-ops. **ACTIVATION (Todd):** set `META_PIXEL_ID` to the Pixel/Dataset ID + create the SSM token param, then verify in Events Manager → Test Events.
+- **Base pixel:** `src/components/MetaPixel.tsx` (client, `next/script` afterInteractive) rendered at top of `<body>` in `layout.tsx`; returns `null` until configured; fires `PageView` automatically.
+- **Client events** via `src/lib/meta-pixel.ts` `trackPixel(event, params, {eventID})` (safe no-op if fbq unloaded/blocked): `ViewContent` (build page mount), `AddToCart` (build page add handler), `InitiateCheckout` (checkout page, once cart loads), `Purchase` (confirmation page, `eventID = order.orderId`, ref-guarded against double-fire).
+- **Server event** via `src/lib/meta-capi.ts` `sendPurchaseEvent(order, ctx)` — fired non-blocking from `POST /api/orders` (like the confirmation email). `event_id = order.orderId` **dedupes** with the browser Purchase. PII (email/phone/name/city/state/zip/country) is **SHA-256 hashed, trim+lowercase normalized** per Meta Advanced Matching; passes client IP (`x-forwarded-for`) + UA + referer. Reads token from SSM (cached across warm invocations), POSTs to `graph.facebook.com/v21.0/{PIXEL_ID}/events`. Never throws.
+- **NOT tested live from container** (graph.facebook.com not in the build network allowlist + no token yet) — validated by `tsc --noEmit` + `npm run build` only; live-verify via Test Events after activation.
+- **Follow-up:** privacy policy (`docs/privacy-policy.md` + `/policies/privacy`) should mention Meta pixel/CAPI tracking; consider a consent gate before firing.
+
 ## Configurator — bronco-config.json
 - **Product:** Bronco Buck Classic (BB001), base price $24.99
 - **Base layer:** `base_bronco.png` (transparent)
