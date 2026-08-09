@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loadStripe } from "@stripe/stripe-js";
@@ -12,6 +12,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { getCart, clearCart } from "@/lib/cart";
 import { createOrder } from "@/lib/orders";
+import { trackPixel } from "@/lib/meta-pixel";
 import { CartItem } from "@/types/cart";
 import { CheckoutFormData } from "@/types/checkout";
 import { Order } from "@/types/order";
@@ -496,11 +497,31 @@ export default function CheckoutPage() {
   const [paymentIntentId, setPaymentIntentId] = useState("");
   const [isMobile, setIsMobile] = useState(false);
 
+  const firedInitiateCheckout = useRef(false);
+
   const total = useMemo(() => {
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const shipping = items.length === 0 ? 0 : subtotal >= 75 ? 0 : 8.95;
     return subtotal + shipping;
   }, [items]);
+
+  // Meta Pixel InitiateCheckout — fire once when the cart first loads with items.
+  useEffect(() => {
+    if (firedInitiateCheckout.current) return;
+    if (items.length === 0) return;
+    firedInitiateCheckout.current = true;
+    trackPixel("InitiateCheckout", {
+      currency: "USD",
+      value: Number(total.toFixed(2)),
+      num_items: items.reduce((n, i) => n + i.quantity, 0),
+      content_type: "product",
+      contents: items.map((i) => ({
+        id: i.productId,
+        quantity: i.quantity,
+        item_price: i.price,
+      })),
+    });
+  }, [items, total]);
 
   useEffect(() => {
     setItems(getCart());
