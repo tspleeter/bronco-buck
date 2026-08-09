@@ -11,6 +11,7 @@ import { calculateBuildPrice } from "@/lib/pricing";
 import { getSelectedLayers } from "@/lib/layers";
 import { getBuildSummary } from "@/lib/summary";
 import { addToCart } from "@/lib/cart";
+import { trackPixel } from "@/lib/meta-pixel";
 import {
   addSavedBuild,
   getSavedBuildById,
@@ -83,6 +84,18 @@ export default function BuildPage() {
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Meta Pixel ViewContent — fire once when the product builder mounts.
+  useEffect(() => {
+    trackPixel("ViewContent", {
+      currency: "USD",
+      value: broncoConfig.basePrice,
+      content_type: "product",
+      content_ids: [broncoConfig.productId],
+      content_name: broncoConfig.name,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -244,6 +257,13 @@ export default function BuildPage() {
       price,
       quantity: 1,
       addedAt: new Date().toISOString(),
+    });
+    trackPixel("AddToCart", {
+      currency: "USD",
+      value: price,
+      content_type: "product",
+      content_ids: [broncoConfig.productId],
+      content_name: broncoConfig.name,
     });
     router.push("/cart");
   };
