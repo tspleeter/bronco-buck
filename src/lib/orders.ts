@@ -85,9 +85,24 @@ export async function updateOrderFulfillment(
  * cookie. Returns the address it was sent to; throws with the real error
  * detail if the send fails.
  */
-export async function resendShipmentEmail(orderId: string): Promise<string> {
+export async function resendShipmentEmail(
+  orderId: string,
+  overrides?: { carrier?: Carrier | ""; trackingNumber?: string }
+): Promise<string> {
+  // When the admin passes the current form values, send them so the resend
+  // saves + reflects on-screen carrier/tracking. A bare call (no overrides)
+  // re-sends the order exactly as stored.
   const res = await fetch(`/api/orders/${orderId}/resend-shipment`, {
     method: "POST",
+    ...(overrides
+      ? {
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            carrier: overrides.carrier || undefined,
+            trackingNumber: overrides.trackingNumber?.trim() || undefined,
+          }),
+        }
+      : {}),
   });
 
   const data = await res.json().catch(() => ({}));
