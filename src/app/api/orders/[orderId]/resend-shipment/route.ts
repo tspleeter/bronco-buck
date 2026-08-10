@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getOrderById } from "@/lib/orders-db";
+import { getOrderById, updateOrderFulfillment } from "@/lib/orders-db";
 import { sendShipmentEmail } from "@/lib/email";
+import { buildTrackingUrl } from "@/lib/shipping";
+import { Carrier } from "@/types/order";
 
 const ORDERS_PASSWORD = process.env.ORDERS_PASSWORD ?? "061970";
 const COOKIE_NAME = "orders_auth";
+const VALID_CARRIERS: Carrier[] = ["usps", "ups", "fedex", "dhl", "other"];
 
 // POST /api/orders/[orderId]/resend-shipment
 // Re-sends the shipment notification email for an order, unconditionally —
@@ -23,7 +26,7 @@ export async function POST(
 
   try {
     const { orderId } = await params;
-    const order = await getOrderById(orderId);
+    let order = await getOrderById(orderId);
 
     if (!order) {
       return NextResponse.json({ message: "Order not found" }, { status: 404 });
@@ -34,6 +37,39 @@ export async function POST(
         { message: "Order has no customer email on file" },
         { status: 400 }
       );
+    }
+
+    // WYSIWYG resend: the admin can edit the carrier / tracking fields and hit
+    // "Resend" without a separate Save. When the client sends those form values,
+    // persist them (recomputing the tracking URL) BEFORE emailing, so the resend
+    // reflects what's on screen rather than a stale, tracking-less DB record.
+    // Body is optional — a bare POST re-sends the order exactly as stored.
+    const body = (await req.json().catch(() => ({}))) as {
+      carrier?: Carrier | "";
+      trackingNumber?: string;
+    };
+    const hasOverrides =
+      body != null &&
+      (body.carrier !== undefined || body.trackingNumber !== undefined);
+
+    if (hasOverrides) {
+      if (body.carrier && !VALID_CARRIERS.includes(body.carrier)) {
+        return NextResponse.json({ message: "Invalid carrier" }, { status: 400 });
+      }
+      // Empty override falls back to what's already on the order (never wipes).
+      const carrier = body.carrier || order.carrier;
+      const trackingNumber =
+        body.trackingNumber?.trim() || order.trackingNumber;
+      const trackingUrl = buildTrackingUrl(carrier, trackingNumber);
+
+      const updated = await updateOrderFulfillment(orderId, {
+        status: order.status, // unchanged — no status transition, no double-notify
+        carrier,
+        trackingNumber,
+        trackingUrl,
+        shippedAt: order.shippedAt,
+      });
+      if (updated) order = updated;
     }
 
     await sendShipmentEmail(order);
