@@ -1,6 +1,6 @@
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import { Order } from "@/types/order";
-import { CARRIER_LABELS } from "@/lib/shipping";
+import { CARRIER_LABELS, buildTrackingUrl } from "@/lib/shipping";
 
 const ses = new SESClient({ region: "us-east-1" });
 const FROM_ADDRESS = "orders@buckthatduck.com";
@@ -131,6 +131,12 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
 export async function sendShipmentEmail(order: Order): Promise<void> {
   const itemsList = renderItemRows(order);
   const carrierLabel = order.carrier ? CARRIER_LABELS[order.carrier] : undefined;
+  // Self-heal: rebuild the tracking URL from carrier + number when it wasn't
+  // persisted on the order (legacy orders, or saved with a valid carrier but
+  // no stored URL). Guarantees a "Track your package" link whenever we can
+  // form one, for both the auto shipment email and the manual resend.
+  const trackingUrl =
+    order.trackingUrl ?? buildTrackingUrl(order.carrier, order.trackingNumber);
   const shippedDate = order.shippedAt
     ? new Date(order.shippedAt).toLocaleString("en-US", { dateStyle: "long" })
     : new Date().toLocaleString("en-US", { dateStyle: "long" });
@@ -144,8 +150,8 @@ export async function sendShipmentEmail(order: Order): Promise<void> {
       <p style="color:#A8A29E;font-size:14px;margin:0 0 4px;">Tracking number</p>
       <p style="color:#FAFAF9;font-size:14px;font-family:monospace;margin:0 0 20px;">${order.trackingNumber}</p>
       ${
-        order.trackingUrl
-          ? `<a href="${order.trackingUrl}" style="display:inline-block;background:#CA8A04;color:#0C0A09;font-size:14px;font-weight:700;text-decoration:none;padding:12px 24px;border-radius:10px;">Track your package →</a>`
+        trackingUrl
+          ? `<a href="${trackingUrl}" style="display:inline-block;background:#CA8A04;color:#0C0A09;font-size:14px;font-weight:700;text-decoration:none;padding:12px 24px;border-radius:10px;">Track your package →</a>`
           : ""
       }
     </div>`
@@ -202,7 +208,7 @@ export async function sendShipmentEmail(order: Order): Promise<void> {
   ];
   if (carrierLabel) textLines.push(`Carrier: ${carrierLabel}`);
   if (order.trackingNumber) textLines.push(`Tracking: ${order.trackingNumber}`);
-  if (order.trackingUrl) textLines.push(`Track: ${order.trackingUrl}`);
+  if (trackingUrl) textLines.push(`Track: ${trackingUrl}`);
   textLines.push("", "www.buckthatduck.com");
 
   await ses.send(
