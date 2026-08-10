@@ -175,7 +175,17 @@ export default function OrderDetailPage() {
     setResending(true);
     setMessage(null);
     try {
-      const sentTo = await resendShipmentEmail(orderId);
+      const sentTo = await resendShipmentEmail(orderId, {
+        carrier: carrier || undefined,
+        trackingNumber: trackingNumber.trim() || undefined,
+      });
+      // Reflect any persisted carrier/tracking back into the loaded order so the
+      // "Open current tracking" link updates without a manual Save/reload.
+      const refreshed = await getOrderById(orderId);
+      if (refreshed) {
+        setOrder(refreshed);
+        seedForm(refreshed);
+      }
       setMessage({ kind: "ok", text: `Shipment email re-sent to ${sentTo}.` });
     } catch (err) {
       setMessage({
