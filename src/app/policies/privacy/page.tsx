@@ -6,8 +6,9 @@ export const metadata: Metadata = {
     "How Pleeter LLC collects, uses, and shares information at buckthatduck.com.",
 };
 
-const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+const Section = ({ title, children, id }: { title: string; children: React.ReactNode; id?: string }) => (
   <section
+    id={id}
     className="surface"
     style={{ padding: "32px 36px", display: "grid", gap: "20px" }}
   >
@@ -42,7 +43,7 @@ export default function PrivacyPage() {
             How Pleeter LLC collects, uses, and shares your information at buckthatduck.com.
           </p>
           <p style={{ color: "var(--color-text-dim)", fontSize: "0.875rem" }}>
-            Last updated: June 20, 2026
+            Last updated: August 16, 2026
           </p>
         </div>
 
@@ -136,6 +137,11 @@ export default function PrivacyPage() {
             transaction identifier, so that we can manage your order.
           </p>
           <p>
+            We also use Stripe to calculate any applicable sales tax based on the shipping address
+            you provide at checkout. Where required, Stripe records the corresponding tax transaction
+            on our behalf.
+          </p>
+          <p>
             You can review Stripe&rsquo;s privacy practices at{" "}
             <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" style={link}>
               stripe.com/privacy
@@ -154,6 +160,13 @@ export default function PrivacyPage() {
               and store order and build data with <strong style={strong}>Amazon Web Services, Inc.
               (&ldquo;AWS&rdquo;)</strong>, our cloud hosting and infrastructure provider, and use
               related AWS services to send transactional email.
+            </li>
+            <li>
+              <strong style={strong}>Advertising and analytics providers</strong> — to measure and
+              improve our advertising, we share limited event and contact information with{" "}
+              <strong style={strong}>Meta Platforms, Inc. (&ldquo;Meta&rdquo;)</strong> through the
+              Meta Pixel and Conversions API. See{" "}
+              <a href="#analytics-advertising" style={link}>Analytics and Advertising</a> below.
             </li>
             <li>
               <strong style={strong}>Shipping and fulfillment partners</strong> — to deliver your
@@ -200,6 +213,36 @@ export default function PrivacyPage() {
             and cart, and understand how the Site is used. Most browsers let you refuse or delete
             cookies through your browser settings. Some features of the Site may not function
             properly if cookies are disabled.
+          </p>
+        </Section>
+
+        <Section title="Analytics and Advertising" id="analytics-advertising">
+          <p>
+            We use analytics and advertising technologies to understand how the Site performs and to
+            measure the effectiveness of our advertising, including on Facebook and Instagram. As part
+            of this we use the <strong style={strong}>Meta Pixel</strong> (a small piece of code that
+            runs in your browser) together with the <strong style={strong}>Meta Conversions API</strong>
+            {" "}(a server-side connection to Meta). These work together to report the same actions once,
+            not twice.
+          </p>
+          <p>
+            Through these tools we may share with Meta certain information about your interactions with
+            the Site — such as page views, starting a build, adding an item to the cart, beginning
+            checkout, and completing a purchase — along with technical details like your IP address,
+            browser and device information, and the referring page. We may also share limited contact
+            and order details (such as your email address, phone number, name, and city, state, ZIP,
+            and country). <strong style={strong}>This contact information is cryptographically hashed
+            before it is sent</strong>, so Meta receives a scrambled value rather than your details in
+            plain text. Meta uses this data to measure our ads and to help show relevant ads.
+          </p>
+          <p>
+            You can limit this type of tracking through your browser&rsquo;s cookie settings, your
+            device&rsquo;s ad settings, and the ad-preference and opt-out controls Meta provides. You
+            can review Meta&rsquo;s privacy practices at{" "}
+            <a href="https://www.facebook.com/privacy/policy" target="_blank" rel="noopener noreferrer" style={link}>
+              facebook.com/privacy/policy
+            </a>
+            .
           </p>
         </Section>
 
