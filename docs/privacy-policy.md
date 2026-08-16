@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last updated: June 20, 2026**
+**Last updated: August 16, 2026**
 
 This Privacy Policy describes how Pleeter LLC ("we," "us," or "our") collects, uses, and shares information when you visit or make a purchase at **buckthatduck.com** (the "Site") for our custom 3D-printed figurines ("BuckThatDuck," "Bucks," or the "Products").
 
@@ -54,6 +54,8 @@ All payments on the Site are processed by **Stripe, Inc. ("Stripe")**.
 
 When you check out, your payment card information is transmitted directly to Stripe and is handled under **Stripe's own privacy policy and terms**, which are separate from this Privacy Policy. We never receive or store your full card details on our systems. We may receive limited confirmation information from Stripe, such as whether a payment succeeded, the last four digits of your card, the card brand, and a transaction identifier, so that we can manage your order.
 
+We also use Stripe to calculate any applicable sales tax based on the shipping address you provide at checkout. Where required, Stripe records the corresponding tax transaction on our behalf.
+
 You can review Stripe's privacy practices at **https://stripe.com/privacy**. We are not responsible for Stripe's handling of your information, and any questions about how Stripe processes card data should be directed to Stripe.
 
 ---
@@ -64,6 +66,7 @@ We share personal information only as needed to run our business:
 
 - **Stripe** — to process payments, as described above.
 - **Hosting and infrastructure providers** — we host the Site and store order and build data with **Amazon Web Services, Inc. ("AWS")**, our cloud hosting and infrastructure provider, and use related AWS services to send transactional email.
+- **Advertising and analytics providers** — to measure and improve our advertising, we share limited event and contact information with **Meta Platforms, Inc. ("Meta")** through the Meta Pixel and Conversions API. See [Analytics and Advertising](#analytics-and-advertising) below.
 - **Shipping and fulfillment partners** — to deliver your Products, we share the name and address needed for delivery.
 - **Legal and safety** — we may disclose information if required by law, subpoena, or legal process, or to protect the rights, property, or safety of Pleeter LLC, our customers, or others.
 - **Business transfers** — if we are involved in a merger, acquisition, or sale of assets, your information may be transferred as part of that transaction.
@@ -87,6 +90,16 @@ We retain order and contact information for as long as needed to fulfill your or
 ## Cookies
 
 We use cookies and similar technologies to keep the Site working, remember your session and cart, and understand how the Site is used. Most browsers let you refuse or delete cookies through your browser settings. Some features of the Site may not function properly if cookies are disabled.
+
+---
+
+## Analytics and Advertising
+
+We use analytics and advertising technologies to understand how the Site performs and to measure the effectiveness of our advertising, including on Facebook and Instagram. As part of this we use the **Meta Pixel** (a small piece of code that runs in your browser) together with the **Meta Conversions API** (a server-side connection to Meta). These work together to report the same actions once, not twice.
+
+Through these tools we may share with Meta certain information about your interactions with the Site — such as page views, starting a build, adding an item to the cart, beginning checkout, and completing a purchase — along with technical details like your IP address, browser and device information, and the referring page. We may also share limited contact and order details (such as your email address, phone number, name, and city, state, ZIP, and country). **This contact information is cryptographically hashed before it is sent**, so Meta receives a scrambled value rather than your details in plain text. Meta uses this data to measure our ads and to help show relevant ads.
+
+You can limit this type of tracking through your browser's cookie settings, your device's ad settings, and the ad-preference and opt-out controls Meta provides. You can review Meta's privacy practices at **https://www.facebook.com/privacy/policy**.
 
 ---
 
