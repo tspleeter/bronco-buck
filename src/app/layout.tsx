@@ -2,6 +2,7 @@ import "./globals.css";
 import type { ReactNode } from "react";
 import SavedBuildsProvider from "@/components/SavedBuildsProvider";
 import SiteNav from "@/components/SiteNav";
+import CommercialIntro from "@/components/CommercialIntro";
 import MetaPixel from "@/components/MetaPixel";
 import Link from "next/link";
 
@@ -27,6 +28,7 @@ export default function RootLayout({
       </head>
       <body>
         <MetaPixel />
+        <CommercialIntro />
         <SavedBuildsProvider>
           <SiteNav />
           {children}
