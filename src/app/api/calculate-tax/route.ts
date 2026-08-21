@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
+import { getDiscount } from "@/lib/discounts-db";
+import { evaluateDiscount, normalizeCode } from "@/lib/discount-logic";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +46,8 @@ interface CalcTaxAddress {
 
 interface CalcTaxBody {
   paymentIntentId: string;
-  subtotal: number; // dollars
+  subtotal: number; // dollars — merchandise subtotal BEFORE discount
+  discountCode?: string;
   address: CalcTaxAddress;
 }
 
@@ -58,22 +61,38 @@ function deriveShipping(subtotal: number): number {
 export async function POST(req: Request) {
   let subtotal = 0;
   let shipping = 0;
+  let discount = 0;
 
   try {
     const body = (await req.json()) as CalcTaxBody;
     const { paymentIntentId, address } = body;
     subtotal = Number(body.subtotal) || 0;
-    // Re-derive shipping server-side rather than trusting the client.
+    // Re-derive shipping server-side rather than trusting the client. Shipping
+    // is based on the PRE-discount merchandise subtotal so a code can't push an
+    // order below the free-shipping threshold.
     shipping = deriveShipping(subtotal);
 
     if (!paymentIntentId || subtotal <= 0) {
       return NextResponse.json({ message: "Invalid request" }, { status: 400 });
     }
 
+    // Server-authoritative discount: re-validate the code here (the client is
+    // never trusted with the amount) and apply it to the taxable line item.
+    const code = normalizeCode(body.discountCode);
+    if (code) {
+      const found = await getDiscount(code);
+      const evaluation = evaluateDiscount(found, subtotal);
+      if (evaluation.valid) discount = evaluation.amount;
+    }
+    const discountedSubtotal = Math.max(
+      0,
+      Math.round((subtotal - discount) * 100) / 100,
+    );
+
     const stripe = await getStripe();
-    const subtotalCents = toCents(subtotal);
+    const subtotalCents = toCents(discountedSubtotal);
     const shippingCents = toCents(shipping);
-    const untaxedTotal = subtotal + shipping;
+    const untaxedTotal = discountedSubtotal + shipping;
 
     try {
       // Product + shipping tax codes come from the account's preset codes
@@ -109,6 +128,7 @@ export async function POST(req: Request) {
 
       return NextResponse.json({
         subtotal,
+        discount,
         shipping,
         tax: calculation.tax_amount_exclusive / 100,
         total: calculation.amount_total / 100,
@@ -133,6 +153,7 @@ export async function POST(req: Request) {
 
       return NextResponse.json({
         subtotal,
+        discount,
         shipping,
         tax: 0,
         total: untaxedTotal,
@@ -145,9 +166,10 @@ export async function POST(req: Request) {
     // Last-resort: report no tax so the client can still charge the base total.
     return NextResponse.json({
       subtotal,
+      discount,
       shipping,
       tax: 0,
-      total: subtotal + shipping,
+      total: Math.max(0, subtotal - discount) + shipping,
       taxUnavailable: true,
     });
   }
