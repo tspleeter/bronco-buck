@@ -37,6 +37,10 @@ export interface OrderItem {
 
 export interface OrderPricing {
   subtotal: number;
+  /** Dollar discount applied (absent/0 when no code used). */
+  discount?: number;
+  /** The discount code applied, if any. */
+  discountCode?: string;
   shipping: number;
   tax?: number;
   total: number;
