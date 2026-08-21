@@ -9,3 +9,7 @@ const client = new DynamoDBClient({
 });
 
 export const docClient = DynamoDBDocumentClient.from(client);
+
+// Raw client for control-plane operations (DescribeTable/CreateTable). The
+// document client only exposes data-plane commands.
+export const dynamoClient = client;
