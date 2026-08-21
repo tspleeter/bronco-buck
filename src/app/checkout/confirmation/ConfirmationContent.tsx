@@ -94,6 +94,11 @@ export default function ConfirmationContent() {
             <div style={{ color: "#111" }}><strong>Placed:</strong> {new Date(order.createdAt).toLocaleString()}</div>
             <div style={{ color: "#111" }}><strong>Customer:</strong> {order.customer.firstName} {order.customer.lastName}</div>
             <div style={{ color: "#111" }}><strong>Email:</strong> {order.customer.email}</div>
+            {order.pricing.discount && order.pricing.discount > 0 ? (
+              <div style={{ color: "#111" }}>
+                <strong>Discount{order.pricing.discountCode ? ` (${order.pricing.discountCode})` : ""}:</strong> −${order.pricing.discount.toFixed(2)}
+              </div>
+            ) : null}
             <div style={{ color: "#111" }}><strong>Total:</strong> ${order.pricing.total.toFixed(2)}</div>
             <div style={{ color: "#111" }}>
               <strong>Items:</strong>
