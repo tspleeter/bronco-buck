@@ -12,6 +12,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { getCart, clearCart } from "@/lib/cart";
 import { createOrder } from "@/lib/orders";
+import { validateDiscountCode } from "@/lib/discounts";
 import { trackPixel } from "@/lib/meta-pixel";
 import { CartItem } from "@/types/cart";
 import { CheckoutFormData } from "@/types/checkout";
@@ -62,6 +63,15 @@ function CheckoutForm({
   const [tax, setTax] = useState(0);
   const [taxTotal, setTaxTotal] = useState<number | null>(null);
 
+  // Discount code state. `appliedCode` is the authoritative code sent to the
+  // server on every tax/PI calc; `discount` is the server-returned dollar
+  // amount actually applied.
+  const [codeInput, setCodeInput] = useState("");
+  const [appliedCode, setAppliedCode] = useState("");
+  const [discount, setDiscount] = useState(0);
+  const [discountMsg, setDiscountMsg] = useState("");
+  const [applyingCode, setApplyingCode] = useState(false);
+
   const subtotal = useMemo(
     () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [items]
@@ -80,54 +90,106 @@ function CheckoutForm({
 
   // Calls the server to calculate tax for the current address and link the
   // resulting calculation to the PaymentIntent. Returns the final tax + total.
-  const runTaxCalc = useCallback(async (): Promise<{
-    tax: number;
-    total: number;
-  }> => {
-    const fallback = { tax: 0, total: subtotal + shipping };
-    if (!paymentIntentId || subtotal <= 0) return fallback;
+  const runTaxCalc = useCallback(
+    async (
+      codeOverride?: string,
+    ): Promise<{ tax: number; total: number; discount: number }> => {
+      // `codeOverride ?? appliedCode` so an explicit "" (code removed) is
+      // honored, while address-driven recalcs reuse the applied code.
+      const code = codeOverride ?? appliedCode;
+      const fallback = { tax: 0, total: subtotal + shipping, discount: 0 };
+      if (!paymentIntentId || subtotal <= 0) return fallback;
 
-    try {
-      const res = await fetch("/api/calculate-tax", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-cache, no-store",
-        },
-        body: JSON.stringify({
-          paymentIntentId,
-          subtotal,
-          address: {
-            line1: form.address1,
-            line2: form.address2,
-            city: form.city,
-            state: form.state,
-            postal_code: form.zip,
-            country: "US",
+      try {
+        const res = await fetch("/api/calculate-tax", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-cache, no-store",
           },
-        }),
-      });
-      const data = await res.json();
-      const t = Number(data.tax) || 0;
-      const tot = Number(data.total) || subtotal + shipping;
-      setTax(t);
-      setTaxTotal(tot);
-      return { tax: t, total: tot };
+          body: JSON.stringify({
+            paymentIntentId,
+            subtotal,
+            discountCode: code || undefined,
+            address: {
+              line1: form.address1,
+              line2: form.address2,
+              city: form.city,
+              state: form.state,
+              postal_code: form.zip,
+              country: "US",
+            },
+          }),
+        });
+        const data = await res.json();
+        const t = Number(data.tax) || 0;
+        const d = Number(data.discount) || 0;
+        const tot = Number(data.total) || Math.max(0, subtotal - d) + shipping;
+        setTax(t);
+        setDiscount(d);
+        setTaxTotal(tot);
+        return { tax: t, total: tot, discount: d };
+      } catch {
+        setTax(0);
+        setTaxTotal(subtotal + shipping);
+        return fallback;
+      }
+    },
+    [
+      paymentIntentId,
+      subtotal,
+      shipping,
+      appliedCode,
+      form.address1,
+      form.address2,
+      form.city,
+      form.state,
+      form.zip,
+    ],
+  );
+
+  const handleApplyCode = async () => {
+    const code = codeInput.trim();
+    if (!code) return;
+    setApplyingCode(true);
+    setDiscountMsg("");
+    try {
+      const result = await validateDiscountCode(code, subtotal);
+      if (!result.valid) {
+        setDiscountMsg(result.reason || "That code isn't valid.");
+        setApplyingCode(false);
+        return;
+      }
+      const normalized = result.code || code.toUpperCase();
+      setAppliedCode(normalized);
+      setDiscount(result.discount || 0);
+      // Authoritative recalc: sets the PaymentIntent amount to the discounted
+      // (and taxed) total the customer will actually be charged.
+      await runTaxCalc(normalized);
+      try {
+        await elements?.fetchUpdates();
+      } catch {
+        /* amount refresh is best-effort */
+      }
     } catch {
-      setTax(0);
-      setTaxTotal(subtotal + shipping);
-      return fallback;
+      setDiscountMsg("Couldn't apply that code. Try again.");
+    } finally {
+      setApplyingCode(false);
     }
-  }, [
-    paymentIntentId,
-    subtotal,
-    shipping,
-    form.address1,
-    form.address2,
-    form.city,
-    form.state,
-    form.zip,
-  ]);
+  };
+
+  const handleRemoveCode = async () => {
+    setAppliedCode("");
+    setCodeInput("");
+    setDiscount(0);
+    setDiscountMsg("");
+    await runTaxCalc(""); // resets the PaymentIntent back to the full amount
+    try {
+      await elements?.fetchUpdates();
+    } catch {
+      /* amount refresh is best-effort */
+    }
+  };
 
   // Recalculate tax (debounced) once the shipping address looks complete.
   useEffect(() => {
@@ -247,6 +309,10 @@ function CheckoutForm({
         })),
         pricing: {
           subtotal,
+          discount: finalPricing.discount,
+          // Only record the code when it actually applied a discount.
+          discountCode:
+            finalPricing.discount > 0 ? appliedCode || undefined : undefined,
           shipping,
           tax: finalPricing.tax,
           total: finalPricing.total,
@@ -445,11 +511,73 @@ function CheckoutForm({
               </div>
             ))}
 
+            {/* Discount code */}
+            <div style={{ display: "grid", gap: 8, marginTop: 4 }}>
+              {appliedCode ? (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 8,
+                  }}
+                >
+                  <span style={{ fontSize: 14 }}>
+                    Code <strong>{appliedCode}</strong> applied
+                  </span>
+                  <button
+                    onClick={handleRemoveCode}
+                    className="btn btn-ghost btn-sm"
+                    type="button"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input
+                    value={codeInput}
+                    onChange={(e) => setCodeInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleApplyCode();
+                      }
+                    }}
+                    placeholder="Discount code"
+                    style={{ ...inputStyle, textTransform: "uppercase" }}
+                  />
+                  <span style={{ display: "inline-block" }}>
+                    <ActionButton
+                      variant="secondary"
+                      onClick={handleApplyCode}
+                      disabled={applyingCode || !codeInput.trim()}
+                    >
+                      {applyingCode ? "…" : "Apply"}
+                    </ActionButton>
+                  </span>
+                </div>
+              )}
+              {discountMsg ? (
+                <div style={{ color: "var(--color-error)", fontSize: 13 }}>
+                  {discountMsg}
+                </div>
+              ) : null}
+            </div>
+
             <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
               <div style={summaryRowStyle}>
                 <span>Subtotal</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
+              {discount > 0 ? (
+                <div style={summaryRowStyle}>
+                  <span>Discount{appliedCode ? ` (${appliedCode})` : ""}</span>
+                  <span style={{ color: "var(--color-gold-light)" }}>
+                    −${discount.toFixed(2)}
+                  </span>
+                </div>
+              ) : null}
               <div style={summaryRowStyle}>
                 <span>Shipping</span>
                 <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
