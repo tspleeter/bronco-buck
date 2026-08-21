@@ -78,11 +78,18 @@ export default function OrdersPage() {
             )}
           </div>
 
-          <Link href="/build/bronco-buck-classic">
-            <span style={{ display: "inline-block" }}>
-              <ActionButton variant="secondary">Back to Builder</ActionButton>
-            </span>
-          </Link>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <Link href="/discounts">
+              <span style={{ display: "inline-block" }}>
+                <ActionButton variant="secondary">Discounts</ActionButton>
+              </span>
+            </Link>
+            <Link href="/build/bronco-buck-classic">
+              <span style={{ display: "inline-block" }}>
+                <ActionButton variant="secondary">Back to Builder</ActionButton>
+              </span>
+            </Link>
+          </div>
         </div>
 
         <div style={{ marginTop: 16 }}>
@@ -186,6 +193,11 @@ export default function OrdersPage() {
                           <div>Status: {order.status}</div>
                           <div>Items: {order.items.length}</div>
                           <div>Subtotal: ${order.pricing.subtotal.toFixed(2)}</div>
+                          {order.pricing.discount && order.pricing.discount > 0 ? (
+                            <div>
+                              Discount{order.pricing.discountCode ? ` (${order.pricing.discountCode})` : ""}: −${order.pricing.discount.toFixed(2)}
+                            </div>
+                          ) : null}
                           <div>Shipping: ${order.pricing.shipping.toFixed(2)}</div>
                           <div>Tax: ${(order.pricing.tax ?? 0).toFixed(2)}</div>
                           <div style={{ fontWeight: 700 }}>
