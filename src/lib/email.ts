@@ -77,6 +77,14 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
           <span style="color:#A8A29E;font-size:14px;">Subtotal</span>
           <span style="color:#FAFAF9;font-size:14px;">$${order.pricing.subtotal.toFixed(2)}</span>
         </div>
+        ${
+          order.pricing.discount && order.pricing.discount > 0
+            ? `<div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+          <span style="color:#A8A29E;font-size:14px;">Discount${order.pricing.discountCode ? ` (${order.pricing.discountCode})` : ""}</span>
+          <span style="color:#CA8A04;font-size:14px;">&minus;$${order.pricing.discount.toFixed(2)}</span>
+        </div>`
+            : ""
+        }
         <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
           <span style="color:#A8A29E;font-size:14px;">Shipping</span>
           <span style="color:#FAFAF9;font-size:14px;">${order.pricing.shipping === 0 ? "Free" : "$" + order.pricing.shipping.toFixed(2)}</span>
