@@ -5,7 +5,10 @@ const ORDERS_PASSWORD = process.env.ORDERS_PASSWORD ?? "061970";
 const COOKIE_NAME = "orders_auth";
 
 export function proxy(request: NextRequest) {
-  if (!request.nextUrl.pathname.startsWith("/orders")) {
+  const { pathname } = request.nextUrl;
+  const gated =
+    pathname.startsWith("/orders") || pathname.startsWith("/discounts");
+  if (!gated) {
     return NextResponse.next();
   }
 
@@ -26,5 +29,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/orders", "/orders/:path*"],
+  matcher: ["/orders", "/orders/:path*", "/discounts", "/discounts/:path*"],
 };
