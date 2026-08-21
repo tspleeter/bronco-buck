@@ -3,6 +3,7 @@ import { createOrder, getOrders } from "@/lib/orders-db";
 import { Order } from "@/types/order";
 import { sendOrderConfirmationEmail } from "@/lib/email";
 import { sendPurchaseEvent } from "@/lib/meta-capi";
+import { incrementRedemption } from "@/lib/discounts-db";
 
 export async function GET() {
   try {
@@ -30,6 +31,14 @@ export async function POST(req: Request) {
     }
 
     await createOrder(order);
+
+    // Bump the discount's redemption counter — best-effort, never fail the
+    // order over usage tracking. Only counts codes that actually applied.
+    if (order.pricing?.discountCode && (order.pricing.discount ?? 0) > 0) {
+      incrementRedemption(order.pricing.discountCode).catch((err) => {
+        console.error("Failed to increment discount redemption:", err);
+      });
+    }
 
     // Send confirmation email — non-blocking, don't fail the order if email fails
     sendOrderConfirmationEmail(order).catch((err) => {
