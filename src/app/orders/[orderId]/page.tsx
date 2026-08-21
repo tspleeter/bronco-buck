@@ -292,6 +292,11 @@ export default function OrderDetailPage() {
                   <div>Shipped: {new Date(order.shippedAt).toLocaleString()}</div>
                 ) : null}
                 <div>Subtotal: ${order.pricing.subtotal.toFixed(2)}</div>
+                {order.pricing.discount && order.pricing.discount > 0 ? (
+                  <div>
+                    Discount{order.pricing.discountCode ? ` (${order.pricing.discountCode})` : ""}: −${order.pricing.discount.toFixed(2)}
+                  </div>
+                ) : null}
                 <div>Shipping: ${order.pricing.shipping.toFixed(2)}</div>
                 <div>Tax: ${(order.pricing.tax ?? 0).toFixed(2)}</div>
                 <div style={{ fontWeight: 700, color: "var(--color-text)" }}>
