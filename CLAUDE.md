@@ -167,6 +167,39 @@ Each tile shows a different mane so the grid reads as an assortment, not one rep
 - **Light-color plinth disconnection in fg masks (Aug 2026):** on light bodies (Robin's Egg Blue) the plinth can separate from the head+mane blob at the thin neck, so a "keep largest connected component" mask **silently drops the entire plinth** (looks like a huge bottom-third IoU deficit though the composite is fine). Fix: keep **all** components with area ≥ 4000px, not just the largest. Also, light colors' antialiased edges fall below the dist>25 bg threshold → mask erodes ~2px → IoU reads ~0.02 low even when perfectly aligned (verify by dilating 2px, or by per-row band-width comparison rather than trusting aggregate IoU).
 - **Carbonized Gray special case:** its body/stand colors are within 3-8 RGB points of the Bambu background (84,84,90) — color-threshold masking is impossible. Align via internal feature mask (pixels >25 from bg: mane, eyes, teeth, tongue, shadow creases) and paste the whole aligned screenshot rect (bg is already the same gray, no mask needed). Scale the screenshot so it fully covers the 990x1294 canvas to avoid fill seams.
 
+## Filament Color Matching (Aug 2026)
+Recommended PETG per Bronco colorway for physical prints. **9 of 11 map to Bambu PETG Basic** (keeps AMS swaps single-brand, matches the standard Basic profile — HF PETG is discontinued, only black remains); **2 need specialty**: Cactus Gray (Fillamentum) + Robin's Egg Blue (Atomic). Filament hexes are mfr-published (Bambu official PETG Basic hex table; Polymaker; Atomic via filamentcolors.xyz). **Match quality is directional — verify any candidate against the render-plinth RGB sample (y1120–1205, x380–610), NOT against automotive paint codes** (online Bronco paint hexes are wildly inconsistent across sources, e.g. Desert Sand seen as #A87139 → #F4DAA7; Cactus Gray #8D968F is forum-derived, not official).
+
+| Bronco (ID) | Filament | Brand | Hex | Match |
+|---|---|---|---|---|
+| Ruby Red (V1) | Red | Bambu PETG Basic | #D6001C | Close — brighter than the deep metallic |
+| Velocity Blue (V2) | Reflex Blue | Bambu PETG Basic | #001489 | Approx — navy-leaning; brighter alt = Navy Blue #0086D6 |
+| Shadow Black (V3) | Black | Bambu PETG Basic | #000000 | Exact |
+| Eruption Green (V15) | Green | Bambu PETG Basic | #009639 | Close — vivid; darker alt = Pine Green #034638 |
+| Oxford White (V16) | White | Bambu PETG Basic | ~#FFFFFF | Close |
+| Cyber Orange (V17) | Orange | Bambu PETG Basic | #FF671F | Approx — Bambu is red-orange; Cyber is more golden/dark-yellow |
+| Carbonized Gray (V18) | Gray | Bambu PETG Basic | #7F7E83 | Close — slightly light vs. the metallic |
+| Cactus Gray (V19) | Koala Grey | **Fillamentum PETG** | verify (sage green-gray) | **Specialty** — purpose-built green-tinted gray; pull exact hex from filamentcolors.xyz before ordering |
+| Desert Sand (V20) | Dark Beige | Bambu PETG Basic | #DBC8B6 | Approx — runs warm; no specialty PETG tan clearly beats it |
+| Azure Gray (V21) | Misty Blue | Bambu PETG Basic | #688197 | Approx — nearest cool blue-gray, but darker/more saturated. Light cool blue-gray is a real PETG gap |
+| Robin's Egg Blue (V23) | Baby Blue PETG PRO | **Atomic Filament** | #6CC4D7 | **Specialty** — light cyan-blue, closest to plinth ground-truth (~149,195,204); Made in USA (on-brand). Polymaker Teal #74CABF is a greener alt |
+
+- Only **Robin's Egg Blue** and **Cactus Gray** warrant ordering specialty samples; the other 9 stay on Bambu PETG Basic.
+- Robin's Egg Blue target refs: **#BADBE4** (Ford CW/M7478 approximation) / **~#95C3CC** (render-plinth ground truth) — see Robin's Egg Blue color-value note in the Configurator section. Do NOT use #96DED1.
+- G1 options carry no hex field; swatches render from body images — this table is a **print/sourcing** reference, not an app-config change.
+
+### Brand comparison & upgrade path (2026 consensus)
+- **Bambu PETG Basic** (current default) — real edge is RFID auto-detect + pre-tuned AMS profiles (zero-config). Quality fine for display prints; NOT the consistency leader. HF (matte/high-flow) discontinued, only black remains.
+- **Polymaker PETG** — the near-drop-in upgrade. Reformulated late-2025 high-flow (~300 mm/s), community's go-to PETG HF replacement. **Pantone-matched colors → batch re-orders match** (biggest win for selling 11 named colorways). Stringing reduced at formulation level; Bambu Studio ships a Polymaker preset; ±0.03 mm. Caveat: spool-to-spool inconsistency reported on dark colors — sample before committing Shadow Black volume.
+- **Prusament PETG** — consistency/strength benchmark. ±0.02 mm, per-spool QC report by batch, best layer adhesion + impact resistance (survives shipping). ~2× budget cost; narrower palette (won't solve gap colors).
+- **Atomic Filament** — US-made (on-brand), respected PETG consistency, deep specialty palette. Already the Robin's Egg Blue pick.
+- **Verdict for Bronco Bucks:** don't churn the 7 Bambu-matched colors unless batch color drift becomes a problem. If upgrading, **Polymaker is the path** (slicer preset + Pantone re-order matching) — re-run the table above against one premium brand instead of the Bambu+specialty patchwork.
+
+### Swatch provenance (why a brand switch doesn't touch the site)
+- Site swatches are NOT built from filament hex. G1 carries no hex field; the swatch chip renders from the **body image**, a pixel-accurate crop of the **Bambu Studio render** normalized to 990×1294.
+- On-screen color = whatever body color was assigned in Studio (the Ford-paint approximation), sampled from render pixels — not a commercial filament's measured hex.
+- **Switching filament brand requires NO swatch/config change** — swatches track the renders, not the filament. Only the *physical* print-vs-swatch match drifts, which is exactly what the table above governs.
+
 ## File Authoring Rules
 - **Always write TSX/JSX files to disk first** (`cat > /home/claude/file.tsx << 'ENDOFFILE'`), then push via GitHub Contents API with `open(...,'rb')` for base64 encoding
 - Never embed TSX with template literals in Python strings — backticks and `${}` get mangled
