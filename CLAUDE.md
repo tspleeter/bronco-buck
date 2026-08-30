@@ -176,14 +176,14 @@ Final cross-brand PETG picks per Bronco colorway, matched to the **render-plinth
 | Velocity Blue (V2) | #0A47A2 | Printed Solid Jessie Bold Blue PETG | #054A98 | 9 | printedsolid.com/products/jessie-premium-petg-1-75mm-x-bold-blue |
 | Shadow Black (V3) | #2E2E2E | Atomic Extreme Jet Black PETG Pro | #3C3D3F | 7 | atomicfilament.com/products/extreme-jet-black-petg-pro |
 | Eruption Green (V15) | #00732E | Printed Solid Jessie Tree Green PETG | #217E3E | 6 | printedsolid.com/products/jessie-premium-petg-1-75mm-x-tree-green |
-| Cyber Orange (V17) | #CD4400 | Filament PM Orange 2018 PETG | #E65827 | 9 | filament-pm.com (EU only — no clean US store; swap for a US burnt-orange) |
+| Cyber Orange (V17) | #CD4400 | Prusament Prusa Orange PETG | #EB5403 | 11 | prusa3d.com/product/prusament-petg-prusa-orange-1kg-nfc |
 | Carbonized Gray (V18) | #525357 | Prusament Galaxy Black PETG | #494546 | 6 | prusa3d.com/product/prusament-petg-prusa-galaxy-black-1kg |
-| Cactus Gray (V19) | #7D8D73 | PETG sage — product TBD | #81847A | 11 | product name unresolved. Do NOT use Polymaker Panchroma Starlight (shimmer PLA, not PETG) |
+| Cactus Gray (V19) | #7D8D73 | Paramount 3D Castle Limestone Gray PETG | #81847A | 11 | paramount-3d.com/product-page/petg-castle-limestone-gray-1-75mm-1kg-filament-cgrl7023416g (do NOT use Polymaker Panchroma Starlight — that's shimmer PLA) |
 | Desert Sand (V20) | #B7945C | Paramount 3D Military MBT Brown PETG | #AC7338 | 16 | amazon.com/dp/B089DMR4P4 |
-| Azure Gray (V21) | #456983 | Atomic Smoke Blue PETG | #45677A | 4 | atomicfilament.com/products/smoke-blue-carbon-fiber-extreme-petg — VERIFY variant; store CF Smoke Blue = #375D71 |
+| Azure Gray (V21) | #456983 | Atomic Smoke Blue Carbon Fiber PETG | #45677A | 4 | atomicfilament.com/products/smoke-blue-carbon-fiber-extreme-petg (confirmed CF variant = #45677A) |
 | Robin's Egg Blue (V23) | #ABC9D1 | 3DXTECH Blue Frost rPETG (ECOMAX) | #B1C1C5 | 5 | 3dxtech.com/products/ecomax-r-petg |
 
-- **Open items:** (1) Cactus Gray product name unresolved — hex target #81847A is a PETG sage. (2) Cyber Orange (Filament PM) is EU-sourced — swap for a US burnt-orange. (3) Azure Gray — confirm plain Smoke Blue (#45677A) vs the carbon-fiber Smoke Blue (#375D71) on Atomic's store.
+- **All 10 resolved (Aug 2026)** — every color is an orderable PETG at ΔE ≤ 17 (most ≤ 11). Prior open items closed: Cactus Gray = Paramount Castle Limestone Gray PETG; Cyber Orange = Prusament Prusa Orange PETG (US-available premium, replaced EU-only Filament PM, ΔE 9→11); Azure Gray = Atomic Smoke Blue **Carbon Fiber** PETG (CF variant is the #45677A match, not the #375D71 mis-pick).
 - **Method:** targets sampled from `body_{color}_front_regmane_white.png` renders (990×1294) at the plinth region; ΔE = CIE76 vs measured filament hex. Seven picks are from Todd's filamentcolors collection; Shadow Black / Cyber Orange / Carbonized Gray were Claude-suggested to complete the set.
 - Robin's Egg Blue plinth ground truth ~#95C3CC (Ford CW/M7478 approx #BADBE4; never #96DED1). G1 options carry no hex field — swatches render from body images, so a filament brand switch needs NO site/config change (see Swatch provenance below). Print/sourcing reference only.
 
