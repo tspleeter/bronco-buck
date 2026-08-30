@@ -168,25 +168,24 @@ Each tile shows a different mane so the grid reads as an assortment, not one rep
 - **Carbonized Gray special case:** its body/stand colors are within 3-8 RGB points of the Bambu background (84,84,90) — color-threshold masking is impossible. Align via internal feature mask (pixels >25 from bg: mane, eyes, teeth, tongue, shadow creases) and paste the whole aligned screenshot rect (bg is already the same gray, no mask needed). Scale the screenshot so it fully covers the 990x1294 canvas to avoid fill seams.
 
 ## Filament Color Matching (Aug 2026)
-Recommended PETG per Bronco colorway for physical prints. **9 of 11 map to Bambu PETG Basic** (keeps AMS swaps single-brand, matches the standard Basic profile — HF PETG is discontinued, only black remains); **2 need specialty**: Cactus Gray (Fillamentum) + Robin's Egg Blue (Atomic). Filament hexes are mfr-published (Bambu official PETG Basic hex table; Polymaker; Atomic via filamentcolors.xyz). **Match quality is directional — verify any candidate against the render-plinth RGB sample (y1120–1205, x380–610), NOT against automotive paint codes** (online Bronco paint hexes are wildly inconsistent across sources, e.g. Desert Sand seen as #A87139 → #F4DAA7; Cactus Gray #8D968F is forum-derived, not official).
+Final cross-brand PETG picks per Bronco colorway, matched to the **render-plinth ground-truth** color of each product (sampled y1120–1205, x380–610) and ranked by CIE76 ΔE against colorimeter-measured filament hexes (filamentcolors.xyz). Cross-brand is intentional — accuracy over single-brand convenience. **Compare measured-to-measured**: filamentcolors measures printed swatches, so real black reads ~#3C3D3F not #000000, which removes the render-lighting distortion that inflated dark-color ΔE. Automotive paint codes are NOT targets. Oxford White (V16) stays Bambu PETG Basic White. ΔE <12 = close, 12–25 = fair.
 
-| Bronco (ID) | Filament | Brand | Hex | Match |
-|---|---|---|---|---|
-| Ruby Red (V1) | Red | Bambu PETG Basic | #D6001C | Close — brighter than the deep metallic |
-| Velocity Blue (V2) | Reflex Blue | Bambu PETG Basic | #001489 | Approx — navy-leaning; brighter alt = Navy Blue #0086D6 |
-| Shadow Black (V3) | Black | Bambu PETG Basic | #000000 | Exact |
-| Eruption Green (V15) | Green | Bambu PETG Basic | #009639 | Close — vivid; darker alt = Pine Green #034638 |
-| Oxford White (V16) | White | Bambu PETG Basic | ~#FFFFFF | Close |
-| Cyber Orange (V17) | Orange | Bambu PETG Basic | #FF671F | Approx — Bambu is red-orange; Cyber is more golden/dark-yellow |
-| Carbonized Gray (V18) | Gray | Bambu PETG Basic | #7F7E83 | Close — slightly light vs. the metallic |
-| Cactus Gray (V19) | Koala Grey | **Fillamentum PETG** | verify (sage green-gray) | **Specialty** — purpose-built green-tinted gray; pull exact hex from filamentcolors.xyz before ordering |
-| Desert Sand (V20) | Dark Beige | Bambu PETG Basic | #DBC8B6 | Approx — runs warm; no specialty PETG tan clearly beats it |
-| Azure Gray (V21) | Misty Blue | Bambu PETG Basic | #688197 | Approx — nearest cool blue-gray, but darker/more saturated. Light cool blue-gray is a real PETG gap |
-| Robin's Egg Blue (V23) | Baby Blue PETG PRO | **Atomic Filament** | #6CC4D7 | **Specialty** — light cyan-blue, closest to plinth ground-truth (~149,195,204); Made in USA (on-brand). Polymaker Teal #74CABF is a greener alt |
+| Bronco (ID) | Target hex | Pick | Filament hex | ΔE | Source / order |
+|---|---|---|---|---|---|
+| Ruby Red (V1) | #8A0311 | GreenGate3D Mars Red rPETG | #963135 | 17 | greengate3d.com/products/new-mars-red-recycled-pet-g |
+| Velocity Blue (V2) | #0A47A2 | Printed Solid Jessie Bold Blue PETG | #054A98 | 9 | printedsolid.com/products/jessie-premium-petg-1-75mm-x-bold-blue |
+| Shadow Black (V3) | #2E2E2E | Atomic Extreme Jet Black PETG Pro | #3C3D3F | 7 | atomicfilament.com/products/extreme-jet-black-petg-pro |
+| Eruption Green (V15) | #00732E | Printed Solid Jessie Tree Green PETG | #217E3E | 6 | printedsolid.com/products/jessie-premium-petg-1-75mm-x-tree-green |
+| Cyber Orange (V17) | #CD4400 | Filament PM Orange 2018 PETG | #E65827 | 9 | filament-pm.com (EU only — no clean US store; swap for a US burnt-orange) |
+| Carbonized Gray (V18) | #525357 | Prusament Galaxy Black PETG | #494546 | 6 | prusa3d.com/product/prusament-petg-prusa-galaxy-black-1kg |
+| Cactus Gray (V19) | #7D8D73 | PETG sage — product TBD | #81847A | 11 | product name unresolved. Do NOT use Polymaker Panchroma Starlight (shimmer PLA, not PETG) |
+| Desert Sand (V20) | #B7945C | Paramount 3D Military MBT Brown PETG | #AC7338 | 16 | amazon.com/dp/B089DMR4P4 |
+| Azure Gray (V21) | #456983 | Atomic Smoke Blue PETG | #45677A | 4 | atomicfilament.com/products/smoke-blue-carbon-fiber-extreme-petg — VERIFY variant; store CF Smoke Blue = #375D71 |
+| Robin's Egg Blue (V23) | #ABC9D1 | 3DXTECH Blue Frost rPETG (ECOMAX) | #B1C1C5 | 5 | 3dxtech.com/products/ecomax-r-petg |
 
-- Only **Robin's Egg Blue** and **Cactus Gray** warrant ordering specialty samples; the other 9 stay on Bambu PETG Basic.
-- Robin's Egg Blue target refs: **#BADBE4** (Ford CW/M7478 approximation) / **~#95C3CC** (render-plinth ground truth) — see Robin's Egg Blue color-value note in the Configurator section. Do NOT use #96DED1.
-- G1 options carry no hex field; swatches render from body images — this table is a **print/sourcing** reference, not an app-config change.
+- **Open items:** (1) Cactus Gray product name unresolved — hex target #81847A is a PETG sage. (2) Cyber Orange (Filament PM) is EU-sourced — swap for a US burnt-orange. (3) Azure Gray — confirm plain Smoke Blue (#45677A) vs the carbon-fiber Smoke Blue (#375D71) on Atomic's store.
+- **Method:** targets sampled from `body_{color}_front_regmane_white.png` renders (990×1294) at the plinth region; ΔE = CIE76 vs measured filament hex. Seven picks are from Todd's filamentcolors collection; Shadow Black / Cyber Orange / Carbonized Gray were Claude-suggested to complete the set.
+- Robin's Egg Blue plinth ground truth ~#95C3CC (Ford CW/M7478 approx #BADBE4; never #96DED1). G1 options carry no hex field — swatches render from body images, so a filament brand switch needs NO site/config change (see Swatch provenance below). Print/sourcing reference only.
 
 ### Brand comparison & upgrade path (2026 consensus)
 - **Bambu PETG Basic** (current default) — real edge is RFID auto-detect + pre-tuned AMS profiles (zero-config). Quality fine for display prints; NOT the consistency leader. HF (matte/high-flow) discontinued, only black remains.
