@@ -7,8 +7,8 @@ import MetaPixel from "@/components/MetaPixel";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Bronco Buck — Custom Plush Builder",
-  description: "Design your perfect Bronco Buck plush. Customize every detail — body, mane, stand, accessories and more. Share your build or add it to your cart.",
+  title: "Bronco Buck — Custom Collectible Builder",
+  description: "Design your perfect Bronco Buck collectible. Customize every detail — body, mane, stand, accessories and more. Share your build or add it to your cart.",
 };
 
 export default function RootLayout({
