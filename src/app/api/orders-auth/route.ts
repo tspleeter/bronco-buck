@@ -1,18 +1,28 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-
-const ORDERS_PASSWORD = process.env.ORDERS_PASSWORD ?? "061970";
-const COOKIE_NAME = "orders_auth";
+import {
+  ADMIN_COOKIE_NAME,
+  adminCookieValue,
+  checkAdminPassword,
+  getAdminPassword,
+} from "@/lib/admin-auth";
 
 export async function POST(req: NextRequest) {
-  const { password } = await req.json();
+  const { password } = await req.json().catch(() => ({ password: undefined }));
 
-  if (password !== ORDERS_PASSWORD) {
+  if (!(await getAdminPassword())) {
+    return NextResponse.json(
+      { message: "Admin login is not configured" },
+      { status: 503 }
+    );
+  }
+
+  if (!(await checkAdminPassword(password))) {
     return NextResponse.json({ message: "Incorrect password" }, { status: 401 });
   }
 
   const res = NextResponse.json({ ok: true });
-  res.cookies.set(COOKIE_NAME, ORDERS_PASSWORD, {
+  res.cookies.set(ADMIN_COOKIE_NAME, await adminCookieValue(password as string), {
     httpOnly: true,
     secure: true,
     sameSite: "lax",

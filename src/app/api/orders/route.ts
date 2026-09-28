@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { isAdminRequest } from "@/lib/admin-auth";
 import { createOrder, getOrders } from "@/lib/orders-db";
 import { Order } from "@/types/order";
 import { sendOrderConfirmationEmail } from "@/lib/email";
 import { sendPurchaseEvent } from "@/lib/meta-capi";
 import { incrementRedemption } from "@/lib/discounts-db";
 
-export async function GET() {
+// Admin only: the full order list carries every customer's name, email,
+// phone and address. (Previously public — /api isn't covered by proxy.ts.)
+export async function GET(req: NextRequest) {
+  if (!(await isAdminRequest(req))) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
   try {
     const orders = await getOrders();
     return NextResponse.json(orders);
@@ -30,6 +37,9 @@ export async function POST(req: Request) {
       );
     }
 
+    // History is admin-written only; never accept it from the client.
+    delete order.history;
+
     await createOrder(order);
 
     // Bump the discount's redemption counter — best-effort, never fail the
@@ -40,10 +50,13 @@ export async function POST(req: Request) {
       });
     }
 
-    // Send confirmation email — non-blocking, don't fail the order if email fails
-    sendOrderConfirmationEmail(order).catch((err) => {
+    // Send confirmation email — awaited (a fire-and-forget send can be frozen
+    // with the Lambda once the response returns), but never fails the order.
+    try {
+      await sendOrderConfirmationEmail(order);
+    } catch (err) {
       console.error("Failed to send confirmation email:", err);
-    });
+    }
 
     // Server-side Meta Conversions API Purchase — non-blocking. Deduplicates
     // with the browser Pixel Purchase (confirmation page) via order.orderId as

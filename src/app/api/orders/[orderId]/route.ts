@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getOrderById, updateOrderFulfillment } from "@/lib/orders-db";
-import { sendShipmentEmail } from "@/lib/email";
+import {
+  getOrderById,
+  updateOrderFulfillment,
+  appendOrderEvent,
+} from "@/lib/orders-db";
 import { buildTrackingUrl } from "@/lib/shipping";
-import { Carrier, OrderStatus } from "@/types/order";
-
-const ORDERS_PASSWORD = process.env.ORDERS_PASSWORD ?? "061970";
-const COOKIE_NAME = "orders_auth";
+import { isAdminRequest } from "@/lib/admin-auth";
+import { newEventId, nowIso, sendOrderEmail } from "@/lib/order-events";
+import { Carrier, OrderEmailResult, OrderStatus } from "@/types/order";
 
 const VALID_STATUSES: OrderStatus[] = [
   "pending",
@@ -18,8 +20,10 @@ const VALID_STATUSES: OrderStatus[] = [
 ];
 const VALID_CARRIERS: Carrier[] = ["usps", "ups", "fedex", "dhl", "other"];
 
+// Public: the checkout confirmation page loads the order it just placed by its
+// (unguessable UUID) id. The admin history is stripped from the public payload.
 export async function GET(
-  _req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
@@ -30,7 +34,12 @@ export async function GET(
       return NextResponse.json({ message: "Order not found" }, { status: 404 });
     }
 
-    return NextResponse.json(order);
+    if (await isAdminRequest(req)) {
+      return NextResponse.json(order);
+    }
+    const publicOrder = { ...order };
+    delete publicOrder.history;
+    return NextResponse.json(publicOrder);
   } catch (err) {
     console.error("Failed to fetch order:", err);
     return NextResponse.json(
@@ -40,12 +49,13 @@ export async function GET(
   }
 }
 
+// Admin: save fulfillment (status / carrier / tracking). Every save is logged
+// to order.history, including the outcome of any automatic shipment email.
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
-  // Guard: same cookie gate as the /orders admin pages
-  if (req.cookies.get(COOKIE_NAME)?.value !== ORDERS_PASSWORD) {
+  if (!(await isAdminRequest(req))) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -92,16 +102,30 @@ export async function PATCH(
         ? existing.shippedAt ?? new Date().toISOString()
         : existing.shippedAt,
     });
-
-    // Fire the shipment email only on the transition INTO shipped, so
-    // editing a tracking number on an already-shipped order won't re-notify.
-    if (updated && nowShipping && !wasShipped) {
-      sendShipmentEmail(updated).catch((err) => {
-        console.error("Failed to send shipment email:", err);
-      });
+    if (!updated) {
+      return NextResponse.json({ message: "Order not found" }, { status: 404 });
     }
 
-    return NextResponse.json(updated);
+    // Email only on the transition INTO shipped, so editing tracking on an
+    // already-shipped order won't re-notify. Awaited (see sendOrderEmail).
+    let email: OrderEmailResult | undefined;
+    if (nowShipping && !wasShipped) {
+      email = await sendOrderEmail(updated, "shipment");
+    }
+
+    const logged = await appendOrderEvent(orderId, {
+      id: newEventId(),
+      at: nowIso(),
+      type: "fulfillment_saved",
+      previousStatus: existing.status,
+      status: updated.status,
+      carrier: updated.carrier,
+      trackingNumber: updated.trackingNumber,
+      trackingUrl: updated.trackingUrl,
+      email,
+    });
+
+    return NextResponse.json(logged ?? updated);
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err);
     console.error("Failed to update order:", detail);

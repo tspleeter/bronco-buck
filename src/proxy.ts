@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { isAdminRequest } from "@/lib/admin-auth";
 
-const ORDERS_PASSWORD = process.env.ORDERS_PASSWORD ?? "061970";
-const COOKIE_NAME = "orders_auth";
-
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const gated =
     pathname.startsWith("/orders") || pathname.startsWith("/discounts");
@@ -12,8 +10,8 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Already authenticated
-  if (request.cookies.get(COOKIE_NAME)?.value === ORDERS_PASSWORD) {
+  // Already authenticated (fails closed if no password is configured)
+  if (await isAdminRequest(request)) {
     return NextResponse.next();
   }
 

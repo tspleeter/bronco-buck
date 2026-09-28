@@ -1,3 +1,4 @@
+import { isAdminRequest } from "@/lib/admin-auth";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import {
@@ -11,18 +12,12 @@ import { DiscountType } from "@/types/discount";
 
 export const dynamic = "force-dynamic";
 
-const ORDERS_PASSWORD = process.env.ORDERS_PASSWORD ?? "061970";
-const COOKIE_NAME = "orders_auth";
-
-function isAuthed(req: NextRequest): boolean {
-  return req.cookies.get(COOKIE_NAME)?.value === ORDERS_PASSWORD;
-}
 
 const VALID_TYPES: DiscountType[] = ["percent", "fixed"];
 
 // GET /api/discounts — list all codes (admin).
 export async function GET(req: NextRequest) {
-  if (!isAuthed(req)) {
+  if (!(await isAdminRequest(req))) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   try {
@@ -46,7 +41,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/discounts — create a code (admin).
 export async function POST(req: NextRequest) {
-  if (!isAuthed(req)) {
+  if (!(await isAdminRequest(req))) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   try {

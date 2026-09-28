@@ -1,26 +1,44 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getOrderById, updateOrderFulfillment } from "@/lib/orders-db";
-import { sendShipmentEmail } from "@/lib/email";
+import {
+  getOrderById,
+  updateOrderFulfillment,
+  appendOrderEvent,
+} from "@/lib/orders-db";
 import { buildTrackingUrl } from "@/lib/shipping";
-import { Carrier } from "@/types/order";
+import { isAdminRequest } from "@/lib/admin-auth";
+import {
+  emailKindForStatus,
+  newEventId,
+  nowIso,
+  sendOrderEmail,
+} from "@/lib/order-events";
+import { Carrier, Order, OrderEmailKind } from "@/types/order";
 
-const ORDERS_PASSWORD = process.env.ORDERS_PASSWORD ?? "061970";
-const COOKIE_NAME = "orders_auth";
 const VALID_CARRIERS: Carrier[] = ["usps", "ups", "fedex", "dhl", "other"];
 
 // POST /api/orders/[orderId]/resend-shipment
-// Re-sends the shipment notification email for an order, unconditionally —
-// independent of the status-transition guard on the PATCH route. Useful when
-// the original email never arrived (order was already "shipped" when saved, a
-// transient SES error, spam, etc). Unlike the fire-and-forget send in PATCH,
-// this awaits the send and returns the real error detail if it fails.
+//
+// Two modes, both unconditional (independent of the PATCH transition guard),
+// both awaited, both logged to order.history as an "email_resent" entry:
+//
+// 1. Top-level "Resend shipment email" — body { carrier?, trackingNumber? }.
+//    WYSIWYG: any carrier/tracking typed into the form is persisted (status
+//    unchanged → no double-notify) before the shipment email is sent. Empty
+//    overrides fall back to the stored values (never wipes). A bare POST
+//    re-sends the order exactly as stored.
+//
+// 2. History-row "Resend email" — body { eventId }. Re-sends the email that
+//    fits that entry: a fulfillment save in shipped/delivered → the shipment
+//    email with THAT entry's carrier/tracking; any other status → the order
+//    confirmation. A customer-info entry uses the order's current state.
+//    Nothing on the order is changed; it always goes to the current customer
+//    email (so fixing an address then resending reaches the right inbox).
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
 ) {
-  // Guard: same cookie gate as the /orders admin pages
-  if (req.cookies.get(COOKIE_NAME)?.value !== ORDERS_PASSWORD) {
+  if (!(await isAdminRequest(req))) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
@@ -32,54 +50,90 @@ export async function POST(
       return NextResponse.json({ message: "Order not found" }, { status: 404 });
     }
 
-    if (!order.customer?.email) {
-      return NextResponse.json(
-        { message: "Order has no customer email on file" },
-        { status: 400 }
-      );
-    }
-
-    // WYSIWYG resend: the admin can edit the carrier / tracking fields and hit
-    // "Resend" without a separate Save. When the client sends those form values,
-    // persist them (recomputing the tracking URL) BEFORE emailing, so the resend
-    // reflects what's on screen rather than a stale, tracking-less DB record.
-    // Body is optional — a bare POST re-sends the order exactly as stored.
     const body = (await req.json().catch(() => ({}))) as {
       carrier?: Carrier | "";
       trackingNumber?: string;
+      eventId?: string;
     };
-    const hasOverrides =
-      body != null &&
-      (body.carrier !== undefined || body.trackingNumber !== undefined);
 
-    if (hasOverrides) {
-      if (body.carrier && !VALID_CARRIERS.includes(body.carrier)) {
-        return NextResponse.json({ message: "Invalid carrier" }, { status: 400 });
+    let emailOrder: Order = order;
+    let kind: OrderEmailKind = "shipment";
+    let sourceEventId: string | undefined;
+
+    if (body?.eventId) {
+      const source = order.history?.find((e) => e.id === body.eventId);
+      if (!source || source.type === "email_resent") {
+        return NextResponse.json(
+          { message: "That history entry can't be re-sent" },
+          { status: 400 }
+        );
       }
-      // Empty override falls back to what's already on the order (never wipes).
-      const carrier = body.carrier || order.carrier;
-      const trackingNumber =
-        body.trackingNumber?.trim() || order.trackingNumber;
-      const trackingUrl = buildTrackingUrl(carrier, trackingNumber);
+      sourceEventId = source.id;
+      if (source.type === "fulfillment_saved") {
+        kind = emailKindForStatus(source.status);
+        emailOrder = {
+          ...order,
+          carrier: source.carrier,
+          trackingNumber: source.trackingNumber,
+          trackingUrl:
+            source.trackingUrl ??
+            buildTrackingUrl(source.carrier, source.trackingNumber),
+        };
+      } else {
+        kind = emailKindForStatus(order.status);
+      }
+    } else {
+      const hasOverrides =
+        body != null &&
+        (body.carrier !== undefined || body.trackingNumber !== undefined);
 
-      const updated = await updateOrderFulfillment(orderId, {
-        status: order.status, // unchanged — no status transition, no double-notify
-        carrier,
-        trackingNumber,
-        trackingUrl,
-        shippedAt: order.shippedAt,
-      });
-      if (updated) order = updated;
+      if (hasOverrides) {
+        if (body.carrier && !VALID_CARRIERS.includes(body.carrier)) {
+          return NextResponse.json({ message: "Invalid carrier" }, { status: 400 });
+        }
+        const carrier = body.carrier || order.carrier;
+        const trackingNumber =
+          body.trackingNumber?.trim() || order.trackingNumber;
+        const trackingUrl = buildTrackingUrl(carrier, trackingNumber);
+
+        const updated = await updateOrderFulfillment(orderId, {
+          status: order.status, // unchanged — no status transition, no double-notify
+          carrier,
+          trackingNumber,
+          trackingUrl,
+          shippedAt: order.shippedAt,
+        });
+        if (updated) order = updated;
+      }
+      emailOrder = order;
     }
 
-    await sendShipmentEmail(order);
+    const email = await sendOrderEmail(emailOrder, kind);
 
-    return NextResponse.json({ ok: true, sentTo: order.customer.email });
+    const logged = await appendOrderEvent(orderId, {
+      id: newEventId(),
+      at: nowIso(),
+      type: "email_resent",
+      sourceEventId,
+      carrier: kind === "shipment" ? emailOrder.carrier : undefined,
+      trackingNumber: kind === "shipment" ? emailOrder.trackingNumber : undefined,
+      trackingUrl: kind === "shipment" ? emailOrder.trackingUrl : undefined,
+      email,
+    });
+
+    if (!email.sent) {
+      return NextResponse.json(
+        { message: `Failed to send ${kind} email`, detail: email.error, order: logged },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ ok: true, sentTo: email.to, kind, order: logged });
   } catch (err) {
     const detail = err instanceof Error ? err.message : String(err);
-    console.error("Failed to resend shipment email:", detail);
+    console.error("Failed to resend email:", detail);
     return NextResponse.json(
-      { message: "Failed to resend shipment email", detail },
+      { message: "Failed to resend email", detail },
       { status: 500 }
     );
   }

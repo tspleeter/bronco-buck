@@ -18,6 +18,8 @@ export default function OrdersLoginPage() {
     });
     if (res.ok) {
       router.push("/orders");
+    } else if (res.status === 503) {
+      setError("Login isn't configured yet: the admin password is missing from SSM.");
     } else {
       setError("Incorrect password.");
     }

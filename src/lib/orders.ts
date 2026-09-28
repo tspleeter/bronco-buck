@@ -1,4 +1,4 @@
-import { Order, OrderStatus, Carrier } from "@/types/order";
+import { Order, OrderStatus, Carrier, OrderCustomer, OrderEmailKind } from "@/types/order";
 
 // Client-side wrapper around the orders API.
 // Previously this read/wrote orders to localStorage — meaning the store
@@ -79,28 +79,42 @@ export async function updateOrderFulfillment(
   return res.json();
 }
 
+export interface ResendResult {
+  sentTo: string;
+  kind: OrderEmailKind;
+  order?: Order;
+}
+
 /**
- * Resend the shipment notification email for an order (admin), regardless of
- * status — bypasses the transition guard on PATCH. Requires the orders_auth
- * cookie. Returns the address it was sent to; throws with the real error
- * detail if the send fails.
+ * Resend a customer email (admin). Bypasses the transition guard on PATCH and
+ * is logged to the order history. Requires the orders_auth cookie.
+ *
+ * - `{ carrier?, trackingNumber? }` (top-level button): persists the on-screen
+ *   carrier/tracking, then re-sends the shipment email.
+ * - `{ eventId }` (history row): re-sends the email that fits that entry
+ *   without changing the order.
+ *
+ * Throws with the real error detail if the send fails.
  */
 export async function resendShipmentEmail(
   orderId: string,
-  overrides?: { carrier?: Carrier | ""; trackingNumber?: string }
-): Promise<string> {
-  // When the admin passes the current form values, send them so the resend
-  // saves + reflects on-screen carrier/tracking. A bare call (no overrides)
-  // re-sends the order exactly as stored.
+  overrides?: { carrier?: Carrier | ""; trackingNumber?: string; eventId?: string }
+): Promise<ResendResult> {
+  const payload = overrides?.eventId
+    ? { eventId: overrides.eventId }
+    : overrides
+      ? {
+          carrier: overrides.carrier || undefined,
+          trackingNumber: overrides.trackingNumber?.trim() || undefined,
+        }
+      : undefined;
+
   const res = await fetch(`/api/orders/${orderId}/resend-shipment`, {
     method: "POST",
-    ...(overrides
+    ...(payload
       ? {
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            carrier: overrides.carrier || undefined,
-            trackingNumber: overrides.trackingNumber?.trim() || undefined,
-          }),
+          body: JSON.stringify(payload),
         }
       : {}),
   });
@@ -108,10 +122,33 @@ export async function resendShipmentEmail(
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new Error(
-      data.detail ?? data.message ?? "Failed to resend shipment email"
-    );
+    const err = new Error(
+      data.detail ?? data.message ?? "Failed to resend email"
+    ) as Error & { order?: Order };
+    err.order = data.order;
+    throw err;
   }
 
-  return data.sentTo as string;
+  return { sentTo: data.sentTo, kind: data.kind, order: data.order };
+}
+
+/**
+ * Edit the customer's name / contact / shipping address (admin). The change
+ * is logged to the order history. Returns the updated order.
+ */
+export async function updateOrderCustomer(
+  orderId: string,
+  customer: Partial<OrderCustomer>
+): Promise<Order> {
+  const res = await fetch(`/api/orders/${orderId}/customer`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(customer),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(data.message ?? "Failed to update customer");
+  }
+  return data as Order;
 }

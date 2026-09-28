@@ -6,9 +6,15 @@ import {
   DeleteCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { docClient } from "@/lib/dynamo-client";
-import { Order, OrderStatus, Carrier } from "@/types/order";
+import { Order, OrderStatus, Carrier, OrderCustomer, OrderEvent } from "@/types/order";
 
 const TABLE_NAME = process.env.DYNAMO_ORDERS_TABLE ?? "BroncoBuckOrders";
+
+// The doc client isn't configured with removeUndefinedValues, so strip
+// undefined fields (optional carrier, address2, …) before writing nested maps.
+function clean<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
 
 export async function createOrder(order: Order): Promise<void> {
   await docClient.send(
@@ -110,6 +116,61 @@ export async function updateOrderFulfillment(
     })
   );
 
+  return result.Attributes as Order | undefined;
+}
+
+/**
+ * Append one entry to the order's admin history (creating the list on first
+ * use) and return the full updated order.
+ */
+export async function appendOrderEvent(
+  orderId: string,
+  event: OrderEvent
+): Promise<Order | undefined> {
+  const result = await docClient.send(
+    new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: { orderId },
+      UpdateExpression:
+        "SET #history = list_append(if_not_exists(#history, :empty), :event), updatedAt = :updatedAt",
+      ExpressionAttributeNames: { "#history": "history" },
+      ExpressionAttributeValues: {
+        ":empty": [],
+        ":event": [clean(event)],
+        ":updatedAt": new Date().toISOString(),
+      },
+      ConditionExpression: "attribute_exists(orderId)",
+      ReturnValues: "ALL_NEW",
+    })
+  );
+  return result.Attributes as Order | undefined;
+}
+
+/**
+ * Replace the order's customer block and log the change in one atomic write.
+ */
+export async function updateOrderCustomer(
+  orderId: string,
+  customer: OrderCustomer,
+  event: OrderEvent
+): Promise<Order | undefined> {
+  const result = await docClient.send(
+    new UpdateCommand({
+      TableName: TABLE_NAME,
+      Key: { orderId },
+      UpdateExpression:
+        "SET customer = :customer, #history = list_append(if_not_exists(#history, :empty), :event), updatedAt = :updatedAt",
+      ExpressionAttributeNames: { "#history": "history" },
+      ExpressionAttributeValues: {
+        ":customer": clean(customer),
+        ":empty": [],
+        ":event": [clean(event)],
+        ":updatedAt": new Date().toISOString(),
+      },
+      ConditionExpression: "attribute_exists(orderId)",
+      ReturnValues: "ALL_NEW",
+    })
+  );
   return result.Attributes as Order | undefined;
 }
 
