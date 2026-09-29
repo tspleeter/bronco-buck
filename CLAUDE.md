@@ -85,6 +85,19 @@
 - **Files — new:** `types/discount.ts`, `lib/discount-logic.ts`, `lib/discounts-db.ts`, `lib/discounts.ts` (client), `api/validate-discount/route.ts`, `api/discounts/route.ts`, `api/discounts/[code]/route.ts`, `app/discounts/page.tsx`. **Modified:** `lib/dynamo-client.ts` (export raw `dynamoClient` for control-plane), `types/order.ts` (`OrderPricing.discount?` + `discountCode?`), `api/calculate-tax/route.ts`, `api/orders/route.ts`, `lib/email.ts`, `checkout/page.tsx`, `checkout/confirmation/ConfirmationContent.tsx`, `orders/page.tsx`, `orders/[orderId]/page.tsx`, `proxy.ts`.
 - **Known edge:** a code that drives the total to **$0** (e.g. 100% off with free shipping) can't be charged — Stripe rejects a $0 PaymentIntent. Todd controls codes; no $0/free-order fulfillment path built. Fixed/percent are capped so discount never exceeds merch subtotal (shipping still owed unless free-ship).
 - **Validated:** `tsc --noEmit` + `npm run build` both clean (adds routes `/discounts`, `/api/discounts`, `/api/discounts/[code]`, `/api/validate-discount`).
+- Amplify firewall protections: checked Sep 7 2026, currently **Not enabled**. Todd's call to **leave it off for now** — AWS WAF + Amplify's management fee runs ~$23/mo (~$8 WAF base + $1.40 per 1M requests + $15/mo Amplify firewall fee), confirmed live in the console's "Add firewall" screen. Revisit once there's real traffic or an actual abuse signal. 🟡
+
+## Pre-Go-Live Gate: Stripe Tax Dashboard Setup
+- `src/app/api/calculate-tax/route.ts` calls Stripe's Tax Calculation API off the shipping address and links the calc to the PaymentIntent — this is real and live, and checkout is on a `pk_live_...` key (no longer test mode).
+- **The integration deploys INERT until the Stripe Dashboard is configured.** It has a silent fallback: if Stripe Tax isn't enabled, or there's no tax registration for the customer's ship-to state, it catches the error, charges $0 tax, and lets the order complete with `taxUnavailable: true` — no error surfaces. A broken/unconfigured setup looks identical to a legit no-tax order.
+- Complete all five Dashboard steps before go-live:
+  1. Head office / ship-from = 8 Nelke Ct, Hawthorne NJ 07506
+  2. Preset product tax code = general tangible goods
+  3. Preset shipping tax code
+  4. Tax behavior = exclusive
+  5. Add a tax registration — **NJ at minimum (this is the hard gate)**
+- **Verify:** place one live test order and confirm the Tax line shows at checkout AND a matching entry appears on Stripe's Tax → Transactions page.
+- **Caveat:** Stripe *recording* the tax transaction is not the same as *filing/remitting* it — unless on Stripe Tax's filing service, Todd (or his accountant) still files the returns.
 
 ## Configurator — bronco-config.json
 - **Product:** Bronco Buck Classic (BB001), base price $24.99
@@ -227,8 +240,10 @@ Final cross-brand PETG picks per Bronco colorway, matched to the **render-plinth
 - **`cqh` units** require `container-type` to be set on the parent — don't use without it
 - **rembg / AI background removal** requires downloading a model (~170MB) from GitHub — blocked by network policy; use GrabCut (OpenCV) or remove.bg instead
 - **White subjects on white backgrounds** can't be cleanly separated with flood-fill — use remove.bg or photograph against a dark background
+- **Amplify Firewall pricing (checked Sep 7 2026):** ~$8/mo WAF base (pro-rated hourly) + $1.40 per 1M requests, plus a separate $15/mo Amplify firewall management fee — ~$23/mo minimum all-in. Confirmed by opening the "Add firewall" screen in the Amplify console; nothing was enabled.
 
 ## Approach
 - Todd prefers Claude to **execute tasks directly** without asking for confirmation
 - Always read CLAUDE.md at session start
 - Begin code sessions with full codebase audit before making changes
+- Desktop link (Sep 7 2026): Claude has file read/write access to this repo at `~/bronco-buck` via a remote-devices bridge, plus full control of GitHub Desktop for commit/push. No remote shell on the desktop link — builds/typechecks run in Claude's own sandbox, then results are written back.
