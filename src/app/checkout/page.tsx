@@ -18,8 +18,13 @@ import { CartItem } from "@/types/cart";
 import { CheckoutFormData } from "@/types/checkout";
 import { Order } from "@/types/order";
 import { getGroupName, getOptionName } from "@/lib/product-display";
+import { isHiddenSelection } from "@/lib/summary";
+import broncoConfigJson from "@/data/bronco-config.json";
+import type { ProductConfig } from "@/types/product";
 import { ActionButton } from "@/components/ActionButton";
 import { Toast } from "@/components/Toast";
+
+const broncoConfig = broncoConfigJson as ProductConfig;
 
 const stripePromise = loadStripe(
   "pk_live_51TYB6eQxnWViL6pk6T03aow2two706HTaMsVMolL13dACQu1M8p4TCnkrJI524FHu9Pnd9qhk8jIdQpYJ9OZLBdm0060sRbsAK"
@@ -489,6 +494,7 @@ function CheckoutForm({
                 <div style={{ marginTop: 8, display: "grid", gap: 4, color: "var(--color-text-muted)" }}>
                   <div>Qty: {item.quantity}</div>
                   {Object.entries(item.selectedOptions).map(([groupId, value]) => {
+                    if (isHiddenSelection(broncoConfig, groupId, value)) return null;
                     if (Array.isArray(value)) {
                       if (!value.length) return null;
                       return (
@@ -505,7 +511,7 @@ function CheckoutForm({
                     );
                   })}
                   {item.customFields.nameplateText ? (
-                    <div>Nameplate: {item.customFields.nameplateText}</div>
+                    <div>Nameplate Text: {item.customFields.nameplateText}</div>
                   ) : null}
                 </div>
               </div>

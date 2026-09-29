@@ -9,6 +9,7 @@ import { getCart, saveCart, clearCart } from "@/lib/cart";
 import { CartItem } from "@/types/cart";
 import { getGroupName, getOptionName } from "@/lib/product-display";
 import { getSelectedLayers } from "@/lib/layers";
+import { isHiddenSelection } from "@/lib/summary";
 import { getManeContext } from "@/lib/mane";
 import { ActionButton } from "@/components/ActionButton";
 import { Toast } from "@/components/Toast";
@@ -212,6 +213,7 @@ export default function CartPage() {
                         {/* Options */}
                         <div style={{ display: "grid", gap: "6px" }}>
                           {Object.entries(item.selectedOptions).map(([groupId, value]) => {
+                            if (isHiddenSelection(broncoConfig, groupId, value)) return null;
                             if (Array.isArray(value)) {
                               if (!value.length) return null;
                               return (
