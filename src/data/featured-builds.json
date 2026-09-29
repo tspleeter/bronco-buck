@@ -14,7 +14,7 @@
       "G7": "V12",
       "G8": "V14"
     },
-    "customFields": {},
+    "customFields": { "nameplateText": "%uckThatDuck" },
     "heroImage": "featured_desert_punk",
     "caption": "Trail-ready with attitude.",
     "featured": true,

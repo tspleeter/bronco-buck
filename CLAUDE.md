@@ -99,11 +99,13 @@
 | G4 | Accessories | V8 Sunglasses (+$4, **not available — "Coming soon"**), V29 Eyelashes (+$4, **not available — "Coming soon"**) — **entire group disabled Aug 2026** (see Accessories note below) |
 | G5 | Stand Style | V9 Standard (+$0) — **hidden from cart summary until imagery ready** |
 | G6 | Stand Color | V26 Match Body (+$0, default, first), V27 Black (+$3), V24 Brown (+$3), V25 Sand (+$3) — all live with overlay renders (July 2026); V10/V11 retired but kept in config so old saved builds price correctly |
-| G7 | Nameplate | V22 Buck (+$0, default, pre-selected), V12 None, V13 Custom (+$5) |
+| G7 | Nameplate | V22 Buck (+$0, default, pre-selected), V12 %uckThatDuck (+$0, was "None"), V13 Custom (+$5) |
 | G8 | Packaging | V14 Standard Box (+$0) |
 
 ### Nameplate
 - V22 "Buck" is the default — pre-selected on every new build, free, shows "BUCK" on the preview
+- V12 "%uckThatDuck" (renamed from "None", Sep 2026) is free and sets `nameplateText` to `BRAND_NAMEPLATE_TEXT` ("%uckThatDuck"); the preview renders it two-tone like the rim sticker — "%uck" white, "ThatDuck" gold `#EBB209`, Outfit 800. Builds saved/ordered before the rename with V12 have no nameplateText (they were "None") but now display "%uckThatDuck" in the summary.
+- Nameplate SVG viewBox is 335x100 (matches the ~3.35:1 plate); font size auto-shrinks with text length so 12-char custom names fit instead of clipping (Buck still renders at 80).
 - Custom nameplate (V13) is capped at 12 characters
 - Nameplate overlay renders on **front view only**
 - Overlay zone: top 76.5%, left 10.5%, width 78.8%, height 21.1% of preview container

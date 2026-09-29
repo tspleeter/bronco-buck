@@ -6,6 +6,7 @@ import broncoConfigJson from "@/data/bronco-config.json";
 import type { ProductConfig } from "@/types/product";
 const broncoConfig = broncoConfigJson as ProductConfig;
 import featuredBuilds from "@/data/featured-builds.json";
+import { BRAND_NAMEPLATE_TEXT } from "@/components/BuilderPreview";
 import { getDefaultBuildState } from "@/lib/defaults";
 import { calculateBuildPrice } from "@/lib/pricing";
 import { getSelectedLayers } from "@/lib/layers";
@@ -446,7 +447,12 @@ export default function BuildPage() {
                       id === "G7" && val !== "V13"
                         ? {
                             ...prev.customFields,
-                            nameplateText: val === "V22" ? "Buck" : "",
+                            nameplateText:
+                              val === "V22"
+                                ? "Buck"
+                                : val === "V12"
+                                  ? BRAND_NAMEPLATE_TEXT
+                                  : "",
                           }
                         : prev.customFields,
                   };
