@@ -8,6 +8,8 @@ const broncoConfig = broncoConfigJson as ProductConfig;
 import featuredBuilds from "@/data/featured-builds.json";
 import { BRAND_NAMEPLATE_TEXT } from "@/components/BuilderPreview";
 import { getDefaultBuildState } from "@/lib/defaults";
+import { BUILDER_HIDDEN_GROUPS, withHiddenGroupDefaults } from "@/lib/hidden-groups";
+import type { BuildState } from "@/types/build";
 import { calculateBuildPrice } from "@/lib/pricing";
 import { getSelectedLayers } from "@/lib/layers";
 import { getBuildSummary } from "@/lib/summary";
@@ -100,13 +102,18 @@ export default function BuildPage() {
   }, []);
 
   useEffect(() => {
+    // Hidden groups (hidden-groups.ts) are forced to defaults so a saved/shared/
+    // featured build can't carry a paid option the customer can no longer see.
+    const applyBuild = (s: BuildState) =>
+      setBuildState(withHiddenGroupDefaults(broncoConfig, s));
+
     const load = async () => {
       if (shareId) {
         try {
           const res = await fetch(`/api/shared-builds/${shareId}`);
           if (res.ok) {
             const shared = await res.json();
-            setBuildState({
+            applyBuild({
               productId: shared.productId,
               selectedOptions: shared.selectedOptions,
               customFields: shared.customFields,
@@ -123,7 +130,7 @@ export default function BuildPage() {
       if (savedBuildId) {
         const saved = getSavedBuildById(savedBuildId);
         if (saved) {
-          setBuildState({
+          applyBuild({
             productId: saved.productId,
             selectedOptions: saved.selectedOptions,
             customFields: saved.customFields,
@@ -133,7 +140,7 @@ export default function BuildPage() {
       }
 
       if (featuredBuild) {
-        setBuildState({
+        applyBuild({
           productId: broncoConfig.productId,
           selectedOptions: featuredBuild.selectedOptions,
           customFields: featuredBuild.customFields,
@@ -161,11 +168,11 @@ export default function BuildPage() {
               ? "V4"
               : galleryStyle;
         }
-        setBuildState({ ...defaults, selectedOptions: nextOptions });
+        applyBuild({ ...defaults, selectedOptions: nextOptions });
         return;
       }
 
-      setBuildState(getDefaultBuildState(broncoConfig));
+      applyBuild(getDefaultBuildState(broncoConfig));
     };
 
     load();
@@ -412,7 +419,9 @@ export default function BuildPage() {
 
         {/* ── RIGHT: Option Groups ── */}
         <div style={{ display: "grid", gap: "14px" }}>
-          {broncoConfig.groups.map((group) => (
+          {broncoConfig.groups
+            .filter((group) => !BUILDER_HIDDEN_GROUPS.has(group.id))
+            .map((group) => (
             <OptionGroup
               key={group.id}
               group={group}

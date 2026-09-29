@@ -104,6 +104,8 @@
 - **Base layer:** `base_bronco.png` (transparent)
 
 ### Option Groups
+> **Hidden from the builder (Sep 2026, "for now"):** G4 Accessories, G5 Stand Style, G6 Stand Color, G8 Packaging. Listed in `BUILDER_HIDDEN_GROUPS` in `src/lib/hidden-groups.ts`; the builder filters them out and `withHiddenGroupDefaults()` forces their defaults (no accessories, Standard, Match Body, Standard Box) on every loaded build (saved/shared/featured/gallery), so nothing hidden can be charged. Config options are untouched so old builds/orders still price + render. Summary skips G6 when it's the free Match Body (paid stand colors on old orders still itemize). **To restore a group, remove its id from the set.**
+
 | ID | Group | Options |
 |----|-------|---------|
 | G1 | Body Color | V1 Ruby Red, V2 Velocity Blue, V3 Shadow Black, V15 Eruption Green, V16 Oxford White, V17 Cyber Orange, V18 Carbonized Gray, V19 Cactus Gray, V20 Desert Sand, V21 Azure Gray, V23 Robin's Egg Blue |

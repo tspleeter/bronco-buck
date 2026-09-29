@@ -29,6 +29,10 @@ export function getBuildSummary(
     if (group.type === "single" && typeof selection === "string" && selection) {
       const option = group.options.find((item) => item.id === selection);
 
+      // Stand Color (G6) is hidden from the builder for now (hidden-groups.ts);
+      // only itemize it when an older build carries a paid stand color.
+      if (option && group.id === "G6" && option.priceDelta === 0) continue;
+
       if (option) {
         items.push({
           groupId: group.id,
