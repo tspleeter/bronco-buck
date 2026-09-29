@@ -104,7 +104,9 @@
 - **Base layer:** `base_bronco.png` (transparent)
 
 ### Option Groups
-> **Hidden from the builder (Sep 2026, "for now"):** G4 Accessories, G5 Stand Style, G6 Stand Color, G8 Packaging. Listed in `BUILDER_HIDDEN_GROUPS` in `src/lib/hidden-groups.ts`; the builder filters them out and `withHiddenGroupDefaults()` forces their defaults (no accessories, Standard, Match Body, Standard Box) on every loaded build (saved/shared/featured/gallery), so nothing hidden can be charged. Config options are untouched so old builds/orders still price + render. Summary skips G6 when it's the free Match Body (paid stand colors on old orders still itemize). **To restore a group, remove its id from the set.**
+> **Featured builds removed (Sep 2026):** the lone unlinked featured build ("Desert Punk Buddy", used deactivated Punk mane) was deleted along with `featured-builds.json`, `/gallery/[buildSlug]`, `FeaturedBuildCard`, the `FeaturedBuild` type and the builder `?featured=` param.
+
+> **Hidden from the builder (Sep 2026, "for now"):** G4 Accessories, G5 Stand Style, G6 Stand Color, G8 Packaging. Listed in `BUILDER_HIDDEN_GROUPS` in `src/lib/hidden-groups.ts`; the builder filters them out and `withHiddenGroupDefaults()` forces their defaults (no accessories, Standard, Match Body, Standard Box) on every loaded build (saved/shared/gallery), so nothing hidden can be charged. Config options are untouched so old builds/orders still price + render. Summary skips G6 when it's the free Match Body (paid stand colors on old orders still itemize). **To restore a group, remove its id from the set.**
 
 | ID | Group | Options |
 |----|-------|---------|

@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import broncoConfigJson from "@/data/bronco-config.json";
 import type { ProductConfig } from "@/types/product";
 const broncoConfig = broncoConfigJson as ProductConfig;
-import featuredBuilds from "@/data/featured-builds.json";
 import { BRAND_NAMEPLATE_TEXT } from "@/components/BuilderPreview";
 import { getDefaultBuildState } from "@/lib/defaults";
 import { BUILDER_HIDDEN_GROUPS, withHiddenGroupDefaults } from "@/lib/hidden-groups";
@@ -63,14 +62,11 @@ export default function BuildPage() {
   const { refreshSavedBuilds } = useSavedBuilds();
   const searchParams = useSearchParams();
 
-  const featuredSlug = searchParams.get("featured");
   const savedBuildId = searchParams.get("saved");
   const shareId = searchParams.get("share");
   const galleryColor = searchParams.get("color");
   const gallerymane = searchParams.get("mane");
   const galleryStyle = searchParams.get("style");
-
-  const featuredBuild = featuredBuilds.find((b) => b.slug === featuredSlug);
 
   const [view, setView] = useState("front");
   const [message, setMessage] = useState("");
@@ -103,7 +99,7 @@ export default function BuildPage() {
 
   useEffect(() => {
     // Hidden groups (hidden-groups.ts) are forced to defaults so a saved/shared/
-    // featured build can't carry a paid option the customer can no longer see.
+    // gallery build can't carry a paid option the customer can no longer see.
     const applyBuild = (s: BuildState) =>
       setBuildState(withHiddenGroupDefaults(broncoConfig, s));
 
@@ -139,15 +135,6 @@ export default function BuildPage() {
         }
       }
 
-      if (featuredBuild) {
-        applyBuild({
-          productId: broncoConfig.productId,
-          selectedOptions: featuredBuild.selectedOptions,
-          customFields: featuredBuild.customFields,
-        });
-        return;
-      }
-
       if (galleryColor || gallerymane || galleryStyle) {
         const defaults = getDefaultBuildState(broncoConfig);
         const nextOptions: Record<string, string | string[]> = {
@@ -176,7 +163,7 @@ export default function BuildPage() {
     };
 
     load();
-  }, [shareId, savedBuildId, featuredBuild, galleryColor, gallerymane, galleryStyle]);
+  }, [shareId, savedBuildId, galleryColor, gallerymane, galleryStyle]);
 
   const price = useMemo(
     () => calculateBuildPrice(broncoConfig, buildState),
