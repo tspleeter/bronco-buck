@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
+import { STRIPE_SECRET_PARAM, STRIPE_SECRET_PREFIX } from "@/lib/stripe-mode";
 
 export const dynamic = "force-dynamic";
 
@@ -10,15 +11,15 @@ export async function POST(req: Request) {
   try {
     const result = await ssm.send(
       new GetParameterCommand({
-        Name: "/bronco-buck/stripe-secret-key",
+        Name: STRIPE_SECRET_PARAM,
         WithDecryption: true,
       })
     );
 
     const stripeKey = result.Parameter?.Value ?? "";
-    console.log("Key type:", stripeKey.startsWith("sk_") ? "secret" : "WRONG KEY - starts with: " + stripeKey.substring(0, 7));
+    console.log("Key type:", stripeKey.startsWith(STRIPE_SECRET_PREFIX) ? "secret" : "WRONG KEY - starts with: " + stripeKey.substring(0, 7));
 
-    if (!stripeKey.startsWith("sk_")) {
+    if (!stripeKey.startsWith(STRIPE_SECRET_PREFIX)) {
       return NextResponse.json(
         { message: "Wrong key type in SSM", detail: `Key starts with: ${stripeKey.substring(0, 7)}` },
         { status: 500 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
+import { STRIPE_SECRET_PARAM, STRIPE_SECRET_PREFIX } from "@/lib/stripe-mode";
 import { getDiscount } from "@/lib/discounts-db";
 import { evaluateDiscount, normalizeCode } from "@/lib/discount-logic";
 
@@ -19,13 +20,13 @@ async function getStripe(): Promise<Stripe> {
 
   const result = await ssm.send(
     new GetParameterCommand({
-      Name: "/bronco-buck/stripe-secret-key",
+      Name: STRIPE_SECRET_PARAM,
       WithDecryption: true,
     })
   );
 
   const stripeKey = result.Parameter?.Value ?? "";
-  if (!stripeKey.startsWith("sk_")) {
+  if (!stripeKey.startsWith(STRIPE_SECRET_PREFIX)) {
     throw new Error(
       `Wrong key type in SSM: starts with ${stripeKey.substring(0, 7)}`
     );

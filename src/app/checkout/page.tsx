@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loadStripe } from "@stripe/stripe-js";
+import { STRIPE_PUBLISHABLE_KEY, STRIPE_TEST_MODE } from "@/lib/stripe-mode";
 import {
   Elements,
   PaymentElement,
@@ -26,9 +27,7 @@ import { Toast } from "@/components/Toast";
 
 const broncoConfig = broncoConfigJson as ProductConfig;
 
-const stripePromise = loadStripe(
-  "pk_live_51TYB6eQxnWViL6pk6T03aow2two706HTaMsVMolL13dACQu1M8p4TCnkrJI524FHu9Pnd9qhk8jIdQpYJ9OZLBdm0060sRbsAK"
-);
+const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
 const initialForm: CheckoutFormData = {
   firstName: "",
@@ -459,6 +458,23 @@ function CheckoutForm({
                 padding: "16px 14px",
               }}
             >
+              {STRIPE_TEST_MODE && (
+                <div
+                  style={{
+                    marginBottom: 12,
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    background: "rgba(202, 138, 4, 0.15)",
+                    border: "1px solid var(--color-gold)",
+                    color: "var(--color-gold)",
+                    fontSize: "0.85rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  TEST MODE — no real charges. Use card 4242 4242 4242 4242, any
+                  future date, any CVC.
+                </div>
+              )}
               <PaymentElement />
             </div>
           </div>
