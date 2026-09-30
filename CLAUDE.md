@@ -101,9 +101,9 @@
 
 ## Stripe mode per branch (Sep 2026)
 - `next.config.ts` inlines `STRIPE_MODE` from Amplify's build-time `AWS_BRANCH`: **`test` branch → test mode, every other branch → live** (default is live, so a missing AWS_BRANCH can never put main on test keys).
-- `src/lib/stripe-mode.ts` is the single source: publishable key (`pk_test_51TYB7H…` / `pk_live_51TYB6e…`), secret SSM param (`/bronco-buck/stripe-secret-key-test` / `/bronco-buck/stripe-secret-key`), and expected prefix (`sk_test_` / `sk_live_` — mismatched key → checkout errors instead of charging the wrong account). Used by `checkout/page.tsx`, `create-payment-intent`, `calculate-tax`.
+- `src/lib/stripe-mode.ts` is the single source: publishable key (`pk_test_51TYB6e…`, same account as live / `pk_live_51TYB6e…`), secret SSM param (`/bronco-buck/stripe-secret-key-test` / `/bronco-buck/stripe-secret-key`), and expected prefix (`sk_test_` / `sk_live_` — mismatched key → checkout errors instead of charging the wrong account). Used by `checkout/page.tsx`, `create-payment-intent`, `calculate-tax`.
 - Test checkout shows a gold "TEST MODE — use 4242…" notice above the card field.
-- **Prereq:** SSM SecureString `/bronco-buck/stripe-secret-key-test` = the `sk_test_` key from the SAME Stripe account/sandbox as the `pk_test_51TYB7H…` key. Until it exists, test checkout fails at payment-intent creation (live is unaffected).
+- **Prereq:** SSM SecureString `/bronco-buck/stripe-secret-key-test` = the `sk_test_` key from the SAME Stripe account as the `pk_test_51TYB6e…` key (main account `51TYB6e`; the old `pk_test_51TYB7H…` was a different sandbox and mismatched — card field rendered blank). Until it exists, test checkout fails at payment-intent creation (live is unaffected).
 - Test branch still shares DynamoDB orders/builds + SES with live — test orders appear in `/orders` and send real emails.
 - Keeping test == live: `git push origin main:test` (test has no commits of its own).
 
