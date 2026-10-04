@@ -26,8 +26,8 @@
 - `/orders` route is password-gated ✅
 - Multi-view builder (front/right/back/left) ✅
 - Gallery: 11 color grid, **assorted manes** (Aug 2026 — mix of Long/Regular style + black/white color per tile, chosen for contrast), links to builder with pre-selected color + mane color + **mane style** ✅
-- Home page: two-column hero — text left, Buck+duck photo right (anchored top-left) ✅
-- Hero image: `public/assets/hero-buck-duck.png` (Buck biting rubber duck, black bg removed) ✅
+- Home page: two-column hero — text left, Buck+duck photo right (centered) ✅
+- Hero image: `public/assets/hero-buck-duck.png` (gray Buck biting rubber duck on %uckThatDuck nameplate stand, transparent bg) ✅ — replaced Oct 4 2026
 - Free rubber duck SVG icon included with every order — shown in build summary, cart, confirmation email ✅
 - Nameplate overlay on front view only ✅
 - `/policies/terms` — Terms of Service page (Pleeter LLC; Ford non-affiliation disclaimer; NJ governing law — **confirm state of registration**; references /policies for returns/shipping; markdown source in `docs/terms-of-service.md`). Footer "Terms" link added in `layout.tsx` ✅
@@ -157,8 +157,9 @@ Each tile shows a different mane so the grid reads as an assortment, not one rep
 ## Image Assets — `public/assets/`
 
 ### Hero image
-- `hero-buck-duck.png` — photo of blue Buck biting a yellow rubber duck, black background removed
-- Used in homepage two-column hero, `objectPosition: left top`, `objectFit: contain`
+- `hero-buck-duck.png` — 787×1200 RGBA PNG (~1.1 MB): front-facing photo of the gray Buck (black mane) biting a yellow rubber duck, on the stand with the %uckThatDuck nameplate sticker. Replaced the old 577×433 blue-Buck cutout on Oct 4 2026 (commit `1bcba79c`).
+- Processing: rembg `isnet-general-use` mask on a 2400px downscale (full-res run wrongly dropped the teeth) → holes filled → upscaled to full-res crop → eroded 7px + 1.5px blur to kill the light halo; contrast ×1.06, saturation ×1.08, light unsharp mask.
+- Used in homepage two-column hero, `objectPosition: center` (portrait image — `left top` left a gap on the right), `objectFit: contain`
 
 ### Commercial video
 - `buck-commercial.mp4` — 24s promo spot, H.264/AAC, +faststart, ~1.5 MB (transcoded from a 129 MB ProRes .mov; raw .mov exceeds GitHub's 100 MB limit and isn't browser-playable, so always transcode)
@@ -253,7 +254,7 @@ Final cross-brand PETG picks per Bronco colorway, matched to the **render-plinth
 - **Preview aspect ratio:** 990/1294 (≈3/4)
 - **CSS font-size % on spans** is relative to inherited font-size, not container height — use SVG text for size-relative nameplate text
 - **`cqh` units** require `container-type` to be set on the parent — don't use without it
-- **rembg / AI background removal** requires downloading a model (~170MB) from GitHub — blocked by network policy; use GrabCut (OpenCV) or remove.bg instead
+- **rembg / AI background removal:** the model download (~179MB from GitHub releases) worked in the Oct 4 2026 sandbox. Run it on a ~2400px downscale, not full-res — at full res it cut out the teeth. GrabCut (OpenCV) or remove.bg are fallbacks if the download is blocked
 - **White subjects on white backgrounds** can't be cleanly separated with flood-fill — use remove.bg or photograph against a dark background
 - **Amplify Firewall pricing (checked Sep 7 2026):** ~$8/mo WAF base (pro-rated hourly) + $1.40 per 1M requests, plus a separate $15/mo Amplify firewall management fee — ~$23/mo minimum all-in. Confirmed by opening the "Add firewall" screen in the Amplify console; nothing was enabled.
 
