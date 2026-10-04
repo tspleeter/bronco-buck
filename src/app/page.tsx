@@ -118,7 +118,7 @@ export default function HomePage() {
             {/* RIGHT / BOTTOM — hero image */}
             <div className="hero-image-wrap">
               <Image
-                src="/assets/hero-buck-duck-v5.png"
+                src="/assets/hero-buck-duck-v6.png"
                 alt="Bronco Buck biting a rubber duck atop a hill at a cartoon western ranch: Broncos don’t duck, they buck."
                 fill
                 style={{

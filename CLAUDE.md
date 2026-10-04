@@ -27,7 +27,7 @@
 - Multi-view builder (front/right/back/left) ✅
 - Gallery: 11 color grid, **assorted manes** (Aug 2026 — mix of Long/Regular style + black/white color per tile, chosen for contrast), links to builder with pre-selected color + mane color + **mane style** ✅
 - Home page: two-column hero — text left, hero scene right (centered, no drop-shadow) ✅
-- Hero image: `public/assets/hero-buck-duck-v5.png` — gray Buck atop a hill with the tagline, cartoon daytime western ranch behind (Oct 4 2026) ✅
+- Hero image: `public/assets/hero-buck-duck-v6.png` — gray Buck atop a hill with the tagline, muted sepia cartoon western ranch behind (Oct 4 2026) ✅
 - Free rubber duck SVG icon included with every order — shown in build summary, cart, confirmation email ✅
 - Nameplate overlay on front view only ✅
 - `/policies/terms` — Terms of Service page (Pleeter LLC; Ford non-affiliation disclaimer; NJ governing law — **confirm state of registration**; references /policies for returns/shipping; markdown source in `docs/terms-of-service.md`). Footer "Terms" link added in `layout.tsx` ✅
@@ -157,11 +157,11 @@ Each tile shows a different mane so the grid reads as an assortment, not one rep
 ## Image Assets — `public/assets/`
 
 ### Hero image
-- **Live:** `hero-buck-duck-v5.png` — 1400×1400 opaque PNG (~1.1 MB). Gray Buck (black mane) biting a yellow rubber duck, 3/4 view, standing on a dark-brown hill. The tagline "Broncos don’t duck, they buck." is curved along the hill in Outfit ExtraBold (line 1 white, "they buck." gold). The base's front face is fully covered by a redrawn black %uckThatDuck nameplate, edge to edge. The background is a cartoon daytime western ranch (blue sky, clouds, small sun top-right away from the duck, red barn, ranch house, windmill, split-rail fence, cacti, mesas). All edges fade into `#0C0A09` so it blends into `.hero-image-wrap`.
+- **Live:** `hero-buck-duck-v6.png` — 1400×1400 opaque PNG (~1.1 MB). Gray Buck (black mane) biting a yellow rubber duck, 3/4 view, standing on a dark-brown hill. The tagline "Broncos don’t duck, they buck." is curved along the hill in Outfit ExtraBold (line 1 white, "they buck." gold). The base's front face is fully covered by a redrawn black %uckThatDuck nameplate, edge to edge. The background is a cartoon daytime western ranch, deliberately muted so the eye goes to the horse: desaturated, warm sepia tone, 2.2px soft-focus blur, darkened. Gray tones were tried but the gray Buck blended in. Scene: (blue sky, clouds, small sun top-right away from the duck, red barn, ranch house, windmill, split-rail fence, cacti, mesas). All edges fade into `#0C0A09` so it blends into `.hero-image-wrap`.
 - `page.tsx`: `objectFit: contain`, `objectPosition: center`. The drop-shadow filter was removed because the image is now opaque and the shadow would show as a box.
-- **Always ship a new file name** (`-v6`, `-v7`, …) when changing the hero. Reusing a name leaves Safari and returning visitors on the cached old image. Old versions `hero-buck-duck.png`, `-v2`, `-v3` and `-v4` are still in `public/assets/` and are unused.
-- **Rebuild pipeline:** `scripts/hero/` (`./run.sh`, see its README). Steps: cutout → ranch → hill → plate → finish. Needs `rembg[cpu]`, Pillow, numpy and scipy in the sandbox. It reproduces v5 pixel-for-pixel from `source.jpg`.
-- History (Oct 4 2026): v1 is a transparent front-view cutout (`1bcba79c`); v2 is the same image renamed to bust the cache; v3 is the hill and tagline on a dark background; v4 adds the full-face nameplate (`f534a10b`); v5 is the daytime ranch (`ed1eeee5`). A sunset version was rejected because the big sun clashed with the yellow duck.
+- **Always ship a new file name** (`-v6`, `-v7`, …) when changing the hero. Reusing a name leaves Safari and returning visitors on the cached old image. Old versions `hero-buck-duck.png` and `-v2` through `-v5` are still in `public/assets/` and are unused.
+- **Rebuild pipeline:** `scripts/hero/` (`./run.sh`, see its README). Steps: cutout → ranch → hill → plate → finish. Needs `rembg[cpu]`, Pillow, numpy and scipy in the sandbox. It reproduces v6 pixel-for-pixel from `source.jpg`.
+- History (Oct 4 2026): v1 is a transparent front-view cutout (`1bcba79c`); v2 is the same image renamed to bust the cache; v3 is the hill and tagline on a dark background; v4 adds the full-face nameplate (`f534a10b`); v5 is the full-color daytime ranch (`ed1eeee5`); v6 is the same ranch muted. A sunset version was rejected because the big sun clashed with the yellow duck.
 - Fonts: Outfit can't be fetched from Google Fonts or GitHub in the sandbox. `npm pack @fontsource/outfit` works, then convert the woff2 to ttf with fontTools.
 
 ### Commercial video

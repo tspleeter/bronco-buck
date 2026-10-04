@@ -16,7 +16,16 @@ bh=760; buck=buck.resize((int(buck.width*bh/buck.height),bh),Image.LANCZOS)
 # --- background
 yy,xx=np.mgrid[0:H,0:W].astype(np.float32)
 rng=np.random.default_rng(7)
-img=np.array(Image.open('ranch_bg.png').convert('RGB')).astype(np.float32)
+_bg=Image.open('ranch_bg.png').convert('RGB').filter(ImageFilter.GaussianBlur(2.2))  # soft focus: keep eyes on the Buck
+img=np.array(_bg).astype(np.float32)
+# mute the ranch: desaturate, flatten contrast, wash toward a dusty haze
+MUTE_SAT,MUTE_CONTRAST,HAZE=0.20,0.65,0.25
+lum=(img@np.array([0.299,0.587,0.114],np.float32))[...,None]
+img=lum+(img-lum)*MUTE_SAT
+img=128+(img-128)*MUTE_CONTRAST
+img=img*(1-HAZE)+np.array([170,140,104],np.float32)*HAZE
+img*=np.array([1.06,0.96,0.80],np.float32)  # warm sepia tone: contrasts the gray Buck
+img*=0.70  # darken so the Buck pops
 # --- hill
 R=1150; cx,cy=700,880+R
 d=np.sqrt((xx-cx)**2+(yy-cy)**2); inside=d<=R
