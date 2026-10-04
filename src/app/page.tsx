@@ -118,13 +118,12 @@ export default function HomePage() {
             {/* RIGHT / BOTTOM — hero image */}
             <div className="hero-image-wrap">
               <Image
-                src="/assets/hero-buck-duck-v2.png"
-                alt="Bronco Buck biting a rubber duck"
+                src="/assets/hero-buck-duck-v4.png"
+                alt="Bronco Buck biting a rubber duck atop a hill: Broncos don’t duck, they buck."
                 fill
                 style={{
                   objectFit: "contain",
                   objectPosition: "center",
-                  filter: "drop-shadow(0 24px 64px rgba(0,0,0,0.9))",
                 }}
                 priority
               />
