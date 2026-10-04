@@ -163,6 +163,7 @@ Each tile shows a different mane so the grid reads as an assortment, not one rep
 ### Commercial video
 - `buck-commercial.mp4` — 24s promo spot, H.264/AAC, +faststart, ~1.5 MB (transcoded from a 129 MB ProRes .mov; raw .mov exceeds GitHub's 100 MB limit and isn't browser-playable, so always transcode)
 - `buck-commercial-poster.jpg` — poster frame (~2s in)
+- **Oct 3 2026:** commercial re-cut swapped in (source `buck-commercial.10.3.26.mov`, ProRes 1280×720, 25.15s → H.264 CRF 22 / AAC 160k, +faststart, ~1.7 MB). Poster unchanged (end card identical). `<source>` URL now carries `?v=20261003` cache-bust — bump it on every future video swap.
 - Player modal is `CommercialModal.tsx` (shared); opened on demand by the `SeeCommercialButton` nav CTA AND auto-opened for first-time visitors by `CommercialIntro.tsx`. Served from `/assets/` (Next public root)
 
 ### Body renders — `public/assets/body/`
