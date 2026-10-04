@@ -123,7 +123,7 @@ export default function HomePage() {
                 fill
                 style={{
                   objectFit: "contain",
-                  objectPosition: "left top",
+                  objectPosition: "center",
                   filter: "drop-shadow(0 24px 64px rgba(0,0,0,0.9))",
                 }}
                 priority
