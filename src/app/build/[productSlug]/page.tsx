@@ -14,6 +14,7 @@ import { getSelectedLayers } from "@/lib/layers";
 import { getBuildSummary } from "@/lib/summary";
 import { addToCart } from "@/lib/cart";
 import { trackPixel } from "@/lib/meta-pixel";
+import { trackEvent } from "@/lib/analytics";
 import {
   addSavedBuild,
   getSavedBuildById,
@@ -94,6 +95,7 @@ export default function BuildPage() {
       content_ids: [broncoConfig.productId],
       content_name: broncoConfig.name,
     });
+    trackEvent("builder_open", { product: broncoConfig.productId });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -260,6 +262,7 @@ export default function BuildPage() {
       content_ids: [broncoConfig.productId],
       content_name: broncoConfig.name,
     });
+    trackEvent("add_to_cart", { product: broncoConfig.productId, value: price });
     router.push("/cart");
   };
 
@@ -287,6 +290,7 @@ export default function BuildPage() {
       return;
     }
     const url = `${window.location.origin}/share/${id}`;
+    trackEvent("share_build", { product: broncoConfig.productId });
     setShareUrl(url);
   };
 

@@ -4,6 +4,7 @@ import SavedBuildsProvider from "@/components/SavedBuildsProvider";
 import SiteNav from "@/components/SiteNav";
 import CommercialIntro from "@/components/CommercialIntro";
 import MetaPixel from "@/components/MetaPixel";
+import UmamiAnalytics from "@/components/UmamiAnalytics";
 import Link from "next/link";
 
 export const metadata = {
@@ -28,6 +29,7 @@ export default function RootLayout({
       </head>
       <body>
         <MetaPixel />
+        <UmamiAnalytics />
         <CommercialIntro />
         <SavedBuildsProvider>
           <SiteNav />

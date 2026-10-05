@@ -43,7 +43,7 @@ export default function PrivacyPage() {
             How Pleeter LLC collects, uses, and shares your information at buckthatduck.com.
           </p>
           <p style={{ color: "var(--color-text-dim)", fontSize: "0.875rem" }}>
-            Last updated: August 16, 2026
+            Last updated: October 5, 2026
           </p>
         </div>
 
@@ -243,6 +243,14 @@ export default function PrivacyPage() {
               facebook.com/privacy/policy
             </a>
             .
+          </p>
+          <p>
+            We also use <strong style={strong}>Umami</strong>, a privacy-focused web analytics service,
+            to count visits and see which pages and features are used (for example, opening the
+            builder or starting checkout). Umami does not use cookies, does not collect your name,
+            email, or other contact details, and does not track you across other websites. It records
+            aggregate information such as the page visited, referring site, browser, device type, and
+            approximate country.
           </p>
         </Section>
 

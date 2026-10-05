@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { getOrderById } from "@/lib/orders";
 import { trackPixel } from "@/lib/meta-pixel";
+import { trackEvent } from "@/lib/analytics";
 import { Order } from "@/types/order";
 import { ActionButton } from "@/components/ActionButton";
 
@@ -39,6 +40,11 @@ export default function ConfirmationContent() {
       },
       { eventID: order.orderId }
     );
+    trackEvent("purchase", {
+      value: Number(order.pricing.total.toFixed(2)),
+      items: order.items.reduce((n, i) => n + i.quantity, 0),
+      ...(order.pricing.discountCode ? { discount_code: order.pricing.discountCode } : {}),
+    });
   }, [order]);
 
   useEffect(() => {

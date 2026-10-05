@@ -266,3 +266,11 @@ Final cross-brand PETG picks per Bronco colorway, matched to the **render-plinth
 - Always read CLAUDE.md at session start
 - Begin code sessions with full codebase audit before making changes
 - Desktop link (Sep 7 2026): Claude has file read/write access to this repo at `~/bronco-buck` via a remote-devices bridge, plus full control of GitHub Desktop for commit/push. No remote shell on the desktop link — builds/typechecks run in Claude's own sandbox, then results are written back.
+
+## Umami Analytics (Oct 2026)
+- **Purpose:** cookieless traffic + funnel analytics (Amplify access logs only give raw hits; launch-day IG traffic had to be hand-parsed from CSV).
+- **Deploys INERT (same pattern as Meta Pixel):** `UMAMI_WEBSITE_ID` in `src/lib/analytics-config.ts` is `""` → `UmamiAnalytics.tsx` (mounted in `layout.tsx` after `<MetaPixel />`) renders nothing and `trackEvent()` no-ops. **ACTIVATION (Todd):** create site at cloud.umami.is, paste Website ID, push. Exclude own visits: `localStorage.setItem("umami.disabled","1")` in browser console on the live site.
+- `data-domains` limits counting to `buckthatduck.com` / `www.buckthatduck.com` (test branch, amplifyapp URLs, localhost excluded).
+- **Events** via `src/lib/analytics.ts` `trackEvent()` (fired next to the matching `trackPixel` calls): `builder_open` (build page mount), `add_to_cart` (value), `share_build`, `checkout_start` (value, items), `purchase` (value, items, discount_code). Build an Umami Funnel: builder_open → add_to_cart → checkout_start → purchase.
+- **IG attribution:** bio/story links should carry `?utm_source=instagram&utm_medium=bio` (or `story`) — IG in-app traffic often arrives with no referrer.
+- Privacy policy (page + `docs/privacy-policy.md`) gained an Umami paragraph in Analytics and Advertising; Last updated → Oct 5 2026.
