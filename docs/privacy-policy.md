@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last updated: August 16, 2026**
+**Last updated: October 5, 2026**
 
 This Privacy Policy describes how Pleeter LLC ("we," "us," or "our") collects, uses, and shares information when you visit or make a purchase at **buckthatduck.com** (the "Site") for our custom 3D-printed figurines ("BuckThatDuck," "Bucks," or the "Products").
 
@@ -100,6 +100,8 @@ We use analytics and advertising technologies to understand how the Site perform
 Through these tools we may share with Meta certain information about your interactions with the Site — such as page views, starting a build, adding an item to the cart, beginning checkout, and completing a purchase — along with technical details like your IP address, browser and device information, and the referring page. We may also share limited contact and order details (such as your email address, phone number, name, and city, state, ZIP, and country). **This contact information is cryptographically hashed before it is sent**, so Meta receives a scrambled value rather than your details in plain text. Meta uses this data to measure our ads and to help show relevant ads.
 
 You can limit this type of tracking through your browser's cookie settings, your device's ad settings, and the ad-preference and opt-out controls Meta provides. You can review Meta's privacy practices at **https://www.facebook.com/privacy/policy**.
+
+We also use **Umami**, a privacy-focused web analytics service, to count visits and see which pages and features are used (for example, opening the builder or starting checkout). Umami does not use cookies, does not collect your name, email, or other contact details, and does not track you across other websites. It records aggregate information such as the page visited, referring site, browser, device type, and approximate country.
 
 ---
 

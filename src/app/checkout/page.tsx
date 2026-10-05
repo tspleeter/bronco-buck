@@ -15,6 +15,7 @@ import { getCart, clearCart } from "@/lib/cart";
 import { createOrder } from "@/lib/orders";
 import { validateDiscountCode } from "@/lib/discounts";
 import { trackPixel } from "@/lib/meta-pixel";
+import { trackEvent } from "@/lib/analytics";
 import { CartItem } from "@/types/cart";
 import { CheckoutFormData } from "@/types/checkout";
 import { Order } from "@/types/order";
@@ -670,6 +671,10 @@ export default function CheckoutPage() {
         quantity: i.quantity,
         item_price: i.price,
       })),
+    });
+    trackEvent("checkout_start", {
+      value: Number(total.toFixed(2)),
+      items: items.reduce((n, i) => n + i.quantity, 0),
     });
   }, [items, total]);
 
