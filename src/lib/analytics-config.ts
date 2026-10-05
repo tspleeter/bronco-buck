@@ -13,7 +13,7 @@
 // Until UMAMI_WEBSITE_ID is set, the script renders nothing and every
 // trackEvent() call no-ops — this integration deploys INERT.
 
-export const UMAMI_WEBSITE_ID = "";
+export const UMAMI_WEBSITE_ID = "5ee20cb4-6d8f-43f3-834d-1820cea8d798";
 
 export const UMAMI_SCRIPT_URL = "https://cloud.umami.is/script.js";
 
