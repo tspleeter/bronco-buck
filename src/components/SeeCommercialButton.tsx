@@ -29,7 +29,7 @@ export default function SeeCommercialButton({ floating = false }: { floating?: b
         <span className="see-commercial-btn__label">See commercial</span>
       </button>
 
-      <CommercialModal open={open} onClose={() => setOpen(false)} />
+      <CommercialModal source="button" open={open} onClose={() => setOpen(false)} />
     </>
   );
 }

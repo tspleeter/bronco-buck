@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { trackEvent } from "@/lib/analytics";
 
 /**
  * Reusable modal video player for the Buck That Duck commercial spot.
@@ -17,13 +18,33 @@ import { createPortal } from "react-dom";
 export default function CommercialModal({
   open,
   onClose,
+  source,
 }: {
   open: boolean;
   onClose: () => void;
+  /** Analytics: "auto" = first-visit intro, "button" = nav "See commercial". */
+  source: "auto" | "button";
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const close = useCallback(() => onClose(), [onClose]);
+  // Analytics state for the current viewing (reset on each open).
+  const maxWatched = useRef(0);
+  const completed = useRef(false);
+  const autoMuted = useRef(false);
+  const trackedUnmute = useRef(false);
+
+  const close = useCallback(() => {
+    const v = videoRef.current;
+    const duration = v && Number.isFinite(v.duration) ? v.duration : 0;
+    const watched = Math.round(maxWatched.current);
+    trackEvent("commercial_close", {
+      source,
+      seconds: watched,
+      pct: duration ? Math.min(100, Math.round((maxWatched.current / duration) * 100)) : 0,
+      completed: completed.current,
+    });
+    onClose();
+  }, [onClose, source]);
 
   // Escape to close + lock body scroll while the modal is open
   useEffect(() => {
@@ -46,11 +67,17 @@ export default function CommercialModal({
     const v = videoRef.current;
     if (!v) return;
     if (open) {
+      maxWatched.current = 0;
+      completed.current = false;
+      autoMuted.current = false;
+      trackedUnmute.current = false;
+      trackEvent("commercial_open", { source });
       v.currentTime = 0;
       v.muted = false;
       const attempt = v.play();
       if (attempt && typeof attempt.catch === "function") {
         attempt.catch(() => {
+          autoMuted.current = true;
           v.muted = true;
           const retry = v.play();
           if (retry && typeof retry.catch === "function") retry.catch(() => {});
@@ -63,6 +90,7 @@ export default function CommercialModal({
       v.currentTime = 0;
       v.muted = false;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   if (!open) return null;
@@ -191,6 +219,22 @@ export default function CommercialModal({
         >
           <video
             ref={videoRef}
+            onTimeUpdate={(e) => {
+              const t = e.currentTarget.currentTime;
+              if (t > maxWatched.current) maxWatched.current = t;
+            }}
+            onEnded={() => {
+              if (completed.current) return;
+              completed.current = true;
+              trackEvent("commercial_complete", { source });
+            }}
+            onVolumeChange={(e) => {
+              // Viewer turned sound on after the browser forced a muted autoplay.
+              if (autoMuted.current && !trackedUnmute.current && !e.currentTarget.muted) {
+                trackedUnmute.current = true;
+                trackEvent("commercial_unmute", { source });
+              }
+            }}
             controls
             autoPlay
             playsInline

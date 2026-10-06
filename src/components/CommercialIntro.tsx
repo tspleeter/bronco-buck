@@ -40,5 +40,5 @@ export default function CommercialIntro() {
     }
   }, []);
 
-  return <CommercialModal open={open} onClose={handleClose} />;
+  return <CommercialModal source="auto" open={open} onClose={handleClose} />;
 }
