@@ -22,6 +22,7 @@
 - `/policies` page (Returns, Shipping, FAQ) ✅
 - `/policies/privacy` — Privacy Policy page (Pleeter LLC, 8 Nelke Ct, Hawthorne NJ 07506; Stripe carve-out for card data; AWS named as host; CCPA/GDPR/NJ + multi-state rights). Markdown source copy in `docs/privacy-policy.md`. Footer "Privacy" link added in `layout.tsx` ✅
 - Sitewide footer with Pleeter LLC copyright and "🇺🇸 Proudly made in the USA" ✅
+- Footer Instagram link (Oct 6 2026): gold IG glyph + "@buckthatduck" → instagram.com/buckthatduck (new tab), last item in the `layout.tsx` footer; tracked as Umami event `instagram_click` via `data-umami-event` (no JS needed, no-ops while Umami is inert) ✅
 - Dark theme UI with gold accents (Andrew's redesign) ✅
 - `/orders` route is password-gated ✅
 - Multi-view builder (front/right/back/left) ✅

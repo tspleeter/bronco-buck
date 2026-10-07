@@ -57,6 +57,21 @@ export default function RootLayout({
             <Link href="/policies/terms" style={{ color: "var(--color-text-dim)", textDecoration: "none" }}>
               Terms
             </Link>
+            <a
+              href="https://www.instagram.com/buckthatduck/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="BuckThatDuck on Instagram"
+              data-umami-event="instagram_click"
+              style={{ color: "var(--color-gold)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "6px" }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" />
+                <circle cx="12" cy="12" r="4.5" />
+                <circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none" />
+              </svg>
+              @buckthatduck
+            </a>
           </footer>
         </SavedBuildsProvider>
       </body>
