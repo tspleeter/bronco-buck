@@ -93,7 +93,7 @@ export default function HomePage() {
                   lineHeight: 1.65,
                 }}
               >
-                Customize every detail — body, mane, stand, accessories and more.
+                Customize every detail — body, mane, and plate.
                 Share your build with the world or add it to your cart.
                 Proudly made in the USA. 🇺🇸
               </p>
