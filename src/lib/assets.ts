@@ -1,4 +1,4 @@
-// View-dependent layers have per-angle image files (e.g. body_ruby_red_front.png).
+// View-dependent layers have per-angle image files (e.g. body_ruby_red_front.webp). WebP is what ships; the .png files next to them are the masters (see CLAUDE.md "WebP assets").
 const VIEW_DEPENDENT_LAYERS = new Set([
   "body_ruby_red",
   "body_velocity_blue",
@@ -66,18 +66,18 @@ export function getLayerAssetPath(
 
   if (VIEW_DEPENDENT_NO_MANE.has(layerName)) {
     const fileView = VIEW_FILENAME_MAP[view] ?? view;
-    return `/assets/${folder}/${layerName}_${fileView}.png`;
+    return `/assets/${folder}/${layerName}_${fileView}.webp`;
   }
 
   if (VIEW_DEPENDENT_LAYERS.has(layerName)) {
     const fileView = VIEW_FILENAME_MAP[view] ?? view;
     if (mane) {
-      return `/assets/${folder}/${layerName}_${fileView}_${mane.style}mane_${mane.color}.png`;
+      return `/assets/${folder}/${layerName}_${fileView}_${mane.style}mane_${mane.color}.webp`;
     }
     // Views that have no bare body image fall back to front
     const resolvedView = MANE_ONLY_VIEWS.has(view) ? "front" : fileView;
-    return `/assets/${folder}/${layerName}_${resolvedView}.png`;
+    return `/assets/${folder}/${layerName}_${resolvedView}.webp`;
   }
 
-  return `/assets/${folder}/${layerName}.png`;
+  return `/assets/${folder}/${layerName}.webp`;
 }

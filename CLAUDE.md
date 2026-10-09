@@ -157,6 +157,12 @@ Each tile shows a different mane so the grid reads as an assortment, not one rep
 
 ## Image Assets — `public/assets/`
 
+### WebP assets (Oct 8 2026 — site was slow loading images)
+- **Every image the site shows is WebP.** `getLayerAssetPath()` in `src/lib/assets.ts` and the gallery build `.webp` paths. All 264 PNGs under `public/assets/*/` went from 131 MB to 7.9 MB (a body render ~380 KB → ~29 KB). Opaque renders: lossy q85. Overlays with alpha (stand colors etc.): q90, `exact`, alpha_quality 100.
+- **The `.png` files stay as masters** (color sampling, alignment pipelines read them). Nothing on the site loads them.
+- **After adding or changing any PNG in `public/assets/*/`, run `python3 scripts/towebp.py public/assets`** (regenerates every `.webp` next to its `.png`) and commit both. A PNG with no WebP twin = broken image on the site.
+- Gallery tiles use `loading="lazy"` + `decoding="async"`.
+
 ### Hero image
 - **Live:** `hero-buck-duck-v7.webp` — 1400×1400 WebP q85 (~77 KB), pixel-identical source to `hero-buck-duck-v6.png` (1.1 MB PNG, kept as the master). Served with `unoptimized` on `next/image`: Amplify's on-demand `/_next/image` optimizer was making the hero load slowly (cold compute + 1.1 MB PNG source, and no `sizes` so browsers asked for w=3840). Ship future heroes as pre-encoded WebP the same way. Gray Buck (black mane) biting a yellow rubber duck, 3/4 view, standing on a dark-brown hill. The tagline "Broncos don’t duck, they buck." is curved along the hill in Outfit ExtraBold (line 1 white, "they buck." gold). The base's front face is fully covered by a redrawn black %uckThatDuck nameplate, edge to edge. The background is a cartoon daytime western ranch, deliberately muted so the eye goes to the horse: desaturated, warm sepia tone, 2.2px soft-focus blur, darkened. Gray tones were tried but the gray Buck blended in. Scene: (blue sky, clouds, small sun top-right away from the duck, red barn, ranch house, windmill, split-rail fence, cacti, mesas). All edges fade into `#0C0A09` so it blends into `.hero-image-wrap`.
 - **Hero body copy (Oct 8 2026):** "Customize every detail — body, mane, and plate." ("plate" = nameplate, car vanity-plate pun; replaced "stand, accessories and more" since those groups were pulled from the builder). Same wording in the `layout.tsx` meta description — keep both in sync.

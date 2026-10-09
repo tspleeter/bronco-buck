@@ -106,7 +106,7 @@ export default function GalleryPage() {
           }}
         >
           {COLORS.map((color) => {
-            const imgSrc = `/assets/body/${color.imageLayer}_front_${color.style}mane_${color.mane}.png`;
+            const imgSrc = `/assets/body/${color.imageLayer}_front_${color.style}mane_${color.mane}.webp`;
             const buildHref = `/build/bronco-buck-classic?color=${color.id}&mane=${color.maneId}&style=${color.styleId}`;
 
             return (
@@ -127,6 +127,8 @@ export default function GalleryPage() {
                   >
                     <img
                       src={imgSrc}
+                      loading="lazy"
+                      decoding="async"
                       alt={`${color.name} Buck with a ${color.mane} ${STYLE_LABEL[color.style].toLowerCase()} mane`}
                       style={{
                         width: "100%",
