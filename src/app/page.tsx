@@ -189,6 +189,21 @@ export default function HomePage() {
 
         </section>
 
+        {/* Ford non-affiliation disclaimer (Oct 2026 — same wording as the Etsy listing) */}
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: "0.75rem",
+            lineHeight: 1.5,
+            color: "var(--color-text-dim)",
+            margin: "16px auto 0",
+            maxWidth: "640px",
+            padding: "0 16px",
+          }}
+        >
+          Not affiliated with, sponsored, or endorsed by Ford Motor Company. Bronco® is a trademark of Ford Motor Company.
+        </p>
+
       </div>
     </main>
   );
