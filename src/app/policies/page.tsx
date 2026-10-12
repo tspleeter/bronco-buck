@@ -77,6 +77,14 @@ export default function PoliciesPage() {
           </p>
 
           <div style={{ display: "grid", gap: "10px" }}>
+            <p style={{ fontWeight: 700, color: "var(--color-text)" }}>Shipping Cost</p>
+            <p>
+              Shipping is a flat <strong style={{ color: "var(--color-text)" }}>$8.95</strong> for one Buck.
+              Orders of <strong style={{ color: "var(--color-text)" }}>two or more Bucks ship free</strong>.
+            </p>
+          </div>
+
+          <div style={{ display: "grid", gap: "10px" }}>
             <p style={{ fontWeight: 700, color: "var(--color-text)" }}>Processing & Production Time</p>
             <p>
               Every BuckThatDuck is made to order — your figurine is 3D-printed and finished after you

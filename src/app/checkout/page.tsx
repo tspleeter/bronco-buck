@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { shippingFor } from "@/lib/shipping-rules";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { loadStripe } from "@stripe/stripe-js";
@@ -82,10 +83,12 @@ function CheckoutForm({
     [items]
   );
 
-  const shipping = useMemo(() => {
-    if (items.length === 0) return 0;
-    return subtotal >= 75 ? 0 : 8.95;
-  }, [items, subtotal]);
+  const itemCount = useMemo(
+    () => items.reduce((n, item) => n + item.quantity, 0),
+    [items]
+  );
+
+  const shipping = useMemo(() => shippingFor(itemCount), [itemCount]);
 
   const total = useMemo(() => subtotal + shipping, [subtotal, shipping]);
 
@@ -115,6 +118,7 @@ function CheckoutForm({
           body: JSON.stringify({
             paymentIntentId,
             subtotal,
+            itemCount,
             discountCode: code || undefined,
             address: {
               line1: form.address1,
@@ -143,6 +147,7 @@ function CheckoutForm({
     [
       paymentIntentId,
       subtotal,
+      itemCount,
       shipping,
       appliedCode,
       form.address1,
@@ -652,7 +657,7 @@ export default function CheckoutPage() {
 
   const total = useMemo(() => {
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const shipping = items.length === 0 ? 0 : subtotal >= 75 ? 0 : 8.95;
+    const shipping = shippingFor(items.reduce((n, item) => n + item.quantity, 0));
     return subtotal + shipping;
   }, [items]);
 

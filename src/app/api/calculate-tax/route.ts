@@ -4,14 +4,12 @@ import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { STRIPE_SECRET_PARAM, STRIPE_SECRET_PREFIX } from "@/lib/stripe-mode";
 import { getDiscount } from "@/lib/discounts-db";
 import { evaluateDiscount, normalizeCode } from "@/lib/discount-logic";
+import { shippingFor } from "@/lib/shipping-rules";
 
 export const dynamic = "force-dynamic";
 
 const ssm = new SSMClient({ region: "us-east-1" });
 
-// Keep shipping logic in sync with the checkout page + cart.
-const FREE_SHIPPING_THRESHOLD = 75;
-const FLAT_SHIPPING = 8.95;
 
 let cachedStripe: Stripe | null = null;
 
@@ -48,15 +46,17 @@ interface CalcTaxAddress {
 interface CalcTaxBody {
   paymentIntentId: string;
   subtotal: number; // dollars — merchandise subtotal BEFORE discount
+  itemCount?: number; // total quantity of Bucks in the cart (2+ ships free)
   discountCode?: string;
   address: CalcTaxAddress;
 }
 
 const toCents = (dollars: number) => Math.round(dollars * 100);
 
-function deriveShipping(subtotal: number): number {
+function deriveShipping(subtotal: number, itemCount: number): number {
   if (subtotal <= 0) return 0;
-  return subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_SHIPPING;
+  // Older clients don't send itemCount; treat that as a single item.
+  return shippingFor(Math.max(1, Math.floor(itemCount) || 1));
 }
 
 export async function POST(req: Request) {
@@ -68,10 +68,9 @@ export async function POST(req: Request) {
     const body = (await req.json()) as CalcTaxBody;
     const { paymentIntentId, address } = body;
     subtotal = Number(body.subtotal) || 0;
-    // Re-derive shipping server-side rather than trusting the client. Shipping
-    // is based on the PRE-discount merchandise subtotal so a code can't push an
-    // order below the free-shipping threshold.
-    shipping = deriveShipping(subtotal);
+    // Re-derive shipping server-side from the item count (2+ Bucks ship free).
+    // A discount code never changes shipping.
+    shipping = deriveShipping(subtotal, Number(body.itemCount) || 1);
 
     if (!paymentIntentId || subtotal <= 0) {
       return NextResponse.json({ message: "Invalid request" }, { status: 400 });
