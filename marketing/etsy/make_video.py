@@ -49,16 +49,19 @@ def endcard():
 
 # Segment list: (image, hold_seconds). Crossfade 0.25s between each.
 segs = []
+# Real product photo first (gray Buck = Carbonized Gray, sold as "Dark Gray")
+real = Image.open("marketing/etsy/00_real_buck_duck.jpg").convert("RGB").resize((W, H), Image.LANCZOS)
+segs.append((label(real, "Dark Gray"), 1.8))
 for v in ["front", "right", "back", "left", "front"]:
-    segs.append((label(card(f"{A}body_ruby_red_{v}_regmane_white.png"), "Deep Red"), 0.6))
+    segs.append((label(card(f"{A}body_ruby_red_{v}_regmane_white.png"), "Deep Red"), 0.5))
 colors = [("velocity_blue", "white", "Bold Blue"), ("shadow_black", "white", "Black"),
           ("eruption_green", "white", "Forest Green"), ("oxford_white", "black", "White"),
           ("cyber_orange", "white", "Bright Orange"), ("carbonized_gray", "white", "Dark Gray"),
           ("cactus_gray", "black", "Sage Gray"), ("desert_sand", "black", "Sand Tan"),
           ("azure_gray", "black", "Slate Blue"), ("robins_egg_blue", "black", "Robin Blue")]
 for c, m, name in colors:
-    segs.append((label(card(f"{A}body_{c}_front_regmane_{m}.png"), name), 0.5))
-segs.append((endcard(), 2.0))
+    segs.append((label(card(f"{A}body_{c}_front_regmane_{m}.png"), name), 0.45))
+segs.append((endcard(), 1.5))
 
 XF = int(0.25 * FPS)
 p = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24",
