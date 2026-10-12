@@ -1,6 +1,8 @@
 """Etsy listing video: 12s, 1080x1350, silent. Real product renders only."""
 import subprocess, sys
 from PIL import Image, ImageDraw, ImageFont
+sys.path.insert(0, "marketing/etsy")
+from nameplate import add_nameplate
 
 A = "public/assets/body/"  # run from repo root
 FONT = "scripts/hero/Outfit800.ttf"
@@ -12,6 +14,8 @@ GOLD = (235, 178, 9)       # #EBB209 nameplate gold
 
 def card(path):
     im = Image.open(path).convert("RGB")
+    if "_front_" in path:
+        im = add_nameplate(im)
     th = H - 190
     s = th / im.height
     im = im.resize((round(im.width * s), th), Image.LANCZOS)
