@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Returns, Shipping & FAQ — BuckThatDuck",
+  title: "Returns, Shipping & FAQ",
   description: "Return policy, shipping information, and frequently asked questions for BuckThatDuck custom horse figurines.",
+  alternates: { canonical: "/policies" },
 };
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (

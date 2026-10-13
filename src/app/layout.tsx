@@ -6,10 +6,26 @@ import CommercialIntro from "@/components/CommercialIntro";
 import MetaPixel from "@/components/MetaPixel";
 import UmamiAnalytics from "@/components/UmamiAnalytics";
 import Link from "next/link";
+import type { Metadata } from "next";
+import { SITE_URL, SITE_NAME, OG_IMAGE, jsonLdHtml, siteJsonLd } from "@/lib/seo";
 
-export const metadata = {
-  title: "Bronco Buck — Custom Collectible Builder",
-  description: "Design your perfect Bronco Buck collectible. Customize every detail — body, mane, and plate. Share your build or add it to your cart.",
+// No canonical/og:url here — they would inherit to every child page. Children set their own.
+// Description keeps the hero's "Customize every detail — body, mane, and plate." (keep in sync with page.tsx).
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Bronco Buck — Custom Figurine & Gift for Bronco Owners | BuckThatDuck",
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: "Design your perfect Bronco Buck collectible. Customize every detail — body, mane, and plate. A 3D-printed gift for Bronco owners, made in the USA, with a free rubber duck in every order.",
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: "Bronco Buck — Custom Figurine & Gift for Bronco Owners",
+    description: "Pick a Bronco color, a mane and a nameplate. Made in the USA, free rubber duck included.",
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Bronco Buck figurine biting a rubber duck" }],
+  },
+  twitter: { card: "summary_large_image", images: [OG_IMAGE] },
 };
 
 export default function RootLayout({
@@ -26,6 +42,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
           rel="stylesheet"
         />
+        <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(siteJsonLd())} />
       </head>
       <body>
         <MetaPixel />
@@ -45,6 +62,9 @@ export default function RootLayout({
             color: "var(--color-text-dim)",
           }}>
             <span>© {new Date().getFullYear()} Pleeter LLC</span>
+            <Link href="/gifts-for-bronco-owners" style={{ color: "var(--color-text-dim)", textDecoration: "none" }}>
+              Gifts for Bronco Owners
+            </Link>
             <Link href="/policies" style={{ color: "var(--color-text-dim)", textDecoration: "none" }}>
               Returns &amp; Shipping
             </Link>

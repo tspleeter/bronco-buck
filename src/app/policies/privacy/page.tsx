@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — BuckThatDuck",
+  alternates: { canonical: "/policies/privacy" },
+  title: "Privacy Policy",
   description:
     "How Pleeter LLC collects, uses, and shares information at buckthatduck.com.",
 };
