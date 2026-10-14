@@ -1,5 +1,6 @@
 "use client";
 
+import { salePrice } from "@/lib/sale";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -68,7 +69,7 @@ export default function SavedBuildPage() {
       productName: build.productName,
       selectedOptions: build.selectedOptions,
       customFields: build.customFields,
-      price: build.price,
+      price: salePrice(build.price),
       quantity: 1,
       addedAt: new Date().toISOString(),
     });

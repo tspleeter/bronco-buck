@@ -3,6 +3,7 @@
 // (Product), and the /gifts-for-bronco-owners landing page.
 import config from "@/data/bronco-config.json";
 import { FLAT_SHIPPING } from "@/lib/shipping-rules";
+import { SALE, isSaleActive, salePrice } from "@/lib/sale";
 
 export const SITE_URL = "https://buckthatduck.com";
 export const SITE_NAME = "BuckThatDuck";
@@ -54,7 +55,8 @@ export function productJsonLd() {
     offers: {
       "@type": "Offer",
       url: abs(PRODUCT_PATH),
-      price: config.basePrice.toFixed(2),
+      price: salePrice(config.basePrice).toFixed(2),
+      ...(SALE && isSaleActive() ? { priceValidUntil: SALE.lastDay } : {}),
       priceCurrency: config.currency,
       availability: "https://schema.org/InStock",
       itemCondition: "https://schema.org/NewCondition",

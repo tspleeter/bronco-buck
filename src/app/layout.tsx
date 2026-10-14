@@ -5,6 +5,7 @@ import SiteNav from "@/components/SiteNav";
 import CommercialIntro from "@/components/CommercialIntro";
 import MetaPixel from "@/components/MetaPixel";
 import UmamiAnalytics from "@/components/UmamiAnalytics";
+import { SaleBanner } from "@/components/SalePrice";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { SITE_URL, SITE_NAME, OG_IMAGE, jsonLdHtml, siteJsonLd } from "@/lib/seo";
@@ -49,6 +50,7 @@ export default function RootLayout({
         <UmamiAnalytics />
         <CommercialIntro />
         <SavedBuildsProvider>
+          <SaleBanner />
           <SiteNav />
           {children}
           <footer style={{

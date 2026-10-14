@@ -1,6 +1,7 @@
 "use client";
 
 import { BuildSummaryItem } from "@/lib/summary";
+import { SalePrice } from "@/components/SalePrice";
 
 interface BuildSummaryProps {
   items: BuildSummaryItem[];
@@ -25,7 +26,7 @@ export function BuildSummary({
           className="price-display"
           style={{ fontSize: "1.75rem", color: "var(--color-gold-light)", whiteSpace: "nowrap" }}
         >
-          ${price.toFixed(2)}
+          <SalePrice price={price} />
         </div>
       </div>
 

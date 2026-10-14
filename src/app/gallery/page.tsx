@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ActionButton } from "@/components/ActionButton";
+import { SalePrice } from "@/components/SalePrice";
 
 // Each tile showcases a different mane so the gallery reads as an assortment,
 // not one repeated style. Now that Long (V28) is LIVE for all 11 colors, styles
@@ -172,7 +173,7 @@ export default function GalleryPage() {
                           {STYLE_LABEL[color.style]} mane
                         </span>
                         <span aria-hidden="true" style={{ opacity: 0.5 }}>·</span>
-                        <span>from $24.99</span>
+                        <span><SalePrice price={24.99} prefix="from " /></span>
                       </div>
                     </div>
                     <svg

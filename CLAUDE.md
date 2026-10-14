@@ -294,6 +294,13 @@ Final cross-brand PETG picks per Bronco colorway, matched to the **render-plinth
 - Don't use the hero/commercial imagery on Etsy (AI actors, Bronco truck, off-site URL). No links to buckthatduck.com in the listing.
 - Uploading to Etsy from the sandbox: Chrome `file_upload` can't read container/device files; instead push the file to the repo and, in the Etsy editor tab, `fetch()` the raw.githubusercontent.com URL (pin the commit SHA to dodge CDN cache), wrap in a `File`, set it on `input[type=file]` via `DataTransfer`, dispatch `change`.
 
+## Site sale (Oct 14 2026)
+- **First Edition Sale: 20% off every Buck, Oct 14 – Nov 13 2026** (matches Etsy FIRSTEDITION20). Single source `src/lib/sale.ts` (`SALE`, `isSaleActive()`, `salePrice()`); set `SALE = null` or edit dates to change.
+- **Mechanism:** the sale price is baked into the **cart item price** at add-to-cart (builder `handleAddToCart`, `saved/[id]` add-to-cart), so checkout, tax calc, PaymentIntent, order record and emails need no changes. Saved/shared builds still store the **list** price. Discount codes stack on the sale-priced subtotal.
+- **Display:** `components/SalePrice.tsx` — `<SalePrice price={list}/>` (sale + struck list price) in `PriceSummary`, `BuildSummary`, gallery tiles, `/saved`; `<SaleBanner/>` gold strip above `SiteNav` in `layout.tsx`. `useSaleActive()` flips after mount, so static pages never hydrate-mismatch.
+- **SEO:** `productJsonLd()` Offer price = sale price + `priceValidUntil` (= `SALE.lastDay`) while active (builder route is dynamic, so it switches back on its own). Gifts page text keeps list price.
+- **Caveats:** carts filled before the sale keep full price; carts filled during the sale keep the sale price if checked out after Nov 13 (client-sent subtotal — existing trust model).
+
 ## SEO (Oct 13 2026)
 - **Goal:** rank for gift searches ("gifts for Bronco owners") and get the product into Google Shopping free listings.
 - **Single source:** `src/lib/seo.ts` — `SITE_URL`, Etsy/IG URLs, `FORD_DISCLAIMER`, `PRODUCT_COLORS`, `productJsonLd()` (Product + Offer: price from config, $8.95 US shipping via `FLAT_SHIPPING`, 3–5 day handling / 2–5 day transit, 30-day return, buyer pays return shipping), `siteJsonLd()` (Organization w/ `sameAs` IG + Etsy, WebSite), `jsonLdHtml()` (escapes `<`).

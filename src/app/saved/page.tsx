@@ -1,5 +1,6 @@
 "use client";
 
+import { SalePrice } from "@/components/SalePrice";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import broncoConfigJson from "@/data/bronco-config.json";
@@ -133,7 +134,7 @@ export default function SavedBuildsPage() {
                       Saved {new Date(build.savedAt).toLocaleString()}
                     </p>
                     <p style={{ margin: "4px 0 0", fontWeight: 700 }}>
-                      ${build.price.toFixed(2)}
+                      <SalePrice price={build.price} />
                     </p>
                   </div>
 

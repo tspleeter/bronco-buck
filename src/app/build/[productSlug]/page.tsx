@@ -10,6 +10,7 @@ import { getDefaultBuildState } from "@/lib/defaults";
 import { BUILDER_HIDDEN_GROUPS, withHiddenGroupDefaults } from "@/lib/hidden-groups";
 import type { BuildState } from "@/types/build";
 import { calculateBuildPrice } from "@/lib/pricing";
+import { salePrice } from "@/lib/sale";
 import { getSelectedLayers } from "@/lib/layers";
 import { getBuildSummary } from "@/lib/summary";
 import { addToCart } from "@/lib/cart";
@@ -245,24 +246,26 @@ export default function BuildPage() {
   };
 
   const handleAddToCart = () => {
+    // Bake the current sale price into the cart item (see src/lib/sale.ts).
+    const cartPrice = salePrice(price);
     addToCart({
       cartItemId: crypto.randomUUID(),
       productId: broncoConfig.productId,
       productName: broncoConfig.name,
       selectedOptions: buildState.selectedOptions,
       customFields: buildState.customFields,
-      price,
+      price: cartPrice,
       quantity: 1,
       addedAt: new Date().toISOString(),
     });
     trackPixel("AddToCart", {
       currency: "USD",
-      value: price,
+      value: cartPrice,
       content_type: "product",
       content_ids: [broncoConfig.productId],
       content_name: broncoConfig.name,
     });
-    trackEvent("add_to_cart", { product: broncoConfig.productId, value: price });
+    trackEvent("add_to_cart", { product: broncoConfig.productId, value: cartPrice });
     router.push("/cart");
   };
 

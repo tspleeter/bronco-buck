@@ -1,3 +1,5 @@
+import { SalePrice } from "@/components/SalePrice";
+
 interface PriceSummaryProps {
   productName: string;
   price: number;
@@ -30,7 +32,7 @@ export function PriceSummary({ productName, price }: PriceSummaryProps) {
         className="price-display"
         style={{ fontSize: "clamp(1.75rem, 3vw, 2.25rem)", color: "var(--color-gold-light)" }}
       >
-        ${price.toFixed(2)}
+        <SalePrice price={price} />
       </div>
     </div>
   );
