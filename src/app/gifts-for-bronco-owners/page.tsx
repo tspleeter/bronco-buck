@@ -21,12 +21,12 @@ const PATH = "/gifts-for-bronco-owners";
 const PRICE = `$${config.basePrice.toFixed(2)}`;
 
 export const metadata: Metadata = {
-  title: "Gifts for Bronco Owners — Custom Bronco Buck Figurine",
-  description: `Looking for a gift for a Bronco owner? The Bronco Buck is a 3D-printed horse bust in their Bronco's color with a custom nameplate. From ${PRICE}, made in the USA, free rubber duck, free shipping on 2+.`,
+  title: "Gifts for Bronco Owners — Limited, Numbered Bronco Buck",
+  description: `Gift for Bronco owners: the Bronco Buck in their Bronco's color with a custom nameplate. Limited first run of 100, each numbered with a certificate of authenticity. From ${PRICE}, made in the USA, free shipping on 2+.`,
   alternates: { canonical: PATH },
   openGraph: {
     title: "Gifts for Bronco Owners — The Bronco Buck",
-    description: "A custom figurine in their Bronco's color, with their name on the plate. Made in the USA.",
+    description: "Only 100 numbered first-edition Bucks, in their Bronco's color with their name on the plate. Made in the USA.",
     url: PATH,
     images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Bronco Buck figurine biting a rubber duck" }],
   },
@@ -62,7 +62,11 @@ const REASONS = [
 const FAQS = [
   {
     q: "What is a good gift for a Bronco owner?",
-    a: `The Bronco Buck is a 3D-printed horse bust you customize to match their Bronco: pick the body color, a black or white mane, and the nameplate text. It starts at ${PRICE} and comes with a free rubber duck.`,
+    a: `The Bronco Buck is a 3D-printed horse bust you customize to match their Bronco: pick the body color, a regular or long mane in black or white, and the nameplate text. It starts at ${PRICE} and comes with a free rubber duck.`,
+  },
+  {
+    q: "Is it a limited edition?",
+    a: "Yes. The first 100 Bronco Buck Classics are a numbered first edition, #1 to #100, and each ships with a certificate of authenticity.",
   },
   {
     q: "Which colors are available?",

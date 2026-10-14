@@ -14,15 +14,15 @@ import { SITE_URL, SITE_NAME, OG_IMAGE, jsonLdHtml, siteJsonLd } from "@/lib/seo
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Bronco Buck — Custom Figurine & Gift for Bronco Owners | BuckThatDuck",
+    default: "Bronco Gift for Owners — Limited, Numbered Bronco Buck | BuckThatDuck",
     template: `%s | ${SITE_NAME}`,
   },
-  description: "Design your perfect Bronco Buck collectible. Customize every detail — body, mane, and plate. A 3D-printed gift for Bronco owners, made in the USA, with a free rubber duck in every order.",
+  description: "The gift for Bronco owners: a limited first run of 100 numbered Bronco Bucks, each with a certificate of authenticity. Customize every detail — body, mane, and plate. Made in the USA, free rubber duck, free shipping on 2+.",
   openGraph: {
     type: "website",
     siteName: SITE_NAME,
-    title: "Bronco Buck — Custom Figurine & Gift for Bronco Owners",
-    description: "Pick a Bronco color, a mane and a nameplate. Made in the USA, free rubber duck included.",
+    title: "Bronco Gift for Owners — Limited, Numbered Bronco Buck",
+    description: "Only 100 numbered first-edition Bucks. Pick their Bronco color, mane and nameplate. Made in the USA, free rubber duck.",
     images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Bronco Buck figurine biting a rubber duck" }],
   },
   twitter: { card: "summary_large_image", images: [OG_IMAGE] },

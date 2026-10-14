@@ -5,13 +5,13 @@ import { PRODUCT_PATH, OG_IMAGE, jsonLdHtml, productJsonLd } from "@/lib/seo";
 // The builder page is a client component, so its metadata + Product JSON-LD live here.
 // Gallery links add ?color=…&mane=…&style=… — the canonical collapses them to one URL.
 export const metadata: Metadata = {
-  title: "Bronco Buck Classic — Custom Bronco Figurine",
+  title: "Bronco Buck Classic — Limited, Numbered Bronco Gift",
   description:
-    "Build a custom Bronco Buck: 11 Bronco-inspired colors, black or white mane, and your own nameplate. 3D-printed in the USA from $24.99, free rubber duck with every order.",
+    "Gift for Bronco owners: build a Bronco Buck Classic in 11 Bronco-inspired colors, regular or long mane, with your own nameplate. First 100 are numbered with a certificate of authenticity. From $24.99, made in the USA, free rubber duck.",
   alternates: { canonical: PRODUCT_PATH },
   openGraph: {
-    title: "Bronco Buck Classic — Custom Bronco Figurine",
-    description: "Pick a Bronco color, a mane and a nameplate. Made in the USA, free rubber duck included.",
+    title: "Bronco Buck Classic — Limited, Numbered Bronco Gift",
+    description: "Only 100 numbered first-edition Bucks. Pick their Bronco color, mane and nameplate. Made in the USA, free rubber duck.",
     url: PRODUCT_PATH,
     images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Bronco Buck figurine biting a rubber duck" }],
   },

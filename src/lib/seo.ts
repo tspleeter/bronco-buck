@@ -36,7 +36,7 @@ export const productImage = (slug: string) => `/assets/product/${slug}.webp`;
 const abs = (path: string) => `${SITE_URL}${path}`;
 
 export const PRODUCT_DESCRIPTION =
-  "A 3D-printed horse bust collectible for Bronco owners, printed in your choice of 11 Bronco-inspired colors with a black or white mane and a custom nameplate. Made to order in the USA. A free rubber duck comes with every order.";
+  "A 3D-printed horse bust collectible for Bronco owners, printed in your choice of 11 Bronco-inspired colors with a regular or long mane in black or white and a custom nameplate. The first 100 are numbered with a certificate of authenticity. Made to order in the USA. A free rubber duck comes with every order.";
 
 export function productJsonLd() {
   return {
