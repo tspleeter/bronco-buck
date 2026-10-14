@@ -173,7 +173,7 @@ export default function GalleryPage() {
                           {STYLE_LABEL[color.style]} mane
                         </span>
                         <span aria-hidden="true" style={{ opacity: 0.5 }}>·</span>
-                        <span><SalePrice price={24.99} prefix="from " /></span>
+                        <span><SalePrice price={31.19} prefix="from " /></span>
                       </div>
                     </div>
                     <svg

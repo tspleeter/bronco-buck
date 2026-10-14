@@ -7,7 +7,7 @@ import { PRODUCT_PATH, OG_IMAGE, jsonLdHtml, productJsonLd } from "@/lib/seo";
 export const metadata: Metadata = {
   title: "Bronco Buck Classic — Limited, Numbered Bronco Gift",
   description:
-    "Gift for Bronco owners: build a Bronco Buck Classic in 11 Bronco-inspired colors, regular or long mane, with your own nameplate. First 100 are numbered with a certificate of authenticity. From $24.99, made in the USA, free rubber duck.",
+    "Gift for Bronco owners: build a Bronco Buck Classic in 11 Bronco-inspired colors, regular or long mane, with your own nameplate. First 100 are numbered with a certificate of authenticity. From $31.19, made in the USA, free rubber duck.",
   alternates: { canonical: PRODUCT_PATH },
   openGraph: {
     title: "Bronco Buck Classic — Limited, Numbered Bronco Gift",
