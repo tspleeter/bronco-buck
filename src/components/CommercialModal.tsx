@@ -240,7 +240,7 @@ export default function CommercialModal({
             playsInline
             {...{ "webkit-playsinline": "true" }}
             preload="metadata"
-            poster="/assets/buck-commercial-poster.jpg"
+            poster="/assets/buck-commercial-poster.jpg?v=20261015"
             style={{
               position: "absolute",
               inset: 0,
@@ -250,9 +250,9 @@ export default function CommercialModal({
               background: "#000",
             }}
           >
-            <source src="/assets/buck-commercial.mp4?v=20261003" type="video/mp4" />
+            <source src="/assets/buck-commercial.mp4?v=20261015" type="video/mp4" />
             Your browser doesn&apos;t support embedded video. You can{" "}
-            <a href="/assets/buck-commercial.mp4?v=20261003">download the commercial</a> instead.
+            <a href="/assets/buck-commercial.mp4?v=20261015">download the commercial</a> instead.
           </video>
         </div>
       </div>
