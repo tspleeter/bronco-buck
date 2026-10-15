@@ -80,7 +80,7 @@ export default function PoliciesPage() {
           <div style={{ display: "grid", gap: "10px" }}>
             <p style={{ fontWeight: 700, color: "var(--color-text)" }}>Shipping Cost</p>
             <p>
-              Shipping is a flat <strong style={{ color: "var(--color-text)" }}>$8.95</strong> for one Buck.
+              Shipping is a flat <strong style={{ color: "var(--color-text)" }}>$5.99</strong> for one Buck.
               Orders of <strong style={{ color: "var(--color-text)" }}>two or more Bucks ship free</strong>.
             </p>
           </div>
