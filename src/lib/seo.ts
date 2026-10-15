@@ -5,7 +5,9 @@ import config from "@/data/bronco-config.json";
 import { FLAT_SHIPPING } from "@/lib/shipping-rules";
 import { SALE, isSaleActive, salePrice } from "@/lib/sale";
 
-export const SITE_URL = "https://buckthatduck.com";
+// Canonical host is www — the bare domain redirects there. Sitemap, robots,
+// canonicals and JSON-LD all derive from this.
+export const SITE_URL = "https://www.buckthatduck.com";
 export const SITE_NAME = "BuckThatDuck";
 export const PRODUCT_PATH = `/build/${config.slug}`;
 export const INSTAGRAM_URL = "https://www.instagram.com/buckthatduck/";
