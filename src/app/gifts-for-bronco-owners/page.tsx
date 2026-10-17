@@ -21,12 +21,12 @@ const PATH = "/gifts-for-bronco-owners";
 const PRICE = `$${config.basePrice.toFixed(2)}`;
 
 export const metadata: Metadata = {
-  title: "Gifts for Bronco Owners — Limited, Numbered Bronco Buck",
-  description: `Gift for Bronco owners: the Bronco Buck in their Bronco's color with a custom nameplate. Limited first run of 100, each numbered with a certificate of authenticity. From ${PRICE}, made in the USA, free shipping on 2+.`,
+  title: "Gifts for Bronco Owners — A Buck in Their Bronco's Color",
+  description: `Shopping for a Bronco owner? Match a Bronco Buck to their paint, put their name or their Bronco's nickname on the plate, and we'll add a gift note. From ${PRICE}, ships in 3 to 5 business days.`,
   alternates: { canonical: PATH },
   openGraph: {
-    title: "Gifts for Bronco Owners — The Bronco Buck",
-    description: "Only 100 numbered first-edition Bucks, in their Bronco's color with their name on the plate. Made in the USA.",
+    title: "Gifts for Bronco Owners — A Buck in Their Bronco's Color",
+    description: "Match it to their paint, put their name on the plate, and we'll tuck in a gift note.",
     url: PATH,
     images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Bronco Buck figurine biting a rubber duck" }],
   },
@@ -34,35 +34,43 @@ export const metadata: Metadata = {
 
 const REASONS = [
   {
-    title: "Matches their Bronco",
-    body: "Choose from 11 Bronco-inspired colors, from Cactus Gray and Azure Gray to Cyber Orange and Eruption Green.",
+    title: "It matches what's in their driveway",
+    body: "Pick from 11 Bronco-inspired colors, so their Buck looks like their truck, whether it's Cactus Gray, Azure Gray, Cyber Orange or Eruption Green.",
   },
   {
-    title: "Their name on the plate",
-    body: "Every Buck stands on a nameplate. Keep BUCK, pick %uckThatDuck, or add a custom name up to 12 characters.",
+    title: "Personal, not off the shelf",
+    body: "Put their name, their Bronco's nickname or their trail handle on the plate, up to 12 characters. Or keep it simple with BUCK or %uckThatDuck.",
   },
   {
-    title: "A free rubber duck",
-    body: "Every order comes with a rubber duck, because Broncos don't duck, they buck.",
+    title: "Numbered and limited",
+    body: "The first 100 are numbered #1 to #100 and ship with a certificate of authenticity, so it's a keeper, not a stocking stuffer they'll lose.",
   },
   {
-    title: "Free shipping on 2 or more",
-    body: `One Buck ships for $${FLAT_SHIPPING.toFixed(2)}. Order two or more and shipping is free.`,
+    title: "Ready to give",
+    body: "Email us after you order and we'll tuck a gift note in the box. A rubber duck rides along free, because Broncos don't duck, they buck.",
   },
   {
-    title: "Made in the USA",
-    body: "Each Buck is 3D-printed to order in Hawthorne, New Jersey, in durable PETG.",
+    title: "Two Bronco friends? Ship free",
+    body: `One Buck ships for $${FLAT_SHIPPING.toFixed(2)}. Order two or more, for them and a trail buddy, and shipping is free.`,
   },
   {
-    title: "Easy to pick a color",
-    body: "Not sure of their exact shade? Match their paint, or go with a classic like Shadow Black or Oxford White.",
+    title: "Made to order in New Jersey",
+    body: "Each Buck is 3D-printed in Hawthorne, New Jersey, in tough PETG, and usually ships within 3 to 5 business days.",
   },
 ];
 
 const FAQS = [
   {
     q: "What is a good gift for a Bronco owner?",
-    a: `The Bronco Buck is a 3D-printed horse bust you customize to match their Bronco: pick the body color, a regular or long mane in black or white, and the nameplate text. It starts at ${PRICE} and comes with a free rubber duck.`,
+    a: `Something that's clearly about their Bronco. The Bronco Buck is a horse bust you build to match theirs: their body color, a regular or long mane in black or white, and their name on the plate. It starts at ${PRICE} and comes with a free rubber duck.`,
+  },
+  {
+    q: "I don't know the exact color of their Bronco. What should I pick?",
+    a: "Snap a photo of their Bronco and compare it to the color swatches below. Still stuck? Shadow Black, Oxford White and Carbonized Gray are safe picks that look good next to any Bronco.",
+  },
+  {
+    q: "Can you include a gift note?",
+    a: "Yes. Email us after you place your order with the message you want, and we'll include it in the box.",
   },
   {
     q: "Is it a limited edition?",
@@ -78,7 +86,7 @@ const FAQS = [
   },
   {
     q: "How long does it take to arrive?",
-    a: "Every Buck is made to order. Most orders are printed and shipped within 3 to 5 business days, and you get a tracking email when it ships. Order early for holidays.",
+    a: "Every Buck is made to order. Most orders are printed and shipped within 3 to 5 business days, and you get a tracking email when it ships. For a birthday or the holidays, order at least two weeks ahead.",
   },
   {
     q: "How much is shipping?",
@@ -157,8 +165,9 @@ export default function GiftsPage() {
               <span style={{ color: "var(--color-gold-light)" }}>Bronco owners.</span>
             </h1>
             <p style={{ fontSize: "clamp(1rem, 2vw, 1.15rem)", color: "var(--color-text-muted)", lineHeight: 1.65, maxWidth: 520 }}>
-              The Bronco Buck is a 3D-printed horse bust in the color of their Bronco, with a nameplate you
-              choose. From {PRICE}, made in the USA, and every order comes with a free rubber duck.
+              Know someone who waves at every Bronco they pass? Give them a Bronco Buck: a 3D-printed horse
+              bust in their Bronco&apos;s color, with their name on the plate. From {PRICE}, with a free rubber
+              duck in every box.
             </p>
             <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
               <Link href={PRODUCT_PATH}>
@@ -201,7 +210,7 @@ export default function GiftsPage() {
             <h2 style={{ fontSize: "clamp(1.4rem, 3vw, 1.9rem)", fontWeight: 800, letterSpacing: "-0.02em" }}>
               Pick the color of their Bronco
             </h2>
-            <p style={{ color: "var(--color-text-muted)" }}>Tap a color to start building with it.</p>
+            <p style={{ color: "var(--color-text-muted)" }}>Tap their color to start building. You can change the mane and nameplate next.</p>
           </div>
           <div className="gift-colors">
             {PRODUCT_COLORS.map((c) => (
