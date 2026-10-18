@@ -8,4 +8,8 @@ export interface CheckoutFormData {
   city: string;
   state: string;
   zip: string;
+  isGift: boolean;
+  recipientFirstName: string;
+  recipientLastName: string;
+  giftMessage: string;
 }

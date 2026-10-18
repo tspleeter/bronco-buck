@@ -144,8 +144,8 @@ export default function PoliciesPage() {
             a="The configurator preview is a close representation of the final product. Minor variations in color and finish can occur between the on-screen preview and the printed figurine due to differences in display calibration and filament properties."
           />
           <Q
-            q="Do you offer gift wrapping or custom packaging?"
-            a="Standard packaging is included with every order. If you'd like a gift note included, mention it in your order notes or email us after purchasing."
+            q="Can I send it as a gift?"
+            a="Yes. At checkout, check “This is a gift”, enter the recipient's name and address, and add a note (up to 250 characters). We print it on a card in the box. We never put prices, a receipt or a packing slip in the package; your invoice is emailed to you instead."
           />
           <Q
             q="My figurine arrived damaged. What do I do?"

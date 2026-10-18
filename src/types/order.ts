@@ -22,6 +22,19 @@ export interface OrderCustomer {
   country?: string;
 }
 
+/**
+ * Gift orders (Oct 2026). The buyer stays in `customer` (name, email, phone —
+ * they get the emailed invoice); `customer.address*` is the ship-to address,
+ * and the box is addressed to the recipient below. Nothing with prices ever
+ * goes in the box: no packing slip, the gift message is the only paper.
+ */
+export interface OrderGift {
+  recipientFirstName: string;
+  recipientLastName: string;
+  /** Printed on the card in the box. Max GIFT_MESSAGE_MAX chars. */
+  message?: string;
+}
+
 export interface OrderItem {
   cartItemId: string;
 
@@ -66,6 +79,9 @@ export interface Order {
   shippedAt?: string;
 
   notes?: string;
+
+  /** Present only on gift orders. */
+  gift?: OrderGift;
 
   /**
    * Admin activity log, oldest first. Appended on every "Save fulfillment",

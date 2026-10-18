@@ -22,7 +22,7 @@ const PRICE = `$${config.basePrice.toFixed(2)}`;
 
 export const metadata: Metadata = {
   title: "Gifts for Bronco Owners — A Buck in Their Bronco's Color",
-  description: `Shopping for a Bronco owner? Match a Bronco Buck to their paint, put their name or their Bronco's nickname on the plate, and we'll add a gift note. From ${PRICE}, ships in 3 to 5 business days.`,
+  description: `Shopping for a Bronco owner? Match a Bronco Buck to their paint, put their name or their Bronco's nickname on the plate, and ship it with a gift note and no prices in the box. From ${PRICE}, ships in 3 to 5 business days.`,
   alternates: { canonical: PATH },
   openGraph: {
     title: "Gifts for Bronco Owners — A Buck in Their Bronco's Color",
@@ -47,7 +47,7 @@ const REASONS = [
   },
   {
     title: "Ready to give",
-    body: "Email us after you order and we'll tuck a gift note in the box. A rubber duck rides along free, because Broncos don't duck, they buck.",
+    body: "Check \"This is a gift\" at checkout, add a note, and ship it straight to them. No prices or receipt in the box; your invoice is emailed to you. A rubber duck rides along free.",
   },
   {
     title: "Two Bronco friends? Ship free",
@@ -69,8 +69,8 @@ const FAQS = [
     a: "Snap a photo of their Bronco and compare it to the color swatches below. Still stuck? Shadow Black, Oxford White and Carbonized Gray are safe picks that look good next to any Bronco.",
   },
   {
-    q: "Can you include a gift note?",
-    a: "Yes. Email us after you place your order with the message you want, and we'll include it in the box.",
+    q: "Can you include a gift note and ship it to them?",
+    a: "Yes. At checkout, check \"This is a gift\", enter their name and address, and write a note (up to 250 characters). We print it on a card in the box. No prices or receipt go in the package; your invoice is emailed to you.",
   },
   {
     q: "Is it a limited edition?",

@@ -564,6 +564,17 @@ export default function OrderDetailPage() {
                   {order.customer.country ? <div>{order.customer.country}</div> : null}
                 </div>
               )}
+              {order.gift ? (
+                <div style={{ marginTop: 14, padding: "12px 14px", border: "1px solid var(--color-gold)", borderRadius: 10, display: "grid", gap: 6 }}>
+                  <div style={{ fontWeight: 800, color: "var(--color-gold)" }}>🎁 GIFT: ship to {order.gift.recipientFirstName} {order.gift.recipientLastName}</div>
+                  <div style={{ fontSize: 13, color: "var(--color-text-muted)" }}>No prices or receipt in the box. Buyer above gets the invoice by email.</div>
+                  {order.gift.message ? (
+                    <div style={{ whiteSpace: "pre-line", fontStyle: "italic", color: "var(--color-text)", borderLeft: "3px solid var(--color-gold)", paddingLeft: 10 }}>{order.gift.message}</div>
+                  ) : (
+                    <div style={{ fontSize: 13, color: "var(--color-text-muted)" }}>No gift message.</div>
+                  )}
+                </div>
+              ) : null}
               {customerMessage ? (
                 <p
                   style={{

@@ -22,6 +22,7 @@ import { CheckoutFormData } from "@/types/checkout";
 import { Order } from "@/types/order";
 import { getGroupName, getOptionName } from "@/lib/product-display";
 import { isHiddenSelection } from "@/lib/summary";
+import { GIFT_MESSAGE_MAX } from "@/lib/gift";
 import broncoConfigJson from "@/data/bronco-config.json";
 import type { ProductConfig } from "@/types/product";
 import { ActionButton } from "@/components/ActionButton";
@@ -41,6 +42,10 @@ const initialForm: CheckoutFormData = {
   city: "",
   state: "",
   zip: "",
+  isGift: false,
+  recipientFirstName: "",
+  recipientLastName: "",
+  giftMessage: "",
 };
 
 // Inner form component that has access to Stripe hooks
@@ -232,8 +237,8 @@ function CheckoutForm({
   ]);
 
   const handleChange =
-    (field: keyof CheckoutFormData) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (field: Exclude<keyof CheckoutFormData, "isGift">) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       setForm((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
@@ -244,6 +249,12 @@ function CheckoutForm({
     if (!form.email.trim()) return "Email is required.";
     if (!form.email.includes("@") || !form.email.includes("."))
       return "Please enter a valid email address.";
+    if (form.isGift) {
+      if (!form.recipientFirstName.trim() || !form.recipientLastName.trim())
+        return "Please enter the gift recipient's first and last name.";
+      if (form.giftMessage.length > GIFT_MESSAGE_MAX)
+        return `Gift message is limited to ${GIFT_MESSAGE_MAX} characters.`;
+    }
     if (!form.address1.trim()) return "Address is required.";
     if (!form.city.trim()) return "City is required.";
     if (!form.state.trim()) return "State is required.";
@@ -330,6 +341,17 @@ function CheckoutForm({
         createdAt: now,
         updatedAt: now,
         notes: `Stripe payment intent: ${paymentIntent.id}`,
+        ...(form.isGift
+          ? {
+              gift: {
+                recipientFirstName: form.recipientFirstName.trim(),
+                recipientLastName: form.recipientLastName.trim(),
+                ...(form.giftMessage.trim()
+                  ? { message: form.giftMessage.trim().slice(0, GIFT_MESSAGE_MAX) }
+                  : {}),
+              },
+            }
+          : {}),
       };
 
       await createOrder(order);
@@ -395,11 +417,11 @@ function CheckoutForm({
             }}
           >
             <div>
-              <label style={{ display: "block", fontWeight: 600, marginBottom: 6 }}>First Name</label>
+              <label style={{ display: "block", fontWeight: 600, marginBottom: 6 }}>{form.isGift ? "Your First Name" : "First Name"}</label>
               <input value={form.firstName} onChange={handleChange("firstName")} style={inputStyle} />
             </div>
             <div>
-              <label style={{ display: "block", fontWeight: 600, marginBottom: 6 }}>Last Name</label>
+              <label style={{ display: "block", fontWeight: 600, marginBottom: 6 }}>{form.isGift ? "Your Last Name" : "Last Name"}</label>
               <input value={form.lastName} onChange={handleChange("lastName")} style={inputStyle} />
             </div>
           </div>
@@ -412,7 +434,7 @@ function CheckoutForm({
             }}
           >
             <div>
-              <label style={{ display: "block", fontWeight: 600, marginBottom: 6 }}>Email</label>
+              <label style={{ display: "block", fontWeight: 600, marginBottom: 6 }}>{form.isGift ? "Your Email (invoice goes here)" : "Email"}</label>
               <input type="email" value={form.email} onChange={handleChange("email")} style={inputStyle} />
             </div>
             <div>
@@ -421,8 +443,71 @@ function CheckoutForm({
             </div>
           </div>
 
+          {/* Gift option — the invoice is emailed to the buyer; nothing priced goes in the box */}
+          <div
+            style={{
+              border: `1px solid ${form.isGift ? "var(--color-gold)" : "var(--color-border)"}`,
+              borderRadius: 12,
+              padding: "14px 16px",
+              display: "grid",
+              gap: 14,
+            }}
+          >
+            <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={form.isGift}
+                onChange={(e) => setForm((prev) => ({ ...prev, isGift: e.target.checked }))}
+                style={{ width: 18, height: 18, marginTop: 2, accentColor: "var(--color-gold)" }}
+              />
+              <span>
+                <span style={{ fontWeight: 700 }}>This is a gift</span>
+                <span style={{ display: "block", fontSize: 14, color: "var(--color-text-muted)", marginTop: 2 }}>
+                  Ship it to someone else with a note. No prices or receipt go in the box. Your invoice is emailed to you.
+                </span>
+              </span>
+            </label>
+
+            {form.isGift && (
+              <>
+                <div
+                  style={{
+                    display: "grid",
+                    gap: 16,
+                    gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+                  }}
+                >
+                  <div>
+                    <label style={{ display: "block", fontWeight: 600, marginBottom: 6 }}>Recipient First Name</label>
+                    <input value={form.recipientFirstName} onChange={handleChange("recipientFirstName")} style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontWeight: 600, marginBottom: 6 }}>Recipient Last Name</label>
+                    <input value={form.recipientLastName} onChange={handleChange("recipientLastName")} style={inputStyle} />
+                  </div>
+                </div>
+                <div>
+                  <label style={{ display: "block", fontWeight: 600, marginBottom: 6 }}>
+                    Gift Message <span style={{ fontWeight: 400, color: "var(--color-text-muted)" }}>(optional)</span>
+                  </label>
+                  <textarea
+                    value={form.giftMessage}
+                    onChange={handleChange("giftMessage")}
+                    maxLength={GIFT_MESSAGE_MAX}
+                    rows={4}
+                    placeholder="Happy birthday! Now your Bronco has a Buck. — Love, Sam"
+                    style={{ ...inputStyle, resize: "vertical", fontFamily: "inherit", lineHeight: 1.5 }}
+                  />
+                  <div style={{ fontSize: 12, color: "var(--color-text-muted)", textAlign: "right", marginTop: 4 }}>
+                    {form.giftMessage.length}/{GIFT_MESSAGE_MAX}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
           <div>
-            <label style={{ display: "block", fontWeight: 600, marginBottom: 6 }}>Address Line 1</label>
+            <label style={{ display: "block", fontWeight: 600, marginBottom: 6 }}>{form.isGift ? "Recipient Address Line 1" : "Address Line 1"}</label>
             <input value={form.address1} onChange={handleChange("address1")} style={inputStyle} />
           </div>
 

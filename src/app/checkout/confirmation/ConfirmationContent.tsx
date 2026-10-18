@@ -100,6 +100,17 @@ export default function ConfirmationContent() {
             <div style={{ color: "#111" }}><strong>Placed:</strong> {new Date(order.createdAt).toLocaleString()}</div>
             <div style={{ color: "#111" }}><strong>Customer:</strong> {order.customer.firstName} {order.customer.lastName}</div>
             <div style={{ color: "#111" }}><strong>Email:</strong> {order.customer.email}</div>
+            {order.gift ? (
+              <div style={{ color: "#111", padding: "12px 14px", border: "1px solid #CA8A04", borderRadius: 12, display: "grid", gap: 6 }}>
+                <div><strong>🎁 Gift for:</strong> {order.gift.recipientFirstName} {order.gift.recipientLastName}</div>
+                {order.gift.message ? (
+                  <div style={{ whiteSpace: "pre-line", fontStyle: "italic", color: "#333" }}>&ldquo;{order.gift.message}&rdquo;</div>
+                ) : null}
+                <div style={{ fontSize: 14, color: "#666" }}>No prices or receipt go in the box. Your invoice has been emailed to {order.customer.email}.</div>
+              </div>
+            ) : (
+              <div style={{ color: "#666", fontSize: 14 }}>Your invoice has been emailed to {order.customer.email}.</div>
+            )}
             {order.pricing.discount && order.pricing.discount > 0 ? (
               <div style={{ color: "#111" }}>
                 <strong>Discount{order.pricing.discountCode ? ` (${order.pricing.discountCode})` : ""}:</strong> −${order.pricing.discount.toFixed(2)}

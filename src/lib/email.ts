@@ -1,5 +1,12 @@
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
-import { Order } from "@/types/order";
+import { Order, OrderItem } from "@/types/order";
+import { shipToName } from "@/lib/gift";
+import { getGroupName, getOptionName } from "@/lib/product-display";
+import { isHiddenSelection } from "@/lib/summary";
+import broncoConfigJson from "@/data/bronco-config.json";
+import type { ProductConfig } from "@/types/product";
+
+const broncoConfig = broncoConfigJson as ProductConfig;
 import { CARRIER_LABELS, buildTrackingUrl } from "@/lib/shipping";
 
 const ses = new SESClient({ region: "us-east-1" });
@@ -18,16 +25,102 @@ function renderItemRows(order: Order): string {
     .join("");
 }
 
+function esc(v: string): string {
+  return v
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 function shippingAddressBlock(order: Order): string {
   return `<p style="color:#A8A29E;font-size:14px;line-height:1.8;margin:0;">
-        ${order.customer.firstName} ${order.customer.lastName}<br>
-        ${order.customer.address1}${order.customer.address2 ? "<br>" + order.customer.address2 : ""}<br>
-        ${order.customer.city}, ${order.customer.state} ${order.customer.zip}
+        ${esc(shipToName(order))}<br>
+        ${esc(order.customer.address1)}${order.customer.address2 ? "<br>" + esc(order.customer.address2) : ""}<br>
+        ${esc(order.customer.city)}, ${esc(order.customer.state)} ${esc(order.customer.zip)}
       </p>`;
 }
 
+/** Customer-facing invoice number. Same short id the emails always used. */
+export function invoiceNumber(order: Order): string {
+  return `BTD-${order.orderId.slice(0, 8).toUpperCase()}`;
+}
+
+const SELLER_LINES = [
+  "Pleeter LLC (BuckThatDuck)",
+  "8 Nelke Ct",
+  "Hawthorne, NJ 07506",
+  "orders@buckthatduck.com",
+];
+
+function itemDetailLines(item: OrderItem): string[] {
+  const lines: string[] = [];
+  for (const [groupId, value] of Object.entries(item.selectedOptions ?? {})) {
+    if (isHiddenSelection(broncoConfig, groupId, value)) continue;
+    const name = Array.isArray(value)
+      ? value.map((v) => getOptionName(v, groupId)).join(", ")
+      : getOptionName(value, groupId);
+    if (name) lines.push(`${getGroupName(groupId)}: ${name}`);
+  }
+  const plate = item.customFields?.nameplateText;
+  if (typeof plate === "string" && plate.trim()) lines.push(`Nameplate Text: ${plate}`);
+  return lines;
+}
+
+function invoiceItemRows(order: Order): string {
+  return order.items
+    .map((item) => {
+      const details = itemDetailLines(item)
+        .map((l) => `<div style="color:#78716C;font-size:12px;line-height:1.5;">${esc(l)}</div>`)
+        .join("");
+      return `<tr>
+          <td style="padding:10px 0;border-bottom:1px solid #2a2520;color:#FAFAF9;font-size:14px;vertical-align:top;">${esc(item.productName)}${details}</td>
+          <td style="padding:10px 0;border-bottom:1px solid #2a2520;text-align:center;color:#FAFAF9;font-size:14px;vertical-align:top;">${item.quantity}</td>
+          <td style="padding:10px 0;border-bottom:1px solid #2a2520;text-align:right;color:#FAFAF9;font-size:14px;vertical-align:top;">$${item.price.toFixed(2)}</td>
+          <td style="padding:10px 0;border-bottom:1px solid #2a2520;text-align:right;color:#FAFAF9;font-size:14px;vertical-align:top;">$${(item.price * item.quantity).toFixed(2)}</td>
+        </tr>`;
+    })
+    .join("");
+}
+
+function totalRow(label: string, value: string, opts: { strong?: boolean; gold?: boolean } = {}): string {
+  const size = opts.strong ? 16 : 14;
+  const weight = opts.strong ? 700 : 400;
+  const border = opts.strong ? "border-top:1px solid rgba(255,255,255,0.08);" : "";
+  const pad = opts.strong ? "padding-top:12px;" : "padding:4px 0;";
+  return `<tr>
+          <td style="${pad}${border}color:${opts.strong ? "#FAFAF9" : "#A8A29E"};font-size:${size}px;font-weight:${weight};">${label}</td>
+          <td style="${pad}${border}text-align:right;color:${opts.gold || opts.strong ? "#CA8A04" : "#FAFAF9"};font-size:${size}px;font-weight:${weight};">${value}</td>
+        </tr>`;
+}
+
+const CARD = "background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;";
+const LABEL = "color:#CA8A04;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin:0 0 10px;";
+
+/**
+ * Order confirmation = the customer's INVOICE (Oct 2026). This email is the
+ * only place prices appear: there's no packing slip or receipt in the box,
+ * which is what lets an order ship as a gift.
+ */
 export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
-  const itemsList = renderItemRows(order);
+  const inv = invoiceNumber(order);
+  const issued = new Date(order.createdAt).toLocaleDateString("en-US", { dateStyle: "long" });
+  const p = order.pricing;
+  const gift = order.gift;
+  const c = order.customer;
+
+  const giftCard = gift
+    ? `<div style="${CARD}border-color:rgba(202,138,4,0.45);">
+      <p style="${LABEL}">🎁 Gift order</p>
+      <p style="color:#FAFAF9;font-size:15px;margin:0 0 12px;">Shipping to <strong>${esc(shipToName(order))}</strong>. No prices or receipt are included in the box.</p>
+      ${
+        gift.message
+          ? `<p style="color:#A8A29E;font-size:13px;margin:0 0 6px;">Your note (printed on a card in the box):</p>
+      <p style="color:#FAFAF9;font-size:15px;line-height:1.6;font-style:italic;white-space:pre-line;margin:0;padding:12px 16px;border-left:3px solid #CA8A04;background:#0C0A09;border-radius:6px;">${esc(gift.message)}</p>`
+          : `<p style="color:#A8A29E;font-size:13px;margin:0;">No gift message. Reply to this email if you'd like to add one before it ships.</p>`
+      }
+    </div>`
+    : "";
 
   const html = `<!DOCTYPE html>
 <html>
@@ -38,72 +131,59 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
       <h1 style="color:#CA8A04;font-size:28px;font-weight:900;margin:0;">%uck<span style="color:#FAFAF9;">ThatDuck</span></h1>
       <p style="color:#78716C;font-size:13px;font-weight:600;letter-spacing:0.06em;margin:8px 0 0;">Broncos don't duck, they buck.</p>
     </div>
-    <div style="background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;">
-      <p style="color:#CA8A04;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin:0 0 12px;">Order Confirmed</p>
-      <h2 style="color:#FAFAF9;font-size:24px;font-weight:800;margin:0 0 16px;">Thank you, ${order.customer.firstName}!</h2>
-      <p style="color:#A8A29E;margin:0;line-height:1.6;">Your %uckThatDuck order has been placed and is being processed.</p>
+    <div style="${CARD}">
+      <p style="${LABEL}">Order confirmed</p>
+      <h2 style="color:#FAFAF9;font-size:24px;font-weight:800;margin:0 0 16px;">Thank you, ${esc(c.firstName)}!</h2>
+      <p style="color:#A8A29E;margin:0;line-height:1.6;">Your order is paid and in the print queue. Your invoice is below. Keep this email for your records.</p>
     </div>
-    <div style="background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;">
-      <h3 style="color:#FAFAF9;font-size:16px;font-weight:700;margin:0 0 20px;">Order Details</h3>
-      <p style="color:#A8A29E;font-size:14px;margin:0 0 4px;">Order ID</p>
-      <p style="color:#FAFAF9;font-size:14px;font-family:monospace;margin:0 0 16px;">${order.orderId}</p>
-      <p style="color:#A8A29E;font-size:14px;margin:0 0 4px;">Placed</p>
-      <p style="color:#FAFAF9;font-size:14px;margin:0 0 16px;">${new Date(order.createdAt).toLocaleString("en-US", { dateStyle: "long", timeStyle: "short" })}</p>
-      <table style="width:100%;border-collapse:collapse;margin-top:8px;">
+    ${giftCard}
+    <div style="${CARD}">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td style="vertical-align:top;">
+            <p style="color:#FAFAF9;font-size:22px;font-weight:800;margin:0 0 4px;">Invoice</p>
+            <p style="color:#FAFAF9;font-size:14px;font-family:monospace;margin:0;">${inv}</p>
+          </td>
+          <td style="vertical-align:top;text-align:right;">
+            <span style="display:inline-block;background:#14532D;color:#86EFAC;font-size:12px;font-weight:700;letter-spacing:0.1em;padding:4px 10px;border-radius:6px;">PAID</span>
+            <p style="color:#A8A29E;font-size:13px;margin:8px 0 0;">Issued ${issued}</p>
+          </td>
+        </tr>
+      </table>
+      <table style="width:100%;border-collapse:collapse;margin-top:24px;">
+        <tr>
+          <td style="vertical-align:top;width:50%;padding-right:12px;">
+            <p style="color:#78716C;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 6px;">From</p>
+            <p style="color:#A8A29E;font-size:13px;line-height:1.6;margin:0;">${SELLER_LINES.map(esc).join("<br>")}</p>
+          </td>
+          <td style="vertical-align:top;width:50%;">
+            <p style="color:#78716C;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 6px;">Bill to</p>
+            <p style="color:#A8A29E;font-size:13px;line-height:1.6;margin:0;">${esc(`${c.firstName} ${c.lastName}`)}<br>${esc(c.email)}${c.phone ? "<br>" + esc(c.phone) : ""}</p>
+          </td>
+        </tr>
+      </table>
+      <table style="width:100%;border-collapse:collapse;margin-top:24px;">
         <thead>
           <tr>
             <th style="color:#A8A29E;font-size:12px;font-weight:600;text-align:left;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08);">Item</th>
             <th style="color:#A8A29E;font-size:12px;font-weight:600;text-align:center;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08);">Qty</th>
-            <th style="color:#A8A29E;font-size:12px;font-weight:600;text-align:right;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08);">Price</th>
+            <th style="color:#A8A29E;font-size:12px;font-weight:600;text-align:right;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08);">Unit</th>
+            <th style="color:#A8A29E;font-size:12px;font-weight:600;text-align:right;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.08);">Amount</th>
           </tr>
         </thead>
-        <tbody>${itemsList}</tbody>
+        <tbody>${invoiceItemRows(order)}</tbody>
       </table>
-      <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-          <span style="color:#CA8A04;font-size:14px;"><svg width="22" height="18" viewBox="0 0 200 165" xmlns="http://www.w3.org/2000/svg" style="display:inline;vertical-align:middle;margin-right:6px">
-  <path d="M18 138 C8 110,12 80,32 62 C48 48,72 38,96 38 C122 38,150 48,164 68 C178 90,176 125,164 142 C144 165,52 168,18 138Z" fill="#F5C800"/>
-  <path d="M20 118 C2 106,-4 88,6 74 C12 66,22 70,18 80 C14 90,18 102,28 108" fill="#F5C800" stroke="#D4A800" stroke-width="1"/>
-  <ellipse cx="118" cy="44" rx="18" ry="20" fill="#F5C800"/>
-  <circle cx="126" cy="26" r="26" fill="#F5C800"/>
-  <path d="M146 22 Q178 14 176 26 Q178 34 146 32Z" fill="#E86000"/>
-  <path d="M146 32 Q178 34 174 44 Q170 50 146 40Z" fill="#C84800"/>
-  <circle cx="140" cy="18" r="6" fill="#111"/>
-  <circle cx="142" cy="15" r="2" fill="white"/>
-</svg>Free rubber duck</span>
-          <span style="color:#CA8A04;font-size:14px;font-weight:700;">FREE</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-          <span style="color:#A8A29E;font-size:14px;">Subtotal</span>
-          <span style="color:#FAFAF9;font-size:14px;">$${order.pricing.subtotal.toFixed(2)}</span>
-        </div>
-        ${
-          order.pricing.discount && order.pricing.discount > 0
-            ? `<div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-          <span style="color:#A8A29E;font-size:14px;">Discount${order.pricing.discountCode ? ` (${order.pricing.discountCode})` : ""}</span>
-          <span style="color:#CA8A04;font-size:14px;">&minus;$${order.pricing.discount.toFixed(2)}</span>
-        </div>`
-            : ""
-        }
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-          <span style="color:#A8A29E;font-size:14px;">Shipping</span>
-          <span style="color:#FAFAF9;font-size:14px;">${order.pricing.shipping === 0 ? "Free" : "$" + order.pricing.shipping.toFixed(2)}</span>
-        </div>
-        ${
-          order.pricing.tax && order.pricing.tax > 0
-            ? `<div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-          <span style="color:#A8A29E;font-size:14px;">Tax</span>
-          <span style="color:#FAFAF9;font-size:14px;">$${order.pricing.tax.toFixed(2)}</span>
-        </div>`
-            : ""
-        }
-        <div style="display:flex;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">
-          <span style="color:#FAFAF9;font-size:16px;font-weight:700;">Total</span>
-          <span style="color:#CA8A04;font-size:16px;font-weight:700;">$${order.pricing.total.toFixed(2)}</span>
-        </div>
-      </div>
+      <table style="width:100%;border-collapse:collapse;margin-top:12px;">
+        ${totalRow("🦆 Free rubber duck", "FREE", { gold: true })}
+        ${totalRow("Subtotal", `$${p.subtotal.toFixed(2)}`)}
+        ${p.discount && p.discount > 0 ? totalRow(`Discount${p.discountCode ? ` (${esc(p.discountCode)})` : ""}`, `&minus;$${p.discount.toFixed(2)}`, { gold: true }) : ""}
+        ${totalRow("Shipping", p.shipping === 0 ? "Free" : `$${p.shipping.toFixed(2)}`)}
+        ${p.tax && p.tax > 0 ? totalRow("Sales tax", `$${p.tax.toFixed(2)}`) : ""}
+        ${totalRow("Total paid", `$${p.total.toFixed(2)}`, { strong: true })}
+      </table>
+      <p style="color:#78716C;font-size:12px;margin:16px 0 0;">Paid by card on ${issued}. Order ID ${order.orderId}</p>
     </div>
-    <div style="background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;">
+    <div style="${CARD}">
       <h3 style="color:#FAFAF9;font-size:16px;font-weight:700;margin:0 0 16px;">Shipping To</h3>
       ${shippingAddressBlock(order)}
     </div>
@@ -115,21 +195,44 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
 </body>
 </html>`;
 
+  const text: string[] = [
+    `Order confirmed. Thank you, ${c.firstName}!`,
+    "",
+    `INVOICE ${inv} (PAID)`,
+    `Issued: ${issued}`,
+    "",
+    `From: ${SELLER_LINES.join(", ")}`,
+    `Bill to: ${c.firstName} ${c.lastName}, ${c.email}`,
+    `Ship to: ${shipToName(order)}, ${c.address1}${c.address2 ? ", " + c.address2 : ""}, ${c.city}, ${c.state} ${c.zip}`,
+    "",
+  ];
+  for (const item of order.items) {
+    text.push(`${item.productName} x${item.quantity} @ $${item.price.toFixed(2)} = $${(item.price * item.quantity).toFixed(2)}`);
+    for (const l of itemDetailLines(item)) text.push(`  ${l}`);
+  }
+  text.push("", "Free rubber duck: FREE", `Subtotal: $${p.subtotal.toFixed(2)}`);
+  if (p.discount && p.discount > 0) text.push(`Discount${p.discountCode ? ` (${p.discountCode})` : ""}: -$${p.discount.toFixed(2)}`);
+  text.push(`Shipping: ${p.shipping === 0 ? "Free" : "$" + p.shipping.toFixed(2)}`);
+  if (p.tax && p.tax > 0) text.push(`Sales tax: $${p.tax.toFixed(2)}`);
+  text.push(`Total paid: $${p.total.toFixed(2)}`);
+  if (gift) {
+    text.push("", `GIFT ORDER: shipping to ${shipToName(order)}. No prices or receipt in the box.`);
+    if (gift.message) text.push(`Your note (printed on a card in the box): ${gift.message}`);
+  }
+  text.push("", `Order ID: ${order.orderId}`, "www.buckthatduck.com");
+
   await ses.send(
     new SendEmailCommand({
       Source: FROM_ADDRESS,
-      Destination: { ToAddresses: [order.customer.email] },
+      Destination: { ToAddresses: [c.email] },
       Message: {
         Subject: {
-          Data: `Order Confirmed - %uckThatDuck #${order.orderId.slice(0, 8).toUpperCase()}`,
+          Data: `Order Confirmed + Invoice ${inv} - %uckThatDuck`,
           Charset: "UTF-8",
         },
         Body: {
           Html: { Data: html, Charset: "UTF-8" },
-          Text: {
-            Data: `Order Confirmed\n\nThank you ${order.customer.firstName}!\n\nOrder ID: ${order.orderId}\nTotal: $${order.pricing.total.toFixed(2)}\n\nwww.buckthatduck.com`,
-            Charset: "UTF-8",
-          },
+          Text: { Data: text.join("\n"), Charset: "UTF-8" },
         },
       },
     })
@@ -176,8 +279,12 @@ export async function sendShipmentEmail(order: Order): Promise<void> {
     </div>
     <div style="background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;">
       <p style="color:#CA8A04;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin:0 0 12px;">Your order is on its way</p>
-      <h2 style="color:#FAFAF9;font-size:24px;font-weight:800;margin:0 0 16px;">It shipped, ${order.customer.firstName}! 🦆</h2>
-      <p style="color:#A8A29E;margin:0;line-height:1.6;">Your %uckThatDuck order shipped on ${shippedDate} and is headed your way.</p>
+      <h2 style="color:#FAFAF9;font-size:24px;font-weight:800;margin:0 0 16px;">It shipped, ${esc(order.customer.firstName)}! 🦆</h2>
+      <p style="color:#A8A29E;margin:0;line-height:1.6;">${
+        order.gift
+          ? `Your gift for ${esc(shipToName(order))} shipped on ${shippedDate}. No prices or receipt are in the box.`
+          : `Your %uckThatDuck order shipped on ${shippedDate} and is headed your way.`
+      }</p>
     </div>
     ${trackingCard}
     <div style="background:#1C1917;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;margin-bottom:24px;">
@@ -210,7 +317,9 @@ export async function sendShipmentEmail(order: Order): Promise<void> {
   const textLines = [
     "Your order shipped!",
     "",
-    `Hi ${order.customer.firstName}, your %uckThatDuck order is on its way.`,
+    order.gift
+      ? `Hi ${order.customer.firstName}, your gift for ${shipToName(order)} is on its way. No prices or receipt are in the box.`
+      : `Hi ${order.customer.firstName}, your %uckThatDuck order is on its way.`,
     "",
     `Order ID: ${order.orderId}`,
   ];

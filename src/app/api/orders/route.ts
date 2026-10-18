@@ -6,6 +6,7 @@ import { Order } from "@/types/order";
 import { sendOrderConfirmationEmail } from "@/lib/email";
 import { sendPurchaseEvent } from "@/lib/meta-capi";
 import { incrementRedemption } from "@/lib/discounts-db";
+import { sanitizeGift } from "@/lib/gift";
 
 // Admin only: the full order list carries every customer's name, email,
 // phone and address. (Previously public — /api isn't covered by proxy.ts.)
@@ -39,6 +40,11 @@ export async function POST(req: Request) {
 
     // History is admin-written only; never accept it from the client.
     delete order.history;
+
+    // Gift block: trim, cap the message, drop it if the recipient is missing.
+    const gift = sanitizeGift(order.gift);
+    if (gift) order.gift = gift;
+    else delete order.gift;
 
     await createOrder(order);
 
