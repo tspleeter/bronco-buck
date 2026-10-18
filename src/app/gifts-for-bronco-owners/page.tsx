@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ActionButton } from "@/components/ActionButton";
+import { SalePrice } from "@/components/SalePrice";
 import config from "@/data/bronco-config.json";
 import { FLAT_SHIPPING } from "@/lib/shipping-rules";
 import {
@@ -166,7 +167,7 @@ export default function GiftsPage() {
             </h1>
             <p style={{ fontSize: "clamp(1rem, 2vw, 1.15rem)", color: "var(--color-text-muted)", lineHeight: 1.65, maxWidth: 520 }}>
               Know someone who waves at every Bronco they pass? Give them a Bronco Buck: a 3D-printed horse
-              bust in their Bronco&apos;s color, with their name on the plate. From {PRICE}, with a free rubber
+              bust in their Bronco&apos;s color, with their name on the plate. <SalePrice price={config.basePrice} prefix="From " />, with a free rubber
               duck in every box.
             </p>
             <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>

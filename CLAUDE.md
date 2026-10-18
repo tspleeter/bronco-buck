@@ -306,7 +306,7 @@ Final cross-brand PETG picks per Bronco colorway, matched to the **render-plinth
 - **First Edition Sale: 20% off every Buck, Oct 14 – Nov 13 2026** (matches Etsy FIRSTEDITION20). Single source `src/lib/sale.ts` (`SALE`, `isSaleActive()`, `salePrice()`); set `SALE = null` or edit dates to change.
 - **Mechanism:** the sale price is baked into the **cart item price** at add-to-cart (builder `handleAddToCart`, `saved/[id]` add-to-cart), so checkout, tax calc, PaymentIntent, order record and emails need no changes. Saved/shared builds still store the **list** price. Discount codes stack on the sale-priced subtotal.
 - **Display:** `components/SalePrice.tsx` — `<SalePrice price={list}/>` (sale + struck list price) in `PriceSummary`, `BuildSummary`, gallery tiles, `/saved`; `<SaleBanner/>` gold strip above `SiteNav` in `layout.tsx`. `useSaleActive()` flips after mount, so static pages never hydrate-mismatch.
-- **SEO:** `productJsonLd()` Offer price = sale price + `priceValidUntil` (= `SALE.lastDay`) while active (builder route is dynamic, so it switches back on its own). Gifts page text keeps list price.
+- **SEO:** `productJsonLd()` Offer price = sale price + `priceValidUntil` (= `SALE.lastDay`) while active (builder route is dynamic, so it switches back on its own). Gifts page hero price uses `<SalePrice>` (Oct 18 2026: shows sale price with list struck through during a sale, reverts on its own); its meta description and FAQ text keep list price.
 - **Caveats:** carts filled before the sale keep full price; carts filled during the sale keep the sale price if checked out after Nov 13 (client-sent subtotal — existing trust model).
 
 ## SEO (Oct 13 2026)
