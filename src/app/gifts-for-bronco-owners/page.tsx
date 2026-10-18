@@ -129,7 +129,7 @@ export default function GiftsPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(jsonLd)} />
       <style>{`
         .gift-hero { display: grid; grid-template-columns: 1.1fr 0.9fr; }
-        .gift-hero-img { background: #F3F0EA; display: flex; align-items: center; justify-content: center; min-height: 320px; }
+        .gift-hero-img { background: #0C0A09; display: flex; align-items: stretch; justify-content: center; min-height: 320px; }
         .gift-reasons { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
         .gift-colors { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
         @media (max-width: 760px) { .gift-hero { grid-template-columns: 1fr; } }
@@ -181,11 +181,11 @@ export default function GiftsPage() {
           </div>
           <div className="gift-hero-img">
             <img
-              src="/assets/product/bronco-buck-classic.webp"
-              alt="Gray Bronco Buck figurine with a black mane biting a yellow rubber duck, on a %uckThatDuck nameplate stand"
-              width={1600}
-              height={2000}
-              style={{ width: "100%", height: "auto", maxHeight: 520, objectFit: "contain" }}
+              src="/assets/product/gifts-trio-v1.webp"
+              alt="Three Bronco Buck figurines in gray, black and light blue on %uckThatDuck nameplate stands, the black one biting a rubber duck, under the tagline Broncos don't duck, they buck."
+              width={1400}
+              height={1400}
+              style={{ width: "100%", height: "100%", minHeight: 320, objectFit: "cover", display: "block" }}
             />
           </div>
         </section>
