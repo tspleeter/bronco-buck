@@ -118,8 +118,8 @@ export default function HomePage() {
             {/* RIGHT / BOTTOM — hero image */}
             <div className="hero-image-wrap">
               <Image
-                src="/assets/hero-buck-duck-v7.webp"
-                alt="Bronco Buck biting a rubber duck atop a hill at a cartoon western ranch: Broncos don’t duck, they buck."
+                src="/assets/hero-buck-duck-v8.webp"
+                alt="Three Bronco Bucks in gray, black and light blue on a hill at a cartoon western ranch, the black one biting a rubber duck: Broncos don’t duck, they buck."
                 fill
                 style={{
                   objectFit: "contain",
