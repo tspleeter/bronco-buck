@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ActionButton } from "@/components/ActionButton";
+import { InstagramFeed } from "@/components/InstagramFeed";
 
 export default function HomePage() {
   return (
@@ -188,6 +189,9 @@ export default function HomePage() {
           </div>
 
         </section>
+
+        {/* Instagram posts (Oct 2026) — list lives in src/lib/instagram.ts */}
+        <InstagramFeed />
 
         {/* Ford non-affiliation disclaimer (Oct 2026 — same wording as the Etsy listing) */}
         <p

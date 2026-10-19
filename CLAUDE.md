@@ -23,6 +23,7 @@
 - `/policies/privacy` — Privacy Policy page (Pleeter LLC, 8 Nelke Ct, Hawthorne NJ 07506; Stripe carve-out for card data; AWS named as host; CCPA/GDPR/NJ + multi-state rights). Markdown source copy in `docs/privacy-policy.md`. Footer "Privacy" link added in `layout.tsx` ✅
 - Sitewide footer with Pleeter LLC copyright and "🇺🇸 Proudly made in the USA" ✅
 - Footer Instagram link (Oct 6 2026): gold IG glyph + "@buckthatduck" → instagram.com/buckthatduck (new tab), last item in the `layout.tsx` footer; tracked as Umami event `instagram_click` via `data-umami-event` (no JS needed, no-ops while Umami is inert) ✅
+- Home-page Instagram feed (Oct 19 2026): "On Instagram" section below the hero (`src/components/InstagramFeed.tsx`) renders posts from `src/lib/instagram.ts` `INSTAGRAM_POSTS` via Instagram's official `embed.js` (lazyOnload, no API token). Add a post = paste its permalink into that array. Each blockquote falls back to a "Watch on Instagram" link if the script is blocked. Follow link tracked as Umami `instagram_click` (location `home_feed`). ✅
 - Dark theme UI with gold accents (Andrew's redesign) ✅
 - `/orders` route is password-gated ✅
 - Multi-view builder (front/right/back/left) ✅
