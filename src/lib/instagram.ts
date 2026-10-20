@@ -9,6 +9,6 @@ export { INSTAGRAM_URL };
  * official embed.js — no API token needed.
  */
 export const INSTAGRAM_POSTS: string[] = [
-  "https://www.instagram.com/reel/DeiZMSDzuLQ/",
-  "https://www.instagram.com/reel/DeDnQpRzzFR/",
+  "https://www.instagram.com/reel/Desl8P6TE9q/", // print timelapse
+  "https://www.instagram.com/reel/DeiZMSDzuLQ/", // duck bite
 ];
