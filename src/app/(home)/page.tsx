@@ -114,6 +114,32 @@ export default function HomePage() {
                   </ActionButton>
                 </Link>
               </div>
+
+              {/* Gift CTA (Oct 20 2026) — IG bio links to the home page, so give gift shoppers a one-tap path */}
+              <Link
+                href="/gifts-for-bronco-owners"
+                id="hero-gifts"
+                data-umami-event="gifts_click"
+                data-umami-event-location="home_hero"
+                style={{
+                  alignSelf: "flex-start",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  padding: "12px 20px",
+                  borderRadius: "100px",
+                  border: "1px solid rgba(202,138,4,0.6)",
+                  background: "rgba(202,138,4,0.12)",
+                  color: "var(--color-gold-light)",
+                  fontWeight: 700,
+                  fontSize: "1rem",
+                  textDecoration: "none",
+                }}
+              >
+                <span aria-hidden="true">🎁</span>
+                Gifts for Bronco owners
+                <span aria-hidden="true">→</span>
+              </Link>
             </div>
 
             {/* RIGHT / BOTTOM — hero image */}
