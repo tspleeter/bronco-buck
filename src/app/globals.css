@@ -583,6 +583,37 @@ h1, h2, h3, h4, h5, h6 {
   .see-commercial-btn { gap: 0; padding: 8px; border-radius: 50%; }
 }
 
+/* Saved link (was inline-styled; moved here so phones can tighten it) */
+.nav-saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background var(--dur-base) var(--ease-out), border-color var(--dur-base);
+}
+
+/* Phones (Oct 19 2026): the nav was ~615px wide at 390px, making every page
+   side-scroll. Tighten padding/gaps and drop the "Saved" word (icon + count stay). */
+@media (max-width: 560px) {
+  .site-nav-inner { padding: 0 12px; gap: 6px; height: 60px; }
+  .site-nav-brand { font-size: 1rem; white-space: nowrap; }
+  .site-nav-links { gap: 0; }
+  .site-nav-links .nav-link { padding: 7px 6px; font-size: 0.8rem; }
+  .nav-saved { padding: 7px 6px; gap: 4px; font-size: 0.8rem; }
+  .nav-saved__label { display: none; }
+}
+@media (max-width: 385px) {
+  .site-nav-brand { font-size: 0.9rem; }
+  .site-nav-links .nav-link, .nav-saved { padding: 6px 4px; font-size: 0.76rem; }
+  .see-commercial-btn { padding: 6px; }
+}
+
 /* ─── Page Layout ───────────────────────────── */
 .page {
   min-height: calc(100vh - 68px);

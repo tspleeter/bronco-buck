@@ -4,11 +4,12 @@ import { ActionButton } from "@/components/ActionButton";
 import { SalePrice } from "@/components/SalePrice";
 import config from "@/data/bronco-config.json";
 import { FLAT_SHIPPING } from "@/lib/shipping-rules";
+import { SALE, isSaleActive, salePrice } from "@/lib/sale";
 import {
   SITE_URL,
   PRODUCT_PATH,
-  OG_IMAGE,
   ETSY_LISTING_URL,
+  ETSY_SHOP_URL,
   FORD_DISCLAIMER,
   PRODUCT_COLORS,
   productImage,
@@ -21,17 +22,37 @@ import {
 const PATH = "/gifts-for-bronco-owners";
 const PRICE = `$${config.basePrice.toFixed(2)}`;
 
-export const metadata: Metadata = {
+// Re-render hourly so sale wording appears/disappears on its own (no redeploy needed).
+export const revalidate = 3600;
+
+/** "$31.19" normally; "$24.95 ($31.19 list, 20% off through Nov 13)" during a sale. */
+function priceText(): string {
+  if (!SALE || !isSaleActive()) return PRICE;
+  return `$${salePrice(config.basePrice).toFixed(2)} during the ${SALE.name} (${SALE.percent}% off ${PRICE}, through ${SALE.endsLabel})`;
+}
+function fromPrice(): string {
+  return `$${salePrice(config.basePrice).toFixed(2)}`;
+}
+
+const GIFTS_OG_IMAGE = "/assets/product/og-gifts-trio.jpg";
+
+export function generateMetadata(): Metadata {
+  return {
   title: "Gifts for Bronco Owners — A Buck in Their Bronco's Color",
-  description: `Shopping for a Bronco owner? Match a Bronco Buck to their paint, put their name or their Bronco's nickname on the plate, and ship it with a gift note and no prices in the box. From ${PRICE}, ships in 3 to 5 business days.`,
+  description: `Shopping for a Bronco owner? Match a Bronco Buck to their paint, put their name or their Bronco's nickname on the plate, and ship it with a gift note and no prices in the box. From ${fromPrice()}, ships in 3 to 5 business days.`,
   alternates: { canonical: PATH },
   openGraph: {
     title: "Gifts for Bronco Owners — A Buck in Their Bronco's Color",
     description: "Match it to their paint, put their name on the plate, and we'll tuck in a gift note.",
     url: PATH,
-    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Bronco Buck figurine biting a rubber duck" }],
+    images: [{ url: GIFTS_OG_IMAGE, width: 1200, height: 630, alt: "Three Bronco Bucks in gray, black and light blue on a ranch: Broncos don't duck, they buck." }],
   },
-};
+    twitter: {
+      card: "summary_large_image",
+      images: [GIFTS_OG_IMAGE],
+  },
+  };
+}
 
 const REASONS = [
   {
@@ -60,14 +81,17 @@ const REASONS = [
   },
 ];
 
-const FAQS = [
+// Built per render (not at module load) so the sale-aware price stays current under ISR.
+type Faq = { q: string; a: string; link?: { href: string; label: string } };
+function getFaqs(): Faq[] {
+  return [
   {
     q: "What is a good gift for a Bronco owner?",
-    a: `Something that's clearly about their Bronco. The Bronco Buck is a horse bust you build to match theirs: their body color, a regular or long mane in black or white, and their name on the plate. It starts at ${PRICE} and comes with a free rubber duck.`,
+    a: `Something that's clearly about their Bronco. The Bronco Buck is a horse bust you build to match theirs: their body color, a regular or long mane in black or white, and their name on the plate. It's ${priceText()} and comes with a free rubber duck.`,
   },
   {
     q: "I don't know the exact color of their Bronco. What should I pick?",
-    a: "Snap a photo of their Bronco and compare it to the color swatches below. Still stuck? Shadow Black, Oxford White and Carbonized Gray are safe picks that look good next to any Bronco.",
+    a: "Snap a photo of their Bronco and compare it to the color tiles above. Still stuck? Shadow Black, Oxford White and Carbonized Gray are safe picks that look good next to any Bronco.",
   },
   {
     q: "Can you include a gift note and ship it to them?",
@@ -99,15 +123,18 @@ const FAQS = [
   },
   {
     q: "Can I buy it on Etsy?",
-    a: "Yes. The Bronco Buck Classic is also available in the BuckThatDuck Etsy shop.",
+    a: `Yes. The Bronco Buck Classic is also available in the BuckThatDuck Etsy shop: ${ETSY_SHOP_URL.replace("https://", "")}`,
+    link: { href: ETSY_SHOP_URL, label: ETSY_SHOP_URL.replace("https://", "") },
   },
-];
+  ];
+}
 
-const jsonLd = [
+function getJsonLd(faqs: Faq[]) {
+  return [
   {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: FAQS.map((f) => ({
+    mainEntity: faqs.map((f) => ({
       "@type": "Question",
       name: f.q,
       acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -121,9 +148,12 @@ const jsonLd = [
       { "@type": "ListItem", position: 2, name: "Gifts for Bronco Owners", item: `${SITE_URL}${PATH}` },
     ],
   },
-];
+  ];
+}
 
 export default function GiftsPage() {
+  const faqs = getFaqs();
+  const jsonLd = getJsonLd(faqs);
   return (
     <main className="page">
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(jsonLd)} />
@@ -240,10 +270,24 @@ export default function GiftsPage() {
         {/* ── FAQ ── */}
         <section className="surface" style={{ padding: "clamp(24px, 4vw, 36px)", display: "grid", gap: "20px" }}>
           <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "var(--color-gold)" }}>Gift FAQ</h2>
-          {FAQS.map((f) => (
+          {faqs.map((f) => (
             <div key={f.q} style={{ display: "grid", gap: "6px" }}>
               <h3 style={{ fontWeight: 700, fontSize: "1rem", color: "var(--color-text)" }}>{f.q}</h3>
-              <p style={{ color: "var(--color-text-muted)", lineHeight: 1.65 }}>{f.a}</p>
+              <p style={{ color: "var(--color-text-muted)", lineHeight: 1.65 }}>
+                {f.link ? f.a.slice(0, f.a.lastIndexOf(f.link.label)) : f.a}
+                {f.link && (
+                  <a
+                    href={f.link.href}
+                    target="_blank"
+                    rel="noopener"
+                    data-umami-event="etsy_click"
+                    data-umami-event-location="gifts_faq"
+                    style={{ color: "var(--color-gold)", fontWeight: 600 }}
+                  >
+                    {f.link.label}
+                  </a>
+                )}
+              </p>
             </div>
           ))}
         </section>

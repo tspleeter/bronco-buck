@@ -39,26 +39,11 @@ export default function SiteNav() {
             Cart
           </Link>
 
-          <Link
-            href="/saved"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "9px 16px",
-              borderRadius: "var(--radius-sm)",
-              border: "1px solid var(--color-border)",
-              background: "var(--color-surface-2)",
-              color: "var(--color-text)",
-              fontSize: "0.9rem",
-              fontWeight: 600,
-              transition: "background var(--dur-base) var(--ease-out), border-color var(--dur-base)",
-            }}
-          >
+          <Link href="/saved" className="nav-saved" aria-label={`Saved builds (${savedCount})`}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
             </svg>
-            <span>Saved</span>
+            <span className="nav-saved__label">Saved</span>
             <span className="badge">{savedCount}</span>
           </Link>
         </div>
