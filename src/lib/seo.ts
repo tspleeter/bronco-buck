@@ -17,7 +17,7 @@ export const ETSY_LISTING_URL = "https://www.etsy.com/listing/4592549568";
 export const FORD_DISCLAIMER =
   "Not affiliated with, sponsored, or endorsed by Ford Motor Company. Bronco® is a trademark of Ford Motor Company.";
 
-export const OG_IMAGE = "/assets/product/og-bronco-buck.jpg";
+export const OG_IMAGE = "/assets/product/og-gifts-trio.jpg";
 
 // Real product photo first, then the 11 front renders with the nameplate.
 export const PRODUCT_COLORS = [

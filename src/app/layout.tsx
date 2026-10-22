@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: "Bronco Gift for Owners — Limited, Numbered Bronco Buck",
     description: "Only 100 numbered first-edition Bucks. Pick their Bronco color, mane and nameplate. Made in the USA, free rubber duck.",
-    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Bronco Buck figurine biting a rubber duck" }],
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Three Bronco Bucks in gray, black and light blue on a ranch: Broncos don't duck, they buck." }],
   },
   twitter: { card: "summary_large_image", images: [OG_IMAGE] },
 };

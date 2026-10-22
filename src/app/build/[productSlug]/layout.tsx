@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     title: "Bronco Buck Classic — Limited, Numbered Bronco Gift",
     description: "Only 100 numbered first-edition Bucks. Pick their Bronco color, mane and nameplate. Made in the USA, free rubber duck.",
     url: PRODUCT_PATH,
-    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Bronco Buck figurine biting a rubber duck" }],
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Three Bronco Bucks in gray, black and light blue on a ranch: Broncos don't duck, they buck." }],
   },
 };
 
