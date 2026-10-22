@@ -18,6 +18,23 @@ export const FORD_DISCLAIMER =
   "Not affiliated with, sponsored, or endorsed by Ford Motor Company. Bronco® is a trademark of Ford Motor Company.";
 
 export const OG_IMAGE = "/assets/product/og-gifts-trio.jpg";
+export const OG_IMAGE_ALT = "Three Bronco Bucks in gray, black and light blue on a ranch: Broncos don't duck, they buck.";
+export const DEFAULT_OG_TITLE = "Bronco Gift for Owners — Limited, Numbered Bronco Buck";
+export const DEFAULT_OG_DESCRIPTION =
+  "Only 100 numbered first-edition Bucks. Pick their Bronco color, mane and nameplate. Made in the USA, free rubber duck.";
+
+// A child page's `openGraph` REPLACES the root one (Next merges metadata
+// shallowly), so every page that sets og:url must carry the full set.
+export function pageOpenGraph(url: string, title = DEFAULT_OG_TITLE, description = DEFAULT_OG_DESCRIPTION) {
+  return {
+    type: "website" as const,
+    siteName: SITE_NAME,
+    url,
+    title,
+    description,
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: OG_IMAGE_ALT }],
+  };
+}
 
 // Real product photo first, then the 11 front renders with the nameplate.
 export const PRODUCT_COLORS = [

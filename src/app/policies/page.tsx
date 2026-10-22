@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { pageOpenGraph } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Returns, Shipping & FAQ",
   description: "Return policy, shipping information, and frequently asked questions for BuckThatDuck custom horse figurines.",
   alternates: { canonical: "/policies" },
+  openGraph: pageOpenGraph("/policies", "Returns, Shipping & FAQ"),
 };
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (

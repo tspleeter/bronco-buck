@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { pageOpenGraph } from "@/lib/seo";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/policies/terms" },
+  openGraph: pageOpenGraph("/policies/terms", "Terms of Service"),
   title: "Terms of Service",
   description:
     "The terms and conditions governing your use of buckthatduck.com and purchases from Pleeter LLC.",

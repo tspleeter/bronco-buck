@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { pageOpenGraph } from "@/lib/seo";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/policies/privacy" },
+  openGraph: pageOpenGraph("/policies/privacy", "Privacy Policy"),
   title: "Privacy Policy",
   description:
     "How Pleeter LLC collects, uses, and shares information at buckthatduck.com.",
