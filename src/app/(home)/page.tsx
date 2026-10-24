@@ -4,6 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ActionButton } from "@/components/ActionButton";
 import { InstagramFeed } from "@/components/InstagramFeed";
+import { SalePrice } from "@/components/SalePrice";
+import config from "@/data/bronco-config.json";
 
 export default function HomePage() {
   return (
@@ -97,6 +99,16 @@ export default function HomePage() {
                 Customize every detail — body, mane, and plate.
                 Share your build with the world or add it to your cart.
                 Proudly made in the USA. 🇺🇸
+              </p>
+
+              {/* Price (Oct 24 2026) — from config, same source as checkout/feed; sale price shows automatically */}
+              <p id="hero-price" style={{ margin: 0, display: "grid", gap: "4px" }}>
+                <span style={{ fontSize: "clamp(1.5rem, 3vw, 1.9rem)", fontWeight: 800, color: "var(--color-text)" }}>
+                  <SalePrice price={config.basePrice} prefix="From " />
+                </span>
+                <span style={{ fontSize: "0.9rem", color: "var(--color-text-muted)" }}>
+                  Free shipping on 2+ · free rubber duck with every order
+                </span>
               </p>
 
               <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
