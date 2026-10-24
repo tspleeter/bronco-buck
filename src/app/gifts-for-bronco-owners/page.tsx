@@ -300,9 +300,6 @@ export default function GiftsPage() {
           <Link href={PRODUCT_PATH}>
             <ActionButton variant="primary" size="lg">Start building</ActionButton>
           </Link>
-          <p style={{ fontSize: "0.75rem", lineHeight: 1.5, color: "var(--color-text-dim)", maxWidth: 640 }}>
-            {FORD_DISCLAIMER}
-          </p>
         </section>
 
       </div>

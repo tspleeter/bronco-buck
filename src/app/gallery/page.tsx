@@ -86,7 +86,7 @@ export default function GalleryPage() {
                 marginBottom: "28px",
               }}
             >
-              All 11 Ford Bronco colors, rendered in full 3D. Click any Buck to
+              All 11 Bronco-inspired colors, rendered in full 3D. Click any Buck to
               start customizing yours.
             </p>
 

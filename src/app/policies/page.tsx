@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { pageOpenGraph } from "@/lib/seo";
+import Link from "next/link";
+import { pageOpenGraph, BUSINESS, BUSINESS_ADDRESS_LINE } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Returns, Shipping & FAQ",
@@ -65,7 +66,8 @@ export default function PoliciesPage() {
           </p>
           <p>
             Items must be returned in their original condition. Once we receive and inspect the return,
-            your refund will be processed to the original payment method within 5–10 business days.
+            we refund the full purchase price to your <strong style={{ color: "var(--color-text)" }}>original
+            payment method</strong> within 5–10 business days. We don't charge a restocking fee.
           </p>
           <p style={{ color: "var(--color-text-dim)", fontSize: "0.875rem" }}>
             Shipping costs for returns are the responsibility of the customer unless the item arrived
@@ -76,7 +78,7 @@ export default function PoliciesPage() {
         {/* Shipping */}
         <Section title="Shipping">
           <p>
-            We currently ship to the <strong style={{ color: "var(--color-text)" }}>United States and Canada</strong>.
+            We currently ship within the <strong style={{ color: "var(--color-text)" }}>United States</strong> only.
           </p>
 
           <div style={{ display: "grid", gap: "10px" }}>
@@ -91,26 +93,16 @@ export default function PoliciesPage() {
             <p style={{ fontWeight: 700, color: "var(--color-text)" }}>Processing & Production Time</p>
             <p>
               Every BuckThatDuck is made to order — your figurine is 3D-printed and finished after you
-              place your order. Production time varies depending on the complexity of your configuration
-              and current order volume. We'll send you a confirmation email when your order ships,
-              including tracking information.
+              place your order. Orders ship within <strong style={{ color: "var(--color-text)" }}>3–5 business
+              days</strong>. We'll send you an email when your order ships, including tracking information.
             </p>
           </div>
 
           <div style={{ display: "grid", gap: "10px" }}>
             <p style={{ fontWeight: 700, color: "var(--color-text)" }}>Shipping Carriers</p>
             <p>
-              Orders are shipped via USPS or UPS depending on your location and package size. Delivery
-              estimates begin once your order has shipped — not from the date of purchase.
-            </p>
-          </div>
-
-          <div style={{ display: "grid", gap: "10px" }}>
-            <p style={{ fontWeight: 700, color: "var(--color-text)" }}>Canada</p>
-            <p>
-              Canadian orders may be subject to customs duties and import taxes upon delivery. These
-              fees are set by the Canadian government and are the responsibility of the recipient.
-              BuckThatDuck has no control over these charges.
+              Orders ship via USPS Ground Advantage (occasionally UPS) and typically arrive 2–5 business
+              days after they ship.
             </p>
           </div>
 
@@ -127,11 +119,11 @@ export default function PoliciesPage() {
         <Section title="Frequently Asked Questions">
           <Q
             q="What is a BuckThatDuck?"
-            a="BuckThatDuck figurines are custom 3D-printed horse figurines inspired by Ford Bronco colors and culture. You configure every detail — body color, mane style, mane color, and more — and we print and ship it to you."
+            a="BuckThatDuck figurines are custom 3D-printed horse figurines in Bronco-inspired colors. You configure every detail — body color, mane style, mane color, and nameplate — and we print and ship it to you. We're an independent maker, not affiliated with Ford Motor Company."
           />
           <Q
             q="How long will my order take?"
-            a="Because every figurine is made to order, production time varies. We'll keep you updated via email and notify you with tracking info as soon as your order ships."
+            a="Every figurine is made to order and ships within 3–5 business days, then typically arrives 2–5 business days later. We email you tracking info as soon as it ships."
           />
           <Q
             q="Can I make changes to my order after placing it?"
@@ -154,7 +146,7 @@ export default function PoliciesPage() {
             a={<>We're sorry to hear that. Email us at <a href="mailto:orders@buckthatduck.com" style={{ color: "var(--color-gold)", textDecoration: "underline" }}>orders@buckthatduck.com</a> with your order number and a photo of the damage and we'll make it right — no need to ship anything back.</>}
           />
           <Q
-            q="Do you ship outside the US and Canada?"
+            q="Do you ship outside the US?"
             a="Not at this time. We hope to expand to more countries in the future — check back soon."
           />
         </Section>
@@ -162,10 +154,10 @@ export default function PoliciesPage() {
         {/* Contact */}
         <p style={{ color: "var(--color-text-dim)", fontSize: "0.875rem", textAlign: "center" }}>
           Still have questions?{" "}
-          <a href="mailto:orders@buckthatduck.com" style={{ color: "var(--color-gold)", textDecoration: "underline" }}>
-            orders@buckthatduck.com
-          </a>
-          {" "}· Last updated June 2026
+          <Link href="/contact" style={{ color: "var(--color-gold)", textDecoration: "underline" }}>
+            Contact us
+          </Link>
+          {" "}· {BUSINESS.legalName}, {BUSINESS_ADDRESS_LINE} · Last updated October 2026
         </p>
 
       </div>

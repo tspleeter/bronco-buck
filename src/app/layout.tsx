@@ -8,7 +8,7 @@ import UmamiAnalytics from "@/components/UmamiAnalytics";
 import { SaleBanner } from "@/components/SalePrice";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { SITE_URL, SITE_NAME, OG_IMAGE, jsonLdHtml, siteJsonLd } from "@/lib/seo";
+import { SITE_URL, SITE_NAME, OG_IMAGE, FORD_DISCLAIMER, jsonLdHtml, siteJsonLd } from "@/lib/seo";
 
 // No canonical/og:url here — they would inherit to every child page. Children set their own.
 // Description keeps the hero's "Customize every detail — body, mane, and plate." (keep in sync with page.tsx).
@@ -56,14 +56,20 @@ export default function RootLayout({
           <footer style={{
             borderTop: "1px solid var(--color-border)",
             padding: "24px",
-            display: "flex",
-            justifyContent: "center",
-            gap: "24px",
-            flexWrap: "wrap",
+            display: "grid",
+            gap: "14px",
+            justifyItems: "center",
             fontSize: "0.8rem",
             color: "var(--color-text-dim)",
           }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: "24px", flexWrap: "wrap" }}>
             <span>© {new Date().getFullYear()} Pleeter LLC</span>
+            <Link href="/about" style={{ color: "var(--color-text-dim)", textDecoration: "none" }}>
+              About
+            </Link>
+            <Link href="/contact" style={{ color: "var(--color-text-dim)", textDecoration: "none" }}>
+              Contact
+            </Link>
             <Link href="/gifts-for-bronco-owners" style={{ color: "var(--color-text-dim)", textDecoration: "none" }}>
               Gifts for Bronco Owners
             </Link>
@@ -94,6 +100,11 @@ export default function RootLayout({
               </svg>
               @buckthatduck
             </a>
+          </div>
+            {/* Ford non-affiliation disclaimer — sitewide (same wording as Etsy + Merchant Center feed) */}
+            <p style={{ textAlign: "center", fontSize: "0.75rem", lineHeight: 1.5, maxWidth: 640, margin: 0 }}>
+              {FORD_DISCLAIMER}
+            </p>
           </footer>
         </SavedBuildsProvider>
       </body>

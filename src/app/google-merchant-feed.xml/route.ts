@@ -4,7 +4,7 @@
 // One item per body color, grouped as variants of BB001. Price, sale price and
 // shipping derive from the same sources as checkout, so the feed never drifts.
 import config from "@/data/bronco-config.json";
-import { SITE_URL, PRODUCT_PATH, PRODUCT_COLORS, PRODUCT_DESCRIPTION, SITE_NAME, productImage } from "@/lib/seo";
+import { SITE_URL, PRODUCT_PATH, PRODUCT_COLORS, PRODUCT_DESCRIPTION, SITE_NAME, FORD_DISCLAIMER, productImage } from "@/lib/seo";
 import { FLAT_SHIPPING } from "@/lib/shipping-rules";
 import { SALE, isSaleActive, salePrice } from "@/lib/sale";
 
@@ -23,8 +23,9 @@ export function GET() {
     const fields: [string, string][] = [
       ["g:id", `${config.productId}-${c.id}`],
       ["g:item_group_id", config.productId],
-      ["g:title", `${config.name} Horse Bust Figurine – ${c.name}, Custom Nameplate`],
-      ["g:description", PRODUCT_DESCRIPTION],
+      // "Bronco-inspired" so the listing never reads as official Ford merchandise.
+      ["g:title", `${config.name} Horse Bust Figurine – ${c.name} (Bronco-Inspired Color), Custom Nameplate`],
+      ["g:description", `${PRODUCT_DESCRIPTION} ${FORD_DISCLAIMER}`],
       ["g:link", `${SITE_URL}${PRODUCT_PATH}?color=${c.id}`],
       ["g:image_link", `${SITE_URL}${productImage(c.slug)}`],
       ["g:availability", "in_stock"],

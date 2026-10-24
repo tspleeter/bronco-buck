@@ -70,7 +70,7 @@ export default function HomePage() {
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <div className="gold-line" />
                 <span className="label" style={{ color: "var(--color-gold)", letterSpacing: "0.14em" }}>
-                  Ford Bronco Colors
+                  Bronco-Inspired Colors
                 </span>
               </div>
 
@@ -219,20 +219,6 @@ export default function HomePage() {
         {/* Instagram posts (Oct 2026) — list lives in src/lib/instagram.ts */}
         <InstagramFeed />
 
-        {/* Ford non-affiliation disclaimer (Oct 2026 — same wording as the Etsy listing) */}
-        <p
-          style={{
-            textAlign: "center",
-            fontSize: "0.75rem",
-            lineHeight: 1.5,
-            color: "var(--color-text-dim)",
-            margin: "16px auto 0",
-            maxWidth: "640px",
-            padding: "0 16px",
-          }}
-        >
-          Not affiliated with, sponsored, or endorsed by Ford Motor Company. Bronco® is a trademark of Ford Motor Company.
-        </p>
 
       </div>
     </main>

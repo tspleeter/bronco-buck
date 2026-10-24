@@ -14,6 +14,19 @@ export const INSTAGRAM_URL = "https://www.instagram.com/buckthatduck/";
 export const ETSY_SHOP_URL = "https://buckthatduck.etsy.com";
 export const ETSY_LISTING_URL = "https://www.etsy.com/listing/4592549568";
 
+// Business identity — must match Merchant Center → Business info exactly.
+// Same address as the privacy policy and the emailed invoice.
+export const BUSINESS = {
+  legalName: "Pleeter LLC",
+  street: "8 Nelke Ct",
+  city: "Hawthorne",
+  region: "NJ",
+  postalCode: "07506",
+  country: "US",
+  email: "orders@buckthatduck.com",
+} as const;
+export const BUSINESS_ADDRESS_LINE = `${BUSINESS.street}, ${BUSINESS.city}, ${BUSINESS.region} ${BUSINESS.postalCode}`;
+
 export const FORD_DISCLAIMER =
   "Not affiliated with, sponsored, or endorsed by Ford Motor Company. Bronco® is a trademark of Ford Motor Company.";
 
@@ -108,16 +121,24 @@ export function siteJsonLd() {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: SITE_NAME,
-      legalName: "Pleeter LLC",
+      legalName: BUSINESS.legalName,
       url: SITE_URL,
       logo: abs("/assets/product/bronco-buck-classic.jpg"),
-      email: "orders@buckthatduck.com",
+      email: BUSINESS.email,
       address: {
         "@type": "PostalAddress",
-        addressLocality: "Hawthorne",
-        addressRegion: "NJ",
-        postalCode: "07506",
-        addressCountry: "US",
+        streetAddress: BUSINESS.street,
+        addressLocality: BUSINESS.city,
+        addressRegion: BUSINESS.region,
+        postalCode: BUSINESS.postalCode,
+        addressCountry: BUSINESS.country,
+      },
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "customer service",
+        email: BUSINESS.email,
+        url: abs("/contact"),
+        areaServed: "US",
       },
       sameAs: [INSTAGRAM_URL, ETSY_SHOP_URL],
     },
