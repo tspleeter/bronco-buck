@@ -2,7 +2,6 @@ import "./globals.css";
 import type { ReactNode } from "react";
 import SavedBuildsProvider from "@/components/SavedBuildsProvider";
 import SiteNav from "@/components/SiteNav";
-import CommercialIntro from "@/components/CommercialIntro";
 import MetaPixel from "@/components/MetaPixel";
 import UmamiAnalytics from "@/components/UmamiAnalytics";
 import { SaleBanner } from "@/components/SalePrice";
@@ -48,7 +47,6 @@ export default function RootLayout({
       <body>
         <MetaPixel />
         <UmamiAnalytics />
-        <CommercialIntro />
         <SavedBuildsProvider>
           <SaleBanner />
           <SiteNav />
