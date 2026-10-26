@@ -4,7 +4,7 @@
 Run from the repo root:  python3 marketing/commercial-v2/make.py [dash_photo.jpg]
 
 Timeline (1920x1080, 23.976 fps, original commercial audio bed):
-  0.00- 5.20  hook: the duck hand-off from the original commercial      caption: "Getting ducked again?"
+  0.00- 5.20  hook: the duck hand-off from the original commercial      captions: "Duck?" (hand-off) then "%uckThatDuck" (grandma's line)
   5.20- 8.20  REAL Buck on a real dash (Todd's photo), slow push-in     caption: "Meet the Bronco Buck."
   8.20-11.20  11 color renders, quick cuts, with nameplate             caption: "Your Bronco's color. Your name on the plate."
  11.20-13.70  real three-Buck photo, slow push-in                      caption: "3D-printed in New Jersey · Free rubber duck"
@@ -86,9 +86,11 @@ def main():
     seg = lambda i: os.path.join(WORK, f"seg{i}.mp4")
 
     # 1 — hook from the original commercial
-    caption_png(f"{WORK}/cap1.png", [("Getting ", WHITE), ("ducked", GOLD), (" again?", WHITE)])
-    run("-i", SRC, "-i", f"{WORK}/cap1.png", "-t", "5.2", "-filter_complex",
-        "[0:v][1:v]overlay=0:0:enable='gte(t,1.7)',format=yuv420p", "-an",
+    caption_png(f"{WORK}/cap1a.png", [("Duck?", WHITE)], size=110)
+    caption_png(f"{WORK}/cap1b.png", [("%uck", WHITE), ("ThatDuck", GOLD)], size=110)
+    run("-i", SRC, "-i", f"{WORK}/cap1a.png", "-i", f"{WORK}/cap1b.png", "-t", "5.2", "-filter_complex",
+        "[0:v][1:v]overlay=0:0:enable='between(t,1.75,3.25)'[a];"
+        "[a][2:v]overlay=0:0:enable='gte(t,3.25)',format=yuv420p", "-an",
         "-c:v", "libx264", "-crf", "18", "-preset", "veryfast", seg(1))
 
     # 2 — the real Buck on a real dash
