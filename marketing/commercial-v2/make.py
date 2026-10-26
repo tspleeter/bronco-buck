@@ -89,8 +89,8 @@ def main():
     caption_png(f"{WORK}/cap1a.png", [("Duck?", WHITE)], size=110)
     caption_png(f"{WORK}/cap1b.png", [("%uck", WHITE), ("ThatDuck", GOLD)], size=110)
     run("-i", SRC, "-i", f"{WORK}/cap1a.png", "-i", f"{WORK}/cap1b.png", "-t", "5.2", "-filter_complex",
-        "[0:v][1:v]overlay=0:0:enable='between(t,1.75,3.25)'[a];"
-        "[a][2:v]overlay=0:0:enable='gte(t,3.25)',format=yuv420p", "-an",
+        "[0:v][1:v]overlay=0:0:enable='between(t,1.75,4.25)'[a];"
+        "[a][2:v]overlay=0:0:enable='gte(t,4.25)',format=yuv420p", "-an",
         "-c:v", "libx264", "-crf", "18", "-preset", "veryfast", seg(1))
 
     # 2 — the real Buck on a real dash
