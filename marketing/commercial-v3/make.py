@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bronco Buck commercial v3: "It's time to BUCK." A rally cry to Bronco owners.
+"""Bronco Buck commercial v3: "Broncos don't duck, they buck." A rally cry to Bronco owners.
 
 Run from the repo root:  python3 marketing/commercial-v3/make.py
 Output: marketing/commercial-v3/buck-commercial-v3.mp4 (1920x1080, 30 fps, ~30 s)
@@ -8,7 +8,7 @@ Story
   1  Bronco owners. We have a problem.             (title)
   2  It started with one duck... now everywhere.   (duck footage from the original spot, its own audio)
   3  The ducks are multiplying.                    (duck footage tiles 1 -> 4 -> 16 -> 64, squeaks)
-  4  Enough.  It's time to BUCK.                   (slam)
+  4  Enough.  Broncos don't duck, they BUCK.    (slam)
   5  Every Buck is 3D-printed, layer by layer.     (print-reveal animation  | SLOT footage/print.mp4)
   6  Your color. Your mane. Your name.             (11 colors, 4 manes, nameplate typing)
   7  This isn't CGI. These are real Bucks.         (real photos            | SLOT footage/real.mp4)
@@ -177,14 +177,14 @@ def s4_slam(n=84):
             text_parts(d, [("Enough.", WHITE)], 440, 150, shadow=False)
             yield im; continue
         j = i - 30
-        text_parts(d, [("It's time to", WHITE)], 250, 110, shadow=False)
+        text_parts(d, [("Broncos don't duck,", WHITE)], 230, 120, shadow=False)
         if j >= 14:
             k = j - 14
-            sz = int(330 * (1 + 0.35 * max(0, 1 - k / 4)))         # punches in
+            sz = int(260 * (1 + 0.35 * max(0, 1 - k / 4)))         # punches in
             dx = int(random.uniform(-1, 1) * 18 * max(0, 1 - k / 10))
             dy = int(random.uniform(-1, 1) * 18 * max(0, 1 - k / 10))
-            f = font(sz); tw = d.textlength("BUCK.", font=f)
-            d.text(((W - tw) / 2 + dx, 420 - (sz - 330) * 0.6 + dy), "BUCK.", font=f, fill=GOLD)
+            f = font(sz); tw = d.textlength("they BUCK.", font=f)
+            d.text(((W - tw) / 2 + dx, 440 - (sz - 260) * 0.6 + dy), "they BUCK.", font=f, fill=GOLD)
         yield im
 
 def s5_print(n=135):
@@ -363,7 +363,7 @@ def build_audio(starts, total):
     while t < s["slam"] - .05:
         mix(a, tom(95 + 6 * k, .25 + .5 * (t - s["onslaught"]) / (s["slam"] - s["onslaught"])), t)
         t += max(.06, .22 - .015 * k); k += 1
-    # 4 "Enough." = hit then silence, "BUCK." = boom
+    # 4 "Enough." = hit then silence, "they BUCK." = boom
     mix(a, kick(1.0), s["slam"]); mix(a, snare(.6), s["slam"])
     mix(a, boom(), s["slam"] + 44 / FPS)
     # 5-7 march groove, 100 bpm
