@@ -211,7 +211,7 @@ def label(im, text):
     return im
 
 # the man's "Duck!" in the original spot (shot starts ~1.55 s)
-MAN_IN, DUCK_START, DUCK_END = 1.55, 1.975, 2.32
+MAN_IN, DUCK_START, DUCK_END = 1.72, 1.975, 2.32   # man shot starts 1.71 s (before that is the Bronco)
 GRANDMA_LINE = (3.35, 4.32)        # her "%uck that duck" (audio only; she is never shown)
 DUCK_N, ONSLAUGHT_FRAMES = 100, 120
 def duck_onsets():
