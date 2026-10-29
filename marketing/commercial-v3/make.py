@@ -7,8 +7,8 @@ Output: marketing/commercial-v3/buck-commercial-v3.mp4 (1920x1080, 30 fps, ~30 s
 Story
   1  Bronco owners. We have a problem.             (title)
   2  It started with one duck... now everywhere.   (duck footage from the original spot, its own audio)
-  3  The ducks are multiplying.                    (duck footage tiles 1 -> 4 -> 16 -> 64, squeaks)
-  4  Enough.  Broncos don't duck, they BUCK.    (slam)
+  3  The ducks are multiplying.                    (the man's "du" x100, his face multiplies to 100 tiles)
+  4  Broncos don't duck, they BUCK.             (hard cut + slam)
   5  Every Buck is 3D-printed, layer by layer.     (print-reveal animation  | SLOT footage/print.mp4)
   6  Your color. Your mane. Your name.             (11 colors, 4 manes, nameplate typing)
   7  This isn't CGI. These are real Bucks.         (real photos            | SLOT footage/real.mp4)
@@ -152,34 +152,41 @@ def s2_ducks(n=108):   # original spot 1.6s -> 5.2s (hand-off, grandma, shocked 
         parts = [c for s, c in caps if i >= s][-1]
         yield caption(fr, parts)
 
-def s3_onslaught(n=66):
-    srcs = [next(read_video(SRC, t, 0.05)) for t in (2.2, 3.7, 4.6, 2.9, 4.9)]
-    tiles = {}
-    levels = [1, 2, 4, 8, 16]
+# "du" from the man's "Duck!" in the original spot (voiced part, before the "ck")
+DU_START, DU_END = 1.975, 2.185
+DU_N, ONSLAUGHT_FRAMES = 100, 100
+def du_onsets():
+    """100 onsets (s, relative to the onslaught scene) that start slow and accelerate."""
+    span = (ONSLAUGHT_FRAMES - 8) / FPS
+    return [span * (k / (DU_N - 1)) ** 0.55 for k in range(DU_N)]
+
+def s3_onslaught(n=ONSLAUGHT_FRAMES):
+    mouth = list(read_video(SRC, DU_START, DU_END - DU_START + 0.05))   # the man saying "du"
+    onsets = du_onsets()
+    rnd = random.Random(5); order = {}
+    cache = {}
+    def tile(g, idx):
+        if (g, idx) not in cache: cache[(g, idx)] = mouth[idx].resize((W // g, H // g), Image.BILINEAR)
+        return cache[(g, idx)]
     for i in range(n):
-        k = levels[min(i // 13, len(levels) - 1)]
-        if k not in tiles:
-            tw, th = W // k, H // k
-            small = [s.resize((tw, th), Image.BILINEAR) for s in srcs]
-            g = Image.new("RGB", (W, H))
-            rnd = random.Random(k)
-            for r in range(k):
-                for c in range(k):
-                    g.paste(small[rnd.randrange(len(small))], (c * tw, r * th))
-            tiles[k] = g
-        im = zoom(tiles[k], 1 + 0.04 * ((i % 13) / 13))
+        t = i / FPS
+        k = sum(1 for o in onsets if o <= t)               # dus heard so far = faces on screen
+        g = max(1, math.ceil(math.sqrt(k)))
+        if g not in order:
+            cells = list(range(g * g)); rnd.shuffle(cells); order[g] = cells
+        im = Image.new("RGB", (W, H), (0, 0, 0))
+        for j in range(k):
+            age = int((t - onsets[j]) * FPS)
+            cell = order[g][j] if g > 1 else 0
+            im.paste(tile(g, min(age, len(mouth) - 1)), ((cell % g) * (W // g), (cell // g) * (H // g)))
         yield caption(im, [("The ducks are ", WHITE), ("multiplying.", GOLD)])
 
-def s4_slam(n=84):
+def s4_slam(n=60):
     for i in range(n):
         im = Image.new("RGB", (W, H), BG); d = ImageDraw.Draw(im)
-        if i < 30:
-            text_parts(d, [("Enough.", WHITE)], 440, 150, shadow=False)
-            yield im; continue
-        j = i - 30
         text_parts(d, [("Broncos don't duck,", WHITE)], 230, 120, shadow=False)
-        if j >= 14:
-            k = j - 14
+        if i >= 14:
+            k = i - 14
             sz = int(260 * (1 + 0.35 * max(0, 1 - k / 4)))         # punches in
             dx = int(random.uniform(-1, 1) * 18 * max(0, 1 - k / 10))
             dy = int(random.uniform(-1, 1) * 18 * max(0, 1 - k / 10))
@@ -353,19 +360,27 @@ def build_audio(starts, total):
                     "-ac", "1", "-ar", str(SR), f"{WORK}/orig.wav"], check=True)
     o = read_wav(f"{WORK}/orig.wav"); o[-int(.25 * SR):] *= np.linspace(1, 0, int(.25 * SR))
     mix(a, o * 1.0, s["ducks"])
-    # 3 onslaught: squeaks doubling + tom roll crescendo
+    # 3 onslaught: the man's "du", 100 times, accelerating into a crowd
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", str(DU_START), "-t", str(DU_END - DU_START), "-i", SRC,
+                    "-ac", "1", "-ar", str(SR), f"{WORK}/du.wav"], check=True)
+    du = read_wav(f"{WORK}/du.wav"); f = int(.012 * SR)
+    du[:f] *= np.linspace(0, 1, f); du[-f:] *= np.linspace(1, 0, f)
     rnd = random.Random(3)
-    for lvl in range(5):
-        t0 = s["onslaught"] + lvl * 13 / FPS
-        for q in range(2 ** lvl):
-            mix(a, squeak(.18, rnd.uniform(1100, 2200)), t0 + rnd.uniform(0, 12 / FPS))
-    k = 0; t = s["onslaught"]
+    for k, o in enumerate(du_onsets()):
+        g = 1.0 if k < 12 else .55 if k < 40 else .38
+        if k >= 12:                                     # slight pitch spread so the crowd isn't one voice
+            r = 2 ** (rnd.uniform(-1.5, 1.5) / 12)
+            v = np.interp(np.arange(0, len(du) - 1, r), np.arange(len(du)), du)
+        else:
+            v = du
+        mix(a, g * v, s["onslaught"] + o)
+    k = 0; t = s["onslaught"] + 1.2
     while t < s["slam"] - .05:
-        mix(a, tom(95 + 6 * k, .25 + .5 * (t - s["onslaught"]) / (s["slam"] - s["onslaught"])), t)
-        t += max(.06, .22 - .015 * k); k += 1
-    # 4 "Enough." = hit then silence, "they BUCK." = boom
+        mix(a, tom(95 + 6 * k, .15 + .45 * (t - s["onslaught"]) / (s["slam"] - s["onslaught"])), t)
+        t += max(.06, .2 - .015 * k); k += 1
+    # 4 hard cut: "Broncos don't duck," = hit, "they BUCK." = boom
     mix(a, kick(1.0), s["slam"]); mix(a, snare(.6), s["slam"])
-    mix(a, boom(), s["slam"] + 44 / FPS)
+    mix(a, boom(), s["slam"] + 14 / FPS)
     # 5-7 march groove, 100 bpm
     beat = 60 / 100
     t = s["print"]; b = 0
