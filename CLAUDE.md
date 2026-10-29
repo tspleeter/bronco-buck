@@ -190,6 +190,10 @@ Each tile shows a different mane so the grid reads as an assortment, not one rep
 - Player modal is `CommercialModal.tsx` (shared); opened on demand by the `SeeCommercialButton` nav CTA. Served from `/assets/` (Next public root)
 - **First-visit auto-open turned OFF (Oct 26 2026):** `<CommercialIntro />` removed from `layout.tsx` (component file kept). Umami Oct 5–26: 160 auto-opens, 7 completions (4%), 1 unmute, only 15 closes (8 at 0s) — ~145 first-time visitors (73% mobile) hit a full-screen muted video and left without seeing the product. Video now plays only from the nav "See commercial" button. To restore, re-add the import + `<CommercialIntro />` at the top of `<body>`.
 
+### Raw marketing footage — `marketing/footage/`
+- **`print-timelapse-2026-10-19.mp4`** (parked Oct 29 2026) — Todd's Bambu P1S timelapse of a blue Buck printing (the "making of" posted as IG reel `Desl8P6TE9q`). 16.25s, 1280×720, 24 fps, H.264, **no audio**. Starts with the support tree on the plate, ends with the head finished (nozzle visible top-center). Use it for any "how it's made" shot. To put it in commercial v3, copy it to `marketing/commercial-v3/footage/print.mp4` and re-run that script (the slot uses the first 4.5s; trim/speed it first if the end should show).
+- Real Buck photos (14, stair rail, Oct 29 2026) live in `marketing/commercial-v3/photos/01-14.jpg`.
+
 ### Body renders — `public/assets/body/`
 - Naming: `body_{color}_{view}_regmane_{mane_color}.png`
 - Views in UI: `front`, `back`, `left`, `right` (`side` files exist but not used)
