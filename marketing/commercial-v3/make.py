@@ -505,15 +505,19 @@ def build_audio(starts, total):
         if b % 16 == 15: [mix(a, tom(130 - 12 * q, .45), t + q * beat / 4) for q in range(4)]
         t += beat; b += 1
     # 8 end card: final hit, then Grandma's "%uck that duck" from the original spot (3.35-4.32 s)
-    mix(a, boom(.8), s["end"]); mix(a, kick(1.0), s["end"])
+    mix(a, boom(.45), s["end"]); mix(a, kick(.8), s["end"])
+    # her voice is quiet under the window noise in the original: clean it up and make it the loudest thing here
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", str(GRANDMA_LINE[0]), "-t", str(GRANDMA_LINE[1] - GRANDMA_LINE[0]),
-                    "-i", SRC, "-ac", "1", "-ar", str(SR), f"{WORK}/grandma.wav"], check=True)
-    g = read_wav(f"{WORK}/grandma.wav"); g = g / max(1e-6, np.abs(g).max()) * .95
+                    "-i", SRC, "-ac", "1", "-ar", str(SR), "-af",
+                    "highpass=f=170,lowpass=f=7000,equalizer=f=2500:t=q:w=1.2:g=6,"
+                    "acompressor=threshold=-30dB:ratio=6:attack=3:release=60:makeup=8,alimiter=limit=0.95",
+                    f"{WORK}/grandma.wav"], check=True)
+    g = read_wav(f"{WORK}/grandma.wav"); g = g / max(1e-6, np.abs(g).max())
     f = int(.015 * SR); g[:f] *= np.linspace(0, 1, f); g[-f:] *= np.linspace(1, 0, f)
-    at = s["end"] + .55
-    i0, i1 = int(at * SR), int(at * SR) + len(g)          # duck the boom tail under her voice
-    a[i0:i1] *= .35
-    mix(a, g, at)
+    at = s["end"] + .45
+    i0, i1 = int(at * SR), int(at * SR) + len(g)
+    a[i0:] *= .12                                           # everything else drops away under her line
+    mix(a, g * 1.6, at)
     a = a[: int(total * SR)]
     a[-int(.6 * SR):] *= np.linspace(1, 0, int(.6 * SR))
     a = np.tanh(a * 1.1) / np.tanh(1.1); a *= .89 / max(1e-6, np.abs(a).max())
