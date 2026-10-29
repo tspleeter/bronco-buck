@@ -13,7 +13,7 @@ Story
   5  Every Buck is printed layer by layer.          (print-reveal animation  | SLOT footage/print.mp4)
   6  Your color. Your mane. Your name.              (Todd's real photos; custom name typed onto a real plate)
   7  This isn't CGI. These are real Bucks.          (real photos + mosaic    | SLOT footage/real.mp4)
-  8  Join the resistance. End card.
+  8  Join the resistance. End card, with Grandma's "%uck that duck" (her audio only) over it.
 
 Photos: marketing/commercial-v3/photos/01-14.jpg (real Bucks on the stair rail, Oct 29 2026), cut out by\ncutout.py into photos_cut/ (same height, exposure/white balance matched off the teeth) and shown on one studio set.
 The grandma and shocked-guy shots are deliberately NOT used in this spot.
@@ -212,6 +212,7 @@ def label(im, text):
 
 # the man's "Duck!" in the original spot (shot starts ~1.55 s)
 MAN_IN, DUCK_START, DUCK_END = 1.55, 1.975, 2.32
+GRANDMA_LINE = (3.35, 4.32)        # her "%uck that duck" (audio only; she is never shown)
 DUCK_N, ONSLAUGHT_FRAMES = 100, 120
 def duck_onsets():
     """100 onsets (s, relative to the onslaught scene): clear "Duck." at first, then faster and faster."""
@@ -454,8 +455,16 @@ def build_audio(starts, total):
         if b % 2 == 1: mix(a, snare(.12), t + beat / 2)
         if b % 16 == 15: [mix(a, tom(130 - 12 * q, .45), t + q * beat / 4) for q in range(4)]
         t += beat; b += 1
-    # 8 end card: final boom, then let it ring
-    mix(a, boom(1.1), s["end"]); mix(a, kick(1.0), s["end"])
+    # 8 end card: final hit, then Grandma's "%uck that duck" from the original spot (3.35-4.32 s)
+    mix(a, boom(.8), s["end"]); mix(a, kick(1.0), s["end"])
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", str(GRANDMA_LINE[0]), "-t", str(GRANDMA_LINE[1] - GRANDMA_LINE[0]),
+                    "-i", SRC, "-ac", "1", "-ar", str(SR), f"{WORK}/grandma.wav"], check=True)
+    g = read_wav(f"{WORK}/grandma.wav"); g = g / max(1e-6, np.abs(g).max()) * .95
+    f = int(.015 * SR); g[:f] *= np.linspace(0, 1, f); g[-f:] *= np.linspace(1, 0, f)
+    at = s["end"] + .55
+    i0, i1 = int(at * SR), int(at * SR) + len(g)          # duck the boom tail under her voice
+    a[i0:i1] *= .35
+    mix(a, g, at)
     a = a[: int(total * SR)]
     a[-int(.6 * SR):] *= np.linspace(1, 0, int(.6 * SR))
     a = np.tanh(a * 1.1) / np.tanh(1.1); a *= .89 / max(1e-6, np.abs(a).max())
