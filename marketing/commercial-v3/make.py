@@ -7,7 +7,7 @@ Output: marketing/commercial-v3/buck-commercial-v3.mp4 (1920x1080, 30 fps, ~30 s
 Story
   1  Bronco owners. We have a problem.             (title)
   2  It started with one duck... now everywhere.   (duck footage from the original spot, its own audio)
-  3  The ducks are multiplying.                    (the man's "du" x100, his face multiplies to 100 tiles)
+  3  The ducks are multiplying.                    (the man's "Duck!" repeated 100x, speeding into a stutter)
   4  Broncos don't duck, they BUCK.             (hard cut + slam)
   5  Every Buck is 3D-printed, layer by layer.     (print-reveal animation  | SLOT footage/print.mp4)
   6  Your color. Your mane. Your name.             (11 colors, 4 manes, nameplate typing)
@@ -152,34 +152,21 @@ def s2_ducks(n=108):   # original spot 1.6s -> 5.2s (hand-off, grandma, shocked 
         parts = [c for s, c in caps if i >= s][-1]
         yield caption(fr, parts)
 
-# "du" from the man's "Duck!" in the original spot (voiced part, before the "ck")
-DU_START, DU_END = 1.975, 2.185
-DU_N, ONSLAUGHT_FRAMES = 100, 100
-def du_onsets():
-    """100 onsets (s, relative to the onslaught scene) that start slow and accelerate."""
-    span = (ONSLAUGHT_FRAMES - 8) / FPS
-    return [span * (k / (DU_N - 1)) ** 0.55 for k in range(DU_N)]
+# the man's whole "Duck!" from the original spot
+DUCK_START, DUCK_END = 1.975, 2.32
+DUCK_N, ONSLAUGHT_FRAMES = 100, 100
+def duck_onsets():
+    """100 onsets (s, relative to the onslaught scene): starts as clear "Duck. Duck." and speeds into a stutter."""
+    span = (ONSLAUGHT_FRAMES - 6) / FPS
+    return [span * (k / (DUCK_N - 1)) ** 0.45 for k in range(DUCK_N)]
 
 def s3_onslaught(n=ONSLAUGHT_FRAMES):
-    mouth = list(read_video(SRC, DU_START, DU_END - DU_START + 0.05))   # the man saying "du"
-    onsets = du_onsets()
-    rnd = random.Random(5); order = {}
-    cache = {}
-    def tile(g, idx):
-        if (g, idx) not in cache: cache[(g, idx)] = mouth[idx].resize((W // g, H // g), Image.BILINEAR)
-        return cache[(g, idx)]
+    clip = list(read_video(SRC, DUCK_START, DUCK_END - DUCK_START + 0.05))   # the man saying "Duck!"
+    onsets = duck_onsets()
     for i in range(n):
         t = i / FPS
-        k = sum(1 for o in onsets if o <= t)               # dus heard so far = faces on screen
-        g = max(1, math.ceil(math.sqrt(k)))
-        if g not in order:
-            cells = list(range(g * g)); rnd.shuffle(cells); order[g] = cells
-        im = Image.new("RGB", (W, H), (0, 0, 0))
-        for j in range(k):
-            age = int((t - onsets[j]) * FPS)
-            cell = order[g][j] if g > 1 else 0
-            im.paste(tile(g, min(age, len(mouth) - 1)), ((cell % g) * (W // g), (cell // g) * (H // g)))
-        yield caption(im, [("The ducks are ", WHITE), ("multiplying.", GOLD)])
+        last = max([o for o in onsets if o <= t], default=0)
+        yield caption(clip[min(int((t - last) * FPS), len(clip) - 1)], [("The ducks are ", WHITE), ("multiplying.", GOLD)])
 
 def s4_slam(n=60):
     for i in range(n):
@@ -360,20 +347,16 @@ def build_audio(starts, total):
                     "-ac", "1", "-ar", str(SR), f"{WORK}/orig.wav"], check=True)
     o = read_wav(f"{WORK}/orig.wav"); o[-int(.25 * SR):] *= np.linspace(1, 0, int(.25 * SR))
     mix(a, o * 1.0, s["ducks"])
-    # 3 onslaught: the man's "du", 100 times, accelerating into a crowd
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", str(DU_START), "-t", str(DU_END - DU_START), "-i", SRC,
-                    "-ac", "1", "-ar", str(SR), f"{WORK}/du.wav"], check=True)
-    du = read_wav(f"{WORK}/du.wav"); f = int(.012 * SR)
-    du[:f] *= np.linspace(0, 1, f); du[-f:] *= np.linspace(1, 0, f)
-    rnd = random.Random(3)
-    for k, o in enumerate(du_onsets()):
-        g = 1.0 if k < 12 else .55 if k < 40 else .38
-        if k >= 12:                                     # slight pitch spread so the crowd isn't one voice
-            r = 2 ** (rnd.uniform(-1.5, 1.5) / 12)
-            v = np.interp(np.arange(0, len(du) - 1, r), np.arange(len(du)), du)
-        else:
-            v = du
-        mix(a, g * v, s["onslaught"] + o)
+    # 3 onslaught: the man's "Duck!" repeated 100 times, each repeat cutting off the last
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", str(DUCK_START), "-t", str(DUCK_END - DUCK_START), "-i", SRC,
+                    "-ac", "1", "-ar", str(SR), f"{WORK}/duck.wav"], check=True)
+    duck = read_wav(f"{WORK}/duck.wav"); f = int(.004 * SR)
+    ons = duck_onsets() + [None]
+    for o, nxt in zip(ons, ons[1:]):
+        v = duck[: int((nxt - o) * SR)] if nxt else duck.copy()
+        v = v.copy(); m = min(f, len(v) // 2)
+        v[:m] *= np.linspace(0, 1, m); v[-m:] *= np.linspace(1, 0, m)
+        mix(a, v * 1.1, s["onslaught"] + o)
     k = 0; t = s["onslaught"] + 1.2
     while t < s["slam"] - .05:
         mix(a, tom(95 + 6 * k, .15 + .45 * (t - s["onslaught"]) / (s["slam"] - s["onslaught"])), t)
