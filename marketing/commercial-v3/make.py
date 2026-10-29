@@ -15,7 +15,7 @@ Story
   7  This isn't CGI. These are real Bucks.          (real photos + mosaic    | SLOT footage/real.mp4)
   8  Join the resistance. End card.
 
-Photos: marketing/commercial-v3/photos/01-14.jpg (real Bucks on the stair rail, Oct 29 2026).
+Photos: marketing/commercial-v3/photos/01-14.jpg (real Bucks on the stair rail, Oct 29 2026), cut out by\ncutout.py into photos_cut/ (same height, exposure/white balance matched off the teeth) and shown on one studio set.
 The grandma and shocked-guy shots are deliberately NOT used in this spot.
 
 FOOTAGE SLOTS: drop real clips into marketing/commercial-v3/footage/ and re-run.
@@ -162,6 +162,48 @@ def photo(i, z=1.45):
     t = min(max(cy * im.height - wh * .42, 0), im.height - wh)
     return im.resize((W, H), Image.LANCZOS, box=(l, t, l + ww, t + wh))
 
+# ---------- studio set: every real Buck cut out (cutout.py -> photos_cut/), same height, same light ----------
+CUT = os.path.join(HERE, "photos_cut")
+BUCK_H, FLOOR_Y = 700, 790
+_stage = None
+def stage_bg():
+    """Dark brand backdrop with a soft spotlight behind the Buck and a hint of floor."""
+    global _stage
+    if _stage is None:
+        yy, xx = np.mgrid[0:H, 0:W].astype(float)
+        img = np.zeros((H, W, 3)) + np.array(BG, float)
+        glow = np.clip(1 - np.sqrt(((xx - W / 2) / (W * .42)) ** 2 + ((yy - H * .42) / (H * .62)) ** 2), 0, 1) ** 1.6
+        img += glow[..., None] * np.array([58, 51, 42])
+        floor = np.clip((yy - FLOOR_Y + 20) / 50, 0, 1) * np.exp(-((xx - W / 2) / (W * .30)) ** 2) * .55
+        img += floor[..., None] * np.array([22, 19, 16])
+        _stage = Image.fromarray(np.clip(img, 0, 255).astype("uint8"))
+    return _stage
+
+_cut = {}
+def cutout(i, h):
+    if (i, h) not in _cut:
+        b = Image.open(f"{CUT}/{i:02d}.png")
+        _cut[(i, h)] = b.resize((round(b.width * h / b.height), h), Image.LANCZOS)
+    return _cut[(i, h)]
+
+def studio(i, h=BUCK_H, cx=W // 2, floor=FLOOR_Y):
+    im = stage_bg().copy(); b = cutout(i, h)
+    sh = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(sh).ellipse([cx - b.width * .58, floor - 16, cx + b.width * .58, floor + 20], fill=190)
+    im.paste((0, 0, 0), (0, 0), sh.filter(ImageFilter.GaussianBlur(16)))
+    im.paste(b, (cx - b.width // 2, floor - h), b)
+    return im
+
+def plate_box(i, h=BUCK_H, cx=W // 2, floor=FLOOR_Y):
+    """Nameplate rectangle of cutout i, in studio-frame pixels."""
+    a = np.array(Image.open(f"{CUT}/{i:02d}.png").convert("RGBA")).astype(int)
+    lum = a[..., :3].mean(2); hh = a.shape[0]
+    dark = (lum < 50) & (a[..., 3] > 200); dark[: int(hh * .62)] = False
+    rows = np.where(dark.sum(1) > dark.shape[1] * .35)[0]
+    cols = np.where(dark[rows.min(): rows.max() + 1].sum(0) > (rows.max() - rows.min()) * .6)[0]
+    k = h / hh; x0 = cx - round(a.shape[1] * k) // 2; y0 = floor - h
+    return (x0 + cols.min() * k, y0 + rows.min() * k, x0 + cols.max() * k, y0 + rows.max() * k)
+
 def label(im, text):
     im = im.copy(); d = ImageDraw.Draw(im); f = font(44)
     x = W - 70 - d.textlength(text, font=f)
@@ -250,16 +292,13 @@ def s5_print(n=135):
     else:
         for i in range(n): yield caption(graphic(i), cap[0], sub=cap[1])
 
-# nameplate on photos/10.jpg (straight-on shot) after scaling to 1920x1080
-PLATE10 = (884, 628, 1176, 727)
-
-def plate_photo(base, text, full):
+def plate_photo(base, text, full, box):
     im = base.copy(); d = ImageDraw.Draw(im)
-    x0, y0, x1, y1 = PLATE10
-    d.rounded_rectangle([x0 + 4, y0 + 4, x1 - 4, y1 - 4], radius=6, fill=(28, 24, 24))
+    x0, y0, x1, y1 = [int(v) for v in box]
+    d.rounded_rectangle([x0 + 2, y0 + 2, x1 - 2, y1 - 2], radius=4, fill=(24, 21, 21))
     if text:
         pw, ph = x1 - x0, y1 - y0
-        size = min(int(ph * .52), int(100 * pw * .82 / d.textlength(full, font=font(100))))
+        size = min(int(ph * .40), int(100 * pw * .78 / d.textlength(full, font=font(100))))
         f = font(size); l, t, r, b = d.textbbox((0, 0), full, font=f)
         tx = x0 + (pw - (r - l)) / 2 - l; ty = y0 + (ph - (b - t)) / 2 - t
         layer = Image.new("RGBA", im.size, (0, 0, 0, 0))
@@ -270,27 +309,28 @@ def plate_photo(base, text, full):
 
 def s6_custom():
     sub = "11 Bronco-inspired colors"
-    imgs = [photo(i) for i in (1, 2, 3, 4, 10)]
+    imgs = [studio(i) for i in (1, 2, 3, 4, 10)]
     for i in range(70):
         yield caption(imgs[min(i // 14, 4)], [("Your Bronco's ", WHITE), ("color.", GOLD)], sub=sub)
     manes = [(8, "Regular · Black"), (4, "Long · Black"), (6, "Regular · White"), (5, "Long · White")]
-    imgs = [label(photo(i), lab) for i, lab in manes]
+    imgs = [label(studio(i), lab) for i, lab in manes]
     for i in range(60):
         yield caption(imgs[i // 15], [("Your ", WHITE), ("mane.", GOLD)])
-    base = photo(10); seq = []
+    base = studio(10); box = plate_box(10); seq = []
     for nm in NAMES:
         seq += [(nm[:k], nm) for k in range(1, len(nm) + 1) for _ in range(2)] + [(nm, nm)] * (12 if nm != NAMES[-1] else 30)
     seq = (seq + [(NAMES[-1], NAMES[-1])] * 84)[:84]
     cache = {}
     for key in seq:
-        if key not in cache: cache[key] = label(zoom(plate_photo(base, *key), 1.35, cx=.535, cy=.45), "Custom nameplate")
+        if key not in cache:
+            cache[key] = label(zoom(plate_photo(base, *key, box), 1.3, cx=.5, cy=(box[1] + box[3]) / 2 / H - .16), "Custom nameplate")
         yield caption(cache[key], [("Your ", WHITE), ("name on the plate.", GOLD)])
 
 def mosaic():
     ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14]
     g = Image.new("RGB", (W, H)); tw, th = W // 4, H // 3
     for n, i in enumerate(ids):
-        g.paste(cover(photo(i), tw, th), ((n % 4) * tw, (n // 4) * th))
+        g.paste(studio(i, h=860, floor=960).resize((tw, th), Image.LANCZOS), ((n % 4) * tw, (n // 4) * th))
     return g
 
 def s7_real(n=150):
@@ -299,11 +339,11 @@ def s7_real(n=150):
     real = slot("real.mp4", n, None)
     if real:
         yield from real(lambda i, f: caption(f, cap, size=76, sub=sub)); return
-    shots = [photo(i) for i in (7, 9, 11, 13)] + [cover(Image.open(DASH).convert("RGB"))]
+    shots = [studio(i) for i in (7, 9, 11, 13, 6)]
     per = 22
     for i in range(per * len(shots)):
         k = i // per
-        yield caption(zoom(shots[k], 1 + 0.05 * ((i % per) / per), cy=.42), cap, size=76, sub=sub)
+        yield caption(zoom(shots[k], 1 + 0.05 * ((i % per) / per), cy=.45), cap, size=76, sub=sub)
     m = mosaic()
     for i in range(n - per * len(shots)):
         yield caption(m, cap, size=76, sub=sub)
