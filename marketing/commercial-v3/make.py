@@ -13,7 +13,7 @@ Story
   5  Every Buck is printed layer by layer.          (print-reveal animation  | SLOT footage/print.mp4)
   6  Your color. Your mane. Your name.              (Todd's real photos; custom name typed onto a real plate)
   7  This isn't CGI. These are real Bucks.          (real photos + mosaic    | SLOT footage/real.mp4)
-  8  Join the resistance. End card, with Grandma's "%uck that duck" (her audio only) over it.
+  8  End card (big %uckThatDuck wordmark), with Grandma's "%uck that duck" (her audio only) over it.
 
 Photos: marketing/commercial-v3/photos/01-14.jpg (real Bucks on the stair rail, Oct 29 2026), cut out by\ncutout.py into photos_cut/ (same height, exposure/white balance matched off the teeth) and shown on one studio set.
 The grandma and shocked-guy shots are deliberately NOT used in this spot.
@@ -351,8 +351,7 @@ def s7_real(n=150):
 
 def s8_end(n=120):
     im = Image.new("RGB", (W, H), BG); d = ImageDraw.Draw(im)
-    text_parts(d, [("Join the resistance.", WHITE)], 70, 72, shadow=False)
-    text_parts(d, [("%uck", WHITE), ("ThatDuck", GOLD)], 175, 150, shadow=False)
+    text_parts(d, [("%uck", WHITE), ("ThatDuck", GOLD)], 70, 220, shadow=False)
     text_parts(d, [("Bronco Buck Classic  ·  First 100 numbered with a certificate", (225, 220, 208))], 375, 48, shadow=False)
     fp, fl = font(150), font(70)
     if SALE:
