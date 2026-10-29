@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Bronco Buck commercial v3: "Broncos don't duck, they buck." A rally cry to Bronco owners.
 
-Run from the repo root:  python3 marketing/commercial-v3/make.py
-Output: marketing/commercial-v3/buck-commercial-v3.mp4 (1920x1080, 30 fps, ~30 s)
+Run from the repo root:
+  python3 marketing/commercial-v3/make.py                    -> buck-commercial-v3.mp4            (31 s, 16:9)
+  VARIANT=15  python3 marketing/commercial-v3/make.py        -> buck-commercial-v3-15s.mp4        (15 s, 16:9: FB in-stream/Reels ads)
+  VARIANT=15v python3 marketing/commercial-v3/make.py        -> buck-commercial-v3-15s-9x16.mp4   (15 s, 9:16: Reels/Stories)
+  VARIANT=15 ETSY=1 python3 marketing/commercial-v3/make.py  -> buck-commercial-v3-15s-etsy.mp4   (silent, Etsy URL)
 
 Story
   1  Bronco owners. We have a duck problem.         (title)
@@ -37,7 +40,13 @@ FOOT = os.path.join(HERE, "footage")
 SRC = os.path.join(ROOT, "public/assets/buck-commercial.mp4")   # original spot (duck footage)
 DASH = os.path.join(ROOT, "marketing/commercial-v2/dash.jpg")
 FONT = os.path.join(ROOT, "scripts/hero/Outfit800.ttf")
-W, H, FPS, SR = 1920, 1080, 30, 48000
+# VARIANT=full (31 s, 16:9) | 15 (15 s, 16:9) | 15v (15 s, 9:16 Reels/Stories);  ETSY=1 -> silent, Etsy URL
+VARIANT = os.environ.get("VARIANT", "full")
+ETSY = os.environ.get("ETSY") == "1"
+VERT = VARIANT.endswith("v")
+W, H = (1080, 1920) if VERT else (1920, 1080)
+FPS, SR = 30, 48000
+SAFE = 330 if VERT else 0          # lift captions above the Reels/Stories UI
 BG = (12, 10, 9); BAMBU = (84, 85, 90)
 GOLD = (235, 178, 9); WHITE = (255, 255, 255); DIM = (150, 145, 135)
 SALE = True
@@ -50,6 +59,13 @@ COLORS = [("ruby_red", "Ruby Red", "white"), ("velocity_blue", "Velocity Blue", 
           ("robins_egg_blue", "Robin's Egg Blue", "black"), ("cactus_gray", "Cactus Gray", "black"),
           ("carbonized_gray", "Carbonized Gray", "white")]
 NAMES = ["BUCK", "BIG RED", "DUCK HUNTER"]   # custom plate is capped at 12 chars on the site
+# frame counts per scene (30 fps)
+T = dict(title=75, title2=35, onslaught=120, pause=36, slam=80, duck_at=20, buck_at=38, print=135,
+         color_each=14, mane_each=15, names=NAMES, name_frames=84, real=150, real_shots=True, end=120)
+if VARIANT.startswith("15"):       # 445 frames = 14.8 s
+    T.update(title=40, title2=14, onslaught=66, pause=21, slam=54, duck_at=14, buck_at=28, print=60,
+             color_each=5, mane_each=6, names=["DUCK HUNTER"], name_frames=36, real=36, real_shots=False, end=75)
+MAN_CX = .42 if VERT else .5       # keep the man + duck in frame on the vertical crop
 
 _fonts = {}
 def font(n):
@@ -60,9 +76,11 @@ def body(color, view="front", style="regmane", mane="black"):
     return Image.open(f"{ROOT}/public/assets/body/body_{color}_{view}_{style}_{mane}.png").convert("RGB")
 
 # ---------- drawing helpers ----------
-def text_parts(d, parts, y, size, cx=W / 2, shadow=True):
-    f = font(size)
-    x = cx - sum(d.textlength(t, font=f) for t, _ in parts) / 2
+def text_parts(d, parts, y, size, cx=W / 2, shadow=True, maxw=W * .92):
+    f = font(size); tot = sum(d.textlength(t, font=f) for t, _ in parts)
+    if tot > maxw:                                   # shrink to fit (vertical frames)
+        f = font(int(size * maxw / tot)); tot = sum(d.textlength(t, font=f) for t, _ in parts)
+    x = cx - tot / 2
     for t, c in parts:
         if shadow: d.text((x + 3, y + 4), t, font=f, fill=(0, 0, 0))
         d.text((x, y), t, font=f, fill=c)
@@ -73,12 +91,12 @@ def caption(img, parts, size=84, sub=None):
     """Bottom gradient band + one-line caption (+ optional subline). Returns RGB."""
     global _band
     if _band is None:
-        a = np.linspace(0, 1, 360) ** 1.4 * 215
+        a = np.linspace(0, 1, 360 + SAFE) ** 1.4 * 215
         _band = Image.fromarray(np.repeat(a[:, None], W, 1).astype("uint8"), "L")
     img = img.copy()
-    img.paste((0, 0, 0), (0, H - 360), _band)
+    img.paste((0, 0, 0), (0, H - 360 - SAFE), _band)
     d = ImageDraw.Draw(img)
-    y = H - (200 if sub else 150)
+    y = H - SAFE - (200 if sub else 150)
     text_parts(d, parts, y, size)
     if sub: text_parts(d, [(sub, (232, 226, 214))], y + size + 16, 46)
     return img
@@ -108,10 +126,12 @@ def zoom(img, z, cx=0.5, cy=0.5):
 def ease(x): return 0.5 - 0.5 * math.cos(math.pi * min(max(x, 0), 1))
 
 # ---------- video I/O ----------
-def read_video(path, start, dur, blur_fill=False):
-    """Yield PIL frames (W x H, FPS) from a clip segment."""
-    vf = (f"fps={FPS},scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H}" if not blur_fill else
-          f"fps={FPS},split[a][b];[a]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},boxblur=30,"
+def read_video(path, start, dur, blur_fill=False, cx=.5, speed=1.0):
+    """Yield PIL frames (W x H, FPS) from a clip segment (speed>1 = faster)."""
+    pre = f"setpts=PTS/{speed}," if speed != 1.0 else ""
+    vf = (f"{pre}fps={FPS},scale={W}:{H}:force_original_aspect_ratio=increase,"
+          f"crop={W}:{H}:'max(0,min(iw-{W},iw*{cx}-{W}/2))':(ih-{H})/2" if not blur_fill else
+          f"{pre}fps={FPS},split[a][b];[a]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},boxblur=30,"
           f"eq=brightness=-0.15[bg];[b]scale={W}:{H}:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2")
     p = subprocess.Popen(["ffmpeg", "-v", "error", "-ss", str(start), "-t", str(dur), "-i", path,
                           "-filter_complex" if blur_fill else "-vf", vf, "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
@@ -124,27 +144,33 @@ def read_video(path, start, dur, blur_fill=False):
         yield Image.frombytes("RGB", (W, H), buf)
     p.wait()
 
-def slot(name, nframes, fallback):
-    path = os.path.join(FOOT, name)
+def slot(name, nframes, fallback, path=None):
+    """Footage slot: the WHOLE clip is sped to fit 88% of the scene, then holds its last frame."""
+    path = path or os.path.join(FOOT, name)
     if not os.path.exists(path):
         return fallback
-    print("  using footage", name)
+    print("  using footage", os.path.relpath(path, ROOT))
+    dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path],
+                               capture_output=True, text=True).stdout)
+    speed = dur / (nframes * .88 / FPS)
     def gen(i_frame_of):
-        frames = list(read_video(path, 0, nframes / FPS + 0.2, blur_fill=True))[:nframes]
-        while len(frames) < nframes: frames.append(frames[-1])
-        for i, f in enumerate(frames): yield i_frame_of(i, f)
+        last = None; i = 0
+        for f in read_video(path, 0, dur, blur_fill=not VERT, speed=speed):   # vertical: fill the frame
+            if i >= nframes: break
+            last = f; yield i_frame_of(i, f); i += 1
+        while i < nframes: yield i_frame_of(i, last); i += 1
     return gen
 
 # ---------- scenes (each yields exactly n frames) ----------
-def s1_title(n=75):
+def s1_title(n=T["title"]):
     for i in range(n):
         im = Image.new("RGB", (W, H), BG); d = ImageDraw.Draw(im)
         a = ease(i / 12)
-        text_parts(d, [("Bronco owners.", tuple(int(c * a) for c in WHITE))], 380, 140, shadow=False)
-        if i >= 35:
-            b = ease((i - 35) / 10)
+        text_parts(d, [("Bronco owners.", tuple(int(c * a) for c in WHITE))], int(H * .352), 140, shadow=False)
+        if i >= T["title2"]:
+            b = ease((i - T["title2"]) / 10)
             text_parts(d, [("We have a ", tuple(int(c * b) for c in WHITE)), ("duck", tuple(int(c * b) for c in GOLD)),
-                           (" problem.", tuple(int(c * b) for c in WHITE))], 570, 84, shadow=False)
+                           (" problem.", tuple(int(c * b) for c in WHITE))], int(H * .528), 84, shadow=False)
         yield im
 
 PHOTOS = os.path.join(HERE, "photos")
@@ -164,7 +190,7 @@ def photo(i, z=1.45):
 
 # ---------- studio set: every real Buck cut out (cutout.py -> photos_cut/), same height, same light ----------
 CUT = os.path.join(HERE, "photos_cut")
-BUCK_H, FLOOR_Y = 700, 790
+BUCK_H, FLOOR_Y = (920, 1180) if VERT else (700, 790)
 _stage = None
 def stage_bg():
     """Dark brand backdrop with a soft spotlight behind the Buck and a hint of floor."""
@@ -213,7 +239,7 @@ def label(im, text):
 # the man's "Duck!" in the original spot (shot starts ~1.55 s)
 MAN_IN, DUCK_START, DUCK_END = 1.72, 1.975, 2.32   # man shot starts 1.71 s (before that is the Bronco)
 GRANDMA_LINE = (3.35, 4.32)        # her "%uck that duck" (audio only; she is never shown)
-DUCK_N, ONSLAUGHT_FRAMES = 100, 120
+DUCK_N, ONSLAUGHT_FRAMES = 100, T["onslaught"]
 def duck_onsets():
     """100 onsets (s, relative to the onslaught scene): clear "Duck." at first, then faster and faster."""
     span = (ONSLAUGHT_FRAMES - 4) / FPS
@@ -223,12 +249,12 @@ def duck_rate(k): return 2 ** ((k / (DUCK_N - 1)) * 14 / 12)    # pitch/speed cl
 ONE_DUCK = [("It started with ", WHITE), ("one duck.", GOLD)]
 
 def s2_man(n=round((DUCK_START - MAN_IN) * FPS)):
-    for i, fr in enumerate(read_video(SRC, MAN_IN, n / FPS + 0.1)):
+    for i, fr in enumerate(read_video(SRC, MAN_IN, n / FPS + 0.1, cx=MAN_CX)):
         if i >= n: break
         yield caption(fr, ONE_DUCK)
 
 def s3_onslaught(n=ONSLAUGHT_FRAMES):
-    clip = list(read_video(SRC, DUCK_START, DUCK_END - DUCK_START + 0.05))
+    clip = list(read_video(SRC, DUCK_START, DUCK_END - DUCK_START + 0.05, cx=MAN_CX))
     onsets = duck_onsets(); rnd = random.Random(9); punch = {}
     for i in range(n):
         t = i / FPS
@@ -242,28 +268,32 @@ def s3_onslaught(n=ONSLAUGHT_FRAMES):
                [("And another. ", WHITE), ("And another.", GOLD)] if k < 35 else [("MAKE. IT. ", WHITE), ("STOP.", GOLD)])
         yield caption(fr, cap, size=84 if k < 35 else 110)
 
-def s_pause(n=36):
+def s_pause(n=T["pause"]):
     black = Image.new("RGB", (W, H), (0, 0, 0))
     for _ in range(n): yield black
 
-def s4_slam(n=80):
-    f1 = font(120)
+def s4_slam(n=T["slam"]):
+    probe = ImageDraw.Draw(Image.new("RGB", (8, 8)))
+    f1 = font(min(120, int(120 * W * .92 / probe.textlength("Broncos don't duck,", font=font(120)))))
+    base = min(260, int(260 * W * .9 / probe.textlength("they BUCK.", font=font(260))))
+    y1, y2 = (int(H * .38), int(H * .45)) if VERT else (230, 440)
     for i in range(n):
         im = Image.new("RGB", (W, H), BG); d = ImageDraw.Draw(im)
         a, b = "Broncos don't ", "duck,"
         x = (W - d.textlength(a + b, font=f1)) / 2
-        d.text((x, 230), a, font=f1, fill=WHITE)
-        if i >= 20: d.text((x + d.textlength(a, font=f1), 230), b, font=f1, fill=WHITE)
-        if i >= 38:
-            k = i - 38
-            sz = int(260 * (1 + 0.35 * max(0, 1 - k / 4)))
+        d.text((x, y1), a, font=f1, fill=WHITE)
+        if i >= T["duck_at"]: d.text((x + d.textlength(a, font=f1), y1), b, font=f1, fill=WHITE)
+        if i >= T["buck_at"]:
+            k = i - T["buck_at"]
+            sz = int(base * (1 + 0.35 * max(0, 1 - k / 4)))
             dx = int(random.uniform(-1, 1) * 18 * max(0, 1 - k / 10))
             dy = int(random.uniform(-1, 1) * 18 * max(0, 1 - k / 10))
             f = font(sz); tw = d.textlength("they BUCK.", font=f)
-            d.text(((W - tw) / 2 + dx, 440 - (sz - 260) * 0.6 + dy), "they BUCK.", font=f, fill=GOLD)
+            d.text(((W - tw) / 2 + dx, y2 - (sz - base) * 0.6 + dy), "they BUCK.", font=f, fill=GOLD)
         yield im
 
-def s5_print(n=135):
+PRINT_SRC = os.path.join(ROOT, "marketing/footage/print-timelapse-2026-10-19.mp4")
+def s5_print(n=T["print"]):
     r = body("velocity_blue")
     rh = 980; r = r.resize((round(r.width * rh / r.height), rh), Image.LANCZOS)
     x0, y0 = (W - r.width) // 2, 50
@@ -287,7 +317,7 @@ def s5_print(n=135):
         d.text((60, 50), "Printed in PETG on a Bambu Lab P1S", font=font(34), fill=(230, 230, 232))
         return im
     cap = ([("Every Buck is printed ", WHITE), ("layer by layer.", GOLD)], "Made to order in Hawthorne, New Jersey.")
-    real = slot("print.mp4", n, None)
+    real = slot("print.mp4", n, None, path=PRINT_SRC if os.path.exists(PRINT_SRC) else None)
     if real:
         yield from real(lambda i, f: caption(f, cap[0], sub=cap[1]))
     else:
@@ -311,16 +341,17 @@ def plate_photo(base, text, full, box):
 def s6_custom():
     sub = "11 Bronco-inspired colors"
     imgs = [studio(i) for i in (1, 2, 3, 4, 10)]
-    for i in range(70):
-        yield caption(imgs[min(i // 14, 4)], [("Your Bronco's ", WHITE), ("color.", GOLD)], sub=sub)
+    for i in range(5 * T["color_each"]):
+        yield caption(imgs[min(i // T["color_each"], 4)], [("Your Bronco's ", WHITE), ("color.", GOLD)], sub=sub)
     manes = [(8, "Regular · Black"), (4, "Long · Black"), (6, "Regular · White"), (5, "Long · White")]
     imgs = [label(studio(i), lab) for i, lab in manes]
-    for i in range(60):
-        yield caption(imgs[i // 15], [("Your ", WHITE), ("mane.", GOLD)])
+    for i in range(4 * T["mane_each"]):
+        yield caption(imgs[i // T["mane_each"]], [("Your ", WHITE), ("mane.", GOLD)])
     base = studio(10); box = plate_box(10); seq = []
-    for nm in NAMES:
-        seq += [(nm[:k], nm) for k in range(1, len(nm) + 1) for _ in range(2)] + [(nm, nm)] * (12 if nm != NAMES[-1] else 30)
-    seq = (seq + [(NAMES[-1], NAMES[-1])] * 84)[:84]
+    names, nf = T["names"], T["name_frames"]
+    for nm in names:
+        seq += [(nm[:k], nm) for k in range(1, len(nm) + 1) for _ in range(2)] + [(nm, nm)] * (12 if nm != names[-1] else 30)
+    seq = (seq + [(names[-1], names[-1])] * nf)[:nf]
     cache = {}
     for key in seq:
         if key not in cache:
@@ -329,18 +360,20 @@ def s6_custom():
 
 def mosaic():
     ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14]
-    g = Image.new("RGB", (W, H)); tw, th = W // 4, H // 3
+    cols, rows = (3, 4) if VERT else (4, 3)
+    g = Image.new("RGB", (W, H)); tw, th = W // cols, H // rows
+    big = dict(h=1300, floor=1610) if VERT else dict(h=860, floor=960)
     for n, i in enumerate(ids):
-        g.paste(studio(i, h=860, floor=960).resize((tw, th), Image.LANCZOS), ((n % 4) * tw, (n // 4) * th))
+        g.paste(cover(studio(i, **big), tw, th), ((n % cols) * tw, (n // cols) * th))
     return g
 
-def s7_real(n=150):
+def s7_real(n=T["real"]):
     cap = [("This isn't CGI. ", WHITE), ("These are real Bucks.", GOLD)]
     sub = "3D-printed in New Jersey. Shipped to your door."
     real = slot("real.mp4", n, None)
     if real:
         yield from real(lambda i, f: caption(f, cap, size=76, sub=sub)); return
-    shots = [studio(i) for i in (7, 9, 11, 13, 6)]
+    shots = [studio(i) for i in (7, 9, 11, 13, 6)] if T["real_shots"] else []
     per = 22
     for i in range(per * len(shots)):
         k = i // per
@@ -349,24 +382,40 @@ def s7_real(n=150):
     for i in range(n - per * len(shots)):
         yield caption(m, cap, size=76, sub=sub)
 
-def s8_end(n=120):
+def s8_end(n=T["end"]):
     im = Image.new("RGB", (W, H), BG); d = ImageDraw.Draw(im)
-    text_parts(d, [("%uck", WHITE), ("ThatDuck", GOLD)], 70, 220, shadow=False)
-    text_parts(d, [("Bronco Buck Classic  ·  First 100 numbered with a certificate", (225, 220, 208))], 375, 48, shadow=False)
+    url = "buckthatduck.etsy.com" if ETSY else "BuckThatDuck.com"
+    small = (120, 115, 105); soft = (215, 208, 195)
     fp, fl = font(150), font(70)
-    if SALE:
-        pw, lw = d.textlength(PRICE, font=fp), d.textlength(LIST_PRICE, font=fl)
-        x = (W - pw - 40 - lw) / 2
-        d.text((x, 460), PRICE, font=fp, fill=GOLD)
-        d.text((x + pw + 40, 520), LIST_PRICE, font=fl, fill=DIM)
-        d.line((x + pw + 40, 568, x + pw + 40 + lw, 568), fill=DIM, width=6)
+    def price(y):
+        if SALE:
+            pw, lw = d.textlength(PRICE, font=fp), d.textlength(LIST_PRICE, font=fl)
+            x = (W - pw - 40 - lw) / 2
+            d.text((x, y), PRICE, font=fp, fill=GOLD)
+            d.text((x + pw + 40, y + 60), LIST_PRICE, font=fl, fill=DIM)
+            d.line((x + pw + 40, y + 108, x + pw + 40 + lw, y + 108), fill=DIM, width=6)
+        else:
+            text_parts(d, [(LIST_PRICE, GOLD)], y, 150, shadow=False)
+    if VERT:                       # stacked layout, everything above the Reels/Stories UI
+        text_parts(d, [("%uck", WHITE), ("ThatDuck", GOLD)], 430, 220, shadow=False)
+        text_parts(d, [("Bronco Buck Classic", (225, 220, 208))], 630, 58, shadow=False)
+        text_parts(d, [("First 100 numbered, with a certificate", (225, 220, 208))], 705, 42, shadow=False)
+        price(810)
+        text_parts(d, [(url, WHITE)], 1040, 100, shadow=False)
+        text_parts(d, [("Real 3D-printed figurines", soft)], 1190, 46, shadow=False)
+        text_parts(d, [("Free rubber duck  ·  Made in the USA", soft)], 1252, 46, shadow=False)
+        text_parts(d, [("Duck scenes feature AI-generated characters.", small)], 1450, 30, shadow=False)
+        text_parts(d, [("Buck photos are real products.", small)], 1490, 30, shadow=False)
+        text_parts(d, [("Not affiliated with Ford Motor Company.", small)], 1530, 30, shadow=False)
+        text_parts(d, [("Bronco® is a trademark of Ford Motor Company.", small)], 1570, 30, shadow=False)
     else:
-        text_parts(d, [(LIST_PRICE, GOLD)], 460, 150, shadow=False)
-    text_parts(d, [("BuckThatDuck.com", WHITE)], 690, 100, shadow=False)
-    text_parts(d, [("Real 3D-printed figurines  ·  Free rubber duck  ·  Made in the USA", (215, 208, 195))], 835, 42, shadow=False)
-    small = (120, 115, 105)
-    text_parts(d, [("Duck scenes feature AI-generated characters. Buck photos are real products.", small)], 975, 26, shadow=False)
-    text_parts(d, [("Not affiliated with Ford Motor Company. Bronco® is a trademark of Ford Motor Company.", small)], 1012, 26, shadow=False)
+        text_parts(d, [("%uck", WHITE), ("ThatDuck", GOLD)], 70, 220, shadow=False)
+        text_parts(d, [("Bronco Buck Classic  ·  First 100 numbered with a certificate", (225, 220, 208))], 375, 48, shadow=False)
+        price(460)
+        text_parts(d, [(url, WHITE)], 690, 100, shadow=False)
+        text_parts(d, [("Real 3D-printed figurines  ·  Free rubber duck  ·  Made in the USA", soft)], 835, 42, shadow=False)
+        text_parts(d, [("Duck scenes feature AI-generated characters. Buck photos are real products.", small)], 975, 26, shadow=False)
+        text_parts(d, [("Not affiliated with Ford Motor Company. Bronco® is a trademark of Ford Motor Company.", small)], 1012, 26, shadow=False)
     for i in range(n):
         a = ease(i / 10)
         yield im if a >= 1 else Image.blend(Image.new("RGB", (W, H), BG), im, a)
@@ -419,7 +468,8 @@ def build_audio(starts, total):
     # 1 title: low drone + heartbeat
     t = np.arange(int(s["man"] * SR)) / SR
     a[: len(t)] += .12 * np.sin(2 * np.pi * 41 * t) * np.clip(t / 1.5, 0, 1)
-    for x in (0.0, 0.35, 1.3, 1.65): mix(a, kick(.55), x)
+    for x in (0.0, 0.35, 1.3, 1.65):
+        if x < s["man"]: mix(a, kick(.55), x)
     # 2 the man's lead-in, original audio
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", str(MAN_IN), "-t", str(s["onslaught"] - s["man"]), "-i", SRC,
                     "-ac", "1", "-ar", str(SR), f"{WORK}/orig.wav"], check=True)
@@ -443,8 +493,8 @@ def build_audio(starts, total):
     # pause: silence
     # 4 "Broncos don't" = hit, "duck," = hit, "they BUCK." = boom
     mix(a, kick(.9), s["slam"]); mix(a, snare(.5), s["slam"])
-    mix(a, kick(.9), s["slam"] + 20 / FPS)
-    mix(a, boom(), s["slam"] + 38 / FPS); mix(a, kick(1.0), s["slam"] + 38 / FPS)
+    mix(a, kick(.9), s["slam"] + T["duck_at"] / FPS)
+    mix(a, boom(), s["slam"] + T["buck_at"] / FPS); mix(a, kick(1.0), s["slam"] + T["buck_at"] / FPS)
     # 5-7 march groove, 100 bpm
     beat = 60 / 100
     t = s["print"]; b = 0
@@ -487,10 +537,12 @@ def main():
     enc.stdin.close(); enc.wait()
     total = frame / FPS
     build_audio(starts, total)
-    out = os.path.join(HERE, "buck-commercial-v3.mp4")
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", f"{WORK}/silent.mp4", "-i", f"{WORK}/audio.wav",
+    name = {"full": "buck-commercial-v3", "15": "buck-commercial-v3-15s", "15v": "buck-commercial-v3-15s-9x16"}[VARIANT]
+    out = os.path.join(HERE, name + ("-etsy" if ETSY else "") + ".mp4")
+    audio = [] if ETSY else ["-i", f"{WORK}/audio.wav", "-c:a", "aac", "-b:a", "192k", "-ac", "2", "-shortest"]
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", f"{WORK}/silent.mp4", *audio,
                     "-c:v", "libx264", "-crf", "21", "-preset", "slow", "-pix_fmt", "yuv420p",
-                    "-c:a", "aac", "-b:a", "192k", "-ac", "2", "-movflags", "+faststart", "-shortest", out], check=True)
+                    *([] if audio else ["-an"]), "-movflags", "+faststart", out], check=True)
     print(f"wrote {out} ({total:.1f}s)")
 
 if __name__ == "__main__":
