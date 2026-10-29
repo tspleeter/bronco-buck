@@ -5,14 +5,18 @@ Run from the repo root:  python3 marketing/commercial-v3/make.py
 Output: marketing/commercial-v3/buck-commercial-v3.mp4 (1920x1080, 30 fps, ~30 s)
 
 Story
-  1  Bronco owners. We have a problem.             (title)
-  2  It started with one duck... now everywhere.   (duck footage from the original spot, its own audio)
-  3  The ducks are multiplying.                    (the man's "Duck!" repeated 100x, speeding into a stutter)
-  4  Broncos don't duck, they BUCK.             (hard cut + slam)
-  5  Every Buck is 3D-printed, layer by layer.     (print-reveal animation  | SLOT footage/print.mp4)
-  6  Your color. Your mane. Your name.             (11 colors, 4 manes, nameplate typing)
-  7  This isn't CGI. These are real Bucks.         (real photos            | SLOT footage/real.mp4)
+  1  Bronco owners. We have a duck problem.         (title)
+  2  It started with one duck.                      (the man hands over the duck: original spot, man only)
+  3  Then another... MAKE IT STOP.                  (his "Duck!" x100, rising pitch + squeaks, faster and faster)
+  -  hard stop, 1.2 s of black silence
+  4  Broncos don't... duck, they BUCK.              (beat by beat, boom on BUCK)
+  5  Every Buck is printed layer by layer.          (print-reveal animation  | SLOT footage/print.mp4)
+  6  Your color. Your mane. Your name.              (Todd's real photos; custom name typed onto a real plate)
+  7  This isn't CGI. These are real Bucks.          (real photos + mosaic    | SLOT footage/real.mp4)
   8  Join the resistance. End card.
+
+Photos: marketing/commercial-v3/photos/01-14.jpg (real Bucks on the stair rail, Oct 29 2026).
+The grandma and shocked-guy shots are deliberately NOT used in this spot.
 
 FOOTAGE SLOTS: drop real clips into marketing/commercial-v3/footage/ and re-run.
 A clip that exists replaces the graphic for that scene, cropped to 16:9 and
@@ -143,38 +147,73 @@ def s1_title(n=75):
                            (" problem.", tuple(int(c * b) for c in WHITE))], 570, 84, shadow=False)
         yield im
 
-def s2_ducks(n=108):   # original spot 1.6s -> 5.2s (hand-off, grandma, shocked guy)
-    caps = [(0, [("It started with ", WHITE), ("one duck.", GOLD)]),
-            (40, [("Then ", WHITE), ("another.", GOLD)]),
-            (75, [("Now they're ", WHITE), ("everywhere.", GOLD)])]
-    for i, fr in enumerate(read_video(SRC, 1.6, n / FPS + 0.1)):
-        if i >= n: break
-        parts = [c for s, c in caps if i >= s][-1]
-        yield caption(fr, parts)
+PHOTOS = os.path.join(HERE, "photos")
+# subject centre (cx, cy as fractions of the photo) so each Buck is framed tight, above the caption band
+PHOTO_C = {1: (.52, .54), 2: (.485, .41), 3: (.54, .31), 4: (.475, .43), 5: (.59, .37), 6: (.51, .36),
+           7: (.51, .49), 8: (.40, .36), 9: (.50, .44), 10: (.565, .50), 11: (.47, .47), 12: (.455, .47),
+           13: (.55, .47), 14: (.54, .50)}
 
-# the man's whole "Duck!" from the original spot
-DUCK_START, DUCK_END = 1.975, 2.32
-DUCK_N, ONSLAUGHT_FRAMES = 100, 100
+def photo(i, z=1.45):
+    im = Image.open(f"{PHOTOS}/{i:02d}.jpg").convert("RGB")
+    cx, cy = PHOTO_C.get(i, (.5, .5))
+    if i == 10: z = 1.0                       # landscape shot is already framed
+    ww = im.width / z; wh = ww * H / W        # 16:9 window
+    l = min(max(cx * im.width - ww / 2, 0), im.width - ww)
+    t = min(max(cy * im.height - wh * .42, 0), im.height - wh)
+    return im.resize((W, H), Image.LANCZOS, box=(l, t, l + ww, t + wh))
+
+def label(im, text):
+    im = im.copy(); d = ImageDraw.Draw(im); f = font(44)
+    x = W - 70 - d.textlength(text, font=f)
+    d.text((x + 2, 72), text, font=f, fill=(0, 0, 0)); d.text((x, 70), text, font=f, fill=GOLD)
+    return im
+
+# the man's "Duck!" in the original spot (shot starts ~1.55 s)
+MAN_IN, DUCK_START, DUCK_END = 1.55, 1.975, 2.32
+DUCK_N, ONSLAUGHT_FRAMES = 100, 120
 def duck_onsets():
-    """100 onsets (s, relative to the onslaught scene): starts as clear "Duck. Duck." and speeds into a stutter."""
-    span = (ONSLAUGHT_FRAMES - 6) / FPS
+    """100 onsets (s, relative to the onslaught scene): clear "Duck." at first, then faster and faster."""
+    span = (ONSLAUGHT_FRAMES - 4) / FPS
     return [span * (k / (DUCK_N - 1)) ** 0.45 for k in range(DUCK_N)]
+def duck_rate(k): return 2 ** ((k / (DUCK_N - 1)) * 14 / 12)    # pitch/speed climbs 14 semitones
+
+ONE_DUCK = [("It started with ", WHITE), ("one duck.", GOLD)]
+
+def s2_man(n=round((DUCK_START - MAN_IN) * FPS)):
+    for i, fr in enumerate(read_video(SRC, MAN_IN, n / FPS + 0.1)):
+        if i >= n: break
+        yield caption(fr, ONE_DUCK)
 
 def s3_onslaught(n=ONSLAUGHT_FRAMES):
-    clip = list(read_video(SRC, DUCK_START, DUCK_END - DUCK_START + 0.05))   # the man saying "Duck!"
-    onsets = duck_onsets()
+    clip = list(read_video(SRC, DUCK_START, DUCK_END - DUCK_START + 0.05))
+    onsets = duck_onsets(); rnd = random.Random(9); punch = {}
     for i in range(n):
         t = i / FPS
-        last = max([o for o in onsets if o <= t], default=0)
-        yield caption(clip[min(int((t - last) * FPS), len(clip) - 1)], [("The ducks are ", WHITE), ("multiplying.", GOLD)])
+        k = max(j for j, o in enumerate(onsets) if o <= t)
+        fr = clip[min(int((t - onsets[k]) * FPS * duck_rate(k)), len(clip) - 1)]
+        if k not in punch:          # each repeat punches in a little harder
+            a = k / (DUCK_N - 1)
+            punch[k] = (1 + a * rnd.uniform(.15, .45), .5 + a * rnd.uniform(-.15, .15), .45 + a * rnd.uniform(-.1, .1))
+        fr = zoom(fr, *punch[k])
+        cap = (ONE_DUCK if k < 2 else [("Then ", WHITE), ("another.", GOLD)] if k < 8 else
+               [("And another. ", WHITE), ("And another.", GOLD)] if k < 35 else [("MAKE. IT. ", WHITE), ("STOP.", GOLD)])
+        yield caption(fr, cap, size=84 if k < 35 else 110)
 
-def s4_slam(n=60):
+def s_pause(n=36):
+    black = Image.new("RGB", (W, H), (0, 0, 0))
+    for _ in range(n): yield black
+
+def s4_slam(n=80):
+    f1 = font(120)
     for i in range(n):
         im = Image.new("RGB", (W, H), BG); d = ImageDraw.Draw(im)
-        text_parts(d, [("Broncos don't duck,", WHITE)], 230, 120, shadow=False)
-        if i >= 14:
-            k = i - 14
-            sz = int(260 * (1 + 0.35 * max(0, 1 - k / 4)))         # punches in
+        a, b = "Broncos don't ", "duck,"
+        x = (W - d.textlength(a + b, font=f1)) / 2
+        d.text((x, 230), a, font=f1, fill=WHITE)
+        if i >= 20: d.text((x + d.textlength(a, font=f1), 230), b, font=f1, fill=WHITE)
+        if i >= 38:
+            k = i - 38
+            sz = int(260 * (1 + 0.35 * max(0, 1 - k / 4)))
             dx = int(random.uniform(-1, 1) * 18 * max(0, 1 - k / 10))
             dy = int(random.uniform(-1, 1) * 18 * max(0, 1 - k / 10))
             f = font(sz); tw = d.textlength("they BUCK.", font=f)
@@ -211,64 +250,63 @@ def s5_print(n=135):
     else:
         for i in range(n): yield caption(graphic(i), cap[0], sub=cap[1])
 
-def plate(img, text, full=None):
-    """Custom nameplate (white text on black, white border) on a 990x1294 front render."""
-    img = img.copy(); w, h = img.size
-    x0, y0, pw, ph = round(w * .105), round(h * .765), round(w * .788), round(h * .180)
-    d = ImageDraw.Draw(img)
-    d.rectangle([x0, y0, x0 + pw, y0 + ph], fill=(17, 17, 17), outline=WHITE, width=6)
-    if text:
-        full = full or text   # size from the whole name so typing doesn't resize it
-        size = min(int(ph * .60), int(100 * pw * .86 / d.textlength(full, font=font(100))))
-        f = font(size); l, t, rr, b = d.textbbox((0, 0), full, font=f)
-        x = x0 + (pw - (rr - l)) / 2 - l
-        d.text((x, y0 + (ph - (b - t)) / 2 - t), text, font=f, fill=WHITE)
-    return img
+# nameplate on photos/10.jpg (straight-on shot) after scaling to 1920x1080
+PLATE10 = (884, 628, 1176, 727)
 
-def on_stage(r, label=None):
-    im = Image.new("RGB", (W, H), BG)
-    rh = 760; r = r.resize((round(r.width * rh / r.height), rh), Image.LANCZOS)
-    im.paste(r, ((W - r.width) // 2, 40))
-    if label:
-        d = ImageDraw.Draw(im); f = font(44)
-        d.text((W - 70 - d.textlength(label, font=f), 70), label, font=f, fill=GOLD)
+def plate_photo(base, text, full):
+    im = base.copy(); d = ImageDraw.Draw(im)
+    x0, y0, x1, y1 = PLATE10
+    d.rounded_rectangle([x0 + 4, y0 + 4, x1 - 4, y1 - 4], radius=6, fill=(28, 24, 24))
+    if text:
+        pw, ph = x1 - x0, y1 - y0
+        size = min(int(ph * .52), int(100 * pw * .82 / d.textlength(full, font=font(100))))
+        f = font(size); l, t, r, b = d.textbbox((0, 0), full, font=f)
+        tx = x0 + (pw - (r - l)) / 2 - l; ty = y0 + (ph - (b - t)) / 2 - t
+        layer = Image.new("RGBA", im.size, (0, 0, 0, 0))
+        ImageDraw.Draw(layer).text((tx, ty), text, font=f, fill=(232, 226, 214, 255))
+        layer = layer.filter(ImageFilter.GaussianBlur(0.8))        # match the photo's softness
+        im = Image.alpha_composite(im.convert("RGBA"), layer).convert("RGB")
     return im
 
 def s6_custom():
-    # a) colors — 66 frames, 6 each
-    imgs = [on_stage(body(c, mane=m), name) for c, name, m in COLORS]
-    for i in range(66):
-        yield caption(imgs[min(i // 6, 10)], [("Your Bronco's ", WHITE), ("color.", GOLD)])
-    # b) manes — 48 frames, 12 each
-    manes = [("regmane", "black", "Regular · Black"), ("longmane", "black", "Long · Black"),
-             ("regmane", "white", "Regular · White"), ("longmane", "white", "Long · White")]
-    imgs = [on_stage(body("cyber_orange", style=s, mane=m), lab) for s, m, lab in manes]
-    for i in range(48):
-        yield caption(imgs[i // 12], [("Your ", WHITE), ("mane.", GOLD)])
-    # c) nameplate typing — 78 frames
-    base = body("ruby_red", mane="white")
-    seq = []
+    sub = "11 Bronco-inspired colors"
+    imgs = [photo(i) for i in (1, 2, 3, 4, 10)]
+    for i in range(70):
+        yield caption(imgs[min(i // 14, 4)], [("Your Bronco's ", WHITE), ("color.", GOLD)], sub=sub)
+    manes = [(8, "Regular · Black"), (4, "Long · Black"), (6, "Regular · White"), (5, "Long · White")]
+    imgs = [label(photo(i), lab) for i, lab in manes]
+    for i in range(60):
+        yield caption(imgs[i // 15], [("Your ", WHITE), ("mane.", GOLD)])
+    base = photo(10); seq = []
     for nm in NAMES:
-        seq += [(nm[:k], nm) for k in range(1, len(nm) + 1) for _ in range(2)] + [(nm, nm)] * (10 if nm != NAMES[-1] else 30)
-    seq = (seq + [(NAMES[-1], NAMES[-1])] * 78)[:78]
+        seq += [(nm[:k], nm) for k in range(1, len(nm) + 1) for _ in range(2)] + [(nm, nm)] * (12 if nm != NAMES[-1] else 30)
+    seq = (seq + [(NAMES[-1], NAMES[-1])] * 84)[:84]
     cache = {}
-    for i, key in enumerate(seq):
-        if key not in cache: cache[key] = on_stage(plate(base, *key), "Custom nameplate")
+    for key in seq:
+        if key not in cache: cache[key] = label(zoom(plate_photo(base, *key), 1.35, cx=.535, cy=.45), "Custom nameplate")
         yield caption(cache[key], [("Your ", WHITE), ("name on the plate.", GOLD)])
+
+def mosaic():
+    ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14]
+    g = Image.new("RGB", (W, H)); tw, th = W // 4, H // 3
+    for n, i in enumerate(ids):
+        g.paste(cover(photo(i), tw, th), ((n % 4) * tw, (n // 4) * th))
+    return g
 
 def s7_real(n=150):
     cap = [("This isn't CGI. ", WHITE), ("These are real Bucks.", GOLD)]
+    sub = "3D-printed in New Jersey. Shipped to your door."
     real = slot("real.mp4", n, None)
     if real:
-        yield from real(lambda i, f: caption(f, cap, sub="3D-printed, hand-finished, shipped to your door."))
-        return
-    shots = [(fit_blur(Image.open(f"{ROOT}/marketing/etsy/00_real_buck_duck.jpg").convert("RGB")), "A real 3D-printed Buck."),
-             (cover(Image.open(DASH).convert("RGB")), "On a real Bronco dash."),
-             (fit_blur(Image.open(f"{ROOT}/public/assets/product/gifts-trio-v1.webp").convert("RGB")), "Free rubber duck in every box.")]
-    per = n // len(shots)
-    for i in range(n):
-        k = min(i // per, len(shots) - 1); img, sub = shots[k]
-        yield caption(zoom(img, 1 + 0.06 * ((i - k * per) / per), cy=0.45), cap, size=76, sub=sub)
+        yield from real(lambda i, f: caption(f, cap, size=76, sub=sub)); return
+    shots = [photo(i) for i in (7, 9, 11, 13)] + [cover(Image.open(DASH).convert("RGB"))]
+    per = 22
+    for i in range(per * len(shots)):
+        k = i // per
+        yield caption(zoom(shots[k], 1 + 0.05 * ((i % per) / per), cy=.42), cap, size=76, sub=sub)
+    m = mosaic()
+    for i in range(n - per * len(shots)):
+        yield caption(m, cap, size=76, sub=sub)
 
 def s8_end(n=120):
     im = Image.new("RGB", (W, H), BG); d = ImageDraw.Draw(im)
@@ -293,7 +331,7 @@ def s8_end(n=120):
         a = ease(i / 10)
         yield im if a >= 1 else Image.blend(Image.new("RGB", (W, H), BG), im, a)
 
-SCENES = [("title", s1_title), ("ducks", s2_ducks), ("onslaught", s3_onslaught), ("slam", s4_slam),
+SCENES = [("title", s1_title), ("man", s2_man), ("onslaught", s3_onslaught), ("pause", s_pause), ("slam", s4_slam),
           ("print", s5_print), ("custom", s6_custom), ("real", s7_real), ("end", s8_end)]
 
 # ---------- audio ----------
@@ -339,31 +377,34 @@ def build_audio(starts, total):
     a = np.zeros(int(total * SR) + SR, np.float32)
     s = starts
     # 1 title: low drone + heartbeat
-    t = np.arange(int(s["ducks"] * SR)) / SR
+    t = np.arange(int(s["man"] * SR)) / SR
     a[: len(t)] += .12 * np.sin(2 * np.pi * 41 * t) * np.clip(t / 1.5, 0, 1)
     for x in (0.0, 0.35, 1.3, 1.65): mix(a, kick(.55), x)
-    # 2 original spot audio (grandma's line) for the duck footage
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", "1.6", "-t", str(s["onslaught"] - s["ducks"]), "-i", SRC,
+    # 2 the man's lead-in, original audio
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", str(MAN_IN), "-t", str(s["onslaught"] - s["man"]), "-i", SRC,
                     "-ac", "1", "-ar", str(SR), f"{WORK}/orig.wav"], check=True)
-    o = read_wav(f"{WORK}/orig.wav"); o[-int(.25 * SR):] *= np.linspace(1, 0, int(.25 * SR))
-    mix(a, o * 1.0, s["ducks"])
-    # 3 onslaught: the man's "Duck!" repeated 100 times, each repeat cutting off the last
+    mix(a, read_wav(f"{WORK}/orig.wav"), s["man"])
+    # 3 onslaught: his "Duck!" x100, pitch + speed climbing, squeak on every repeat, more distortion as it goes,
+    #   each repeat cutting off the last; ends dead at the scene cut
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", str(DUCK_START), "-t", str(DUCK_END - DUCK_START), "-i", SRC,
                     "-ac", "1", "-ar", str(SR), f"{WORK}/duck.wav"], check=True)
-    duck = read_wav(f"{WORK}/duck.wav"); f = int(.004 * SR)
-    ons = duck_onsets() + [None]
-    for o, nxt in zip(ons, ons[1:]):
-        v = duck[: int((nxt - o) * SR)] if nxt else duck.copy()
-        v = v.copy(); m = min(f, len(v) // 2)
-        v[:m] *= np.linspace(0, 1, m); v[-m:] *= np.linspace(1, 0, m)
-        mix(a, v * 1.1, s["onslaught"] + o)
-    k = 0; t = s["onslaught"] + 1.2
-    while t < s["slam"] - .05:
-        mix(a, tom(95 + 6 * k, .15 + .45 * (t - s["onslaught"]) / (s["slam"] - s["onslaught"])), t)
-        t += max(.06, .2 - .015 * k); k += 1
-    # 4 hard cut: "Broncos don't duck," = hit, "they BUCK." = boom
-    mix(a, kick(1.0), s["slam"]); mix(a, snare(.6), s["slam"])
-    mix(a, boom(), s["slam"] + 14 / FPS)
+    duck = read_wav(f"{WORK}/duck.wav"); duck = duck / max(1e-6, np.abs(duck).max())
+    ons = duck_onsets(); f = int(.004 * SR); end = s["pause"]
+    for k, o in enumerate(ons):
+        r = duck_rate(k); x = k / (DUCK_N - 1)
+        v = np.interp(np.arange(0, len(duck) - 1, r), np.arange(len(duck)), duck)
+        if k >= 4:
+            q = squeak(.35, 1300 * r); v = np.concatenate([v, np.zeros(max(0, len(q) - len(v)))]); v[:len(q)] += q
+        v = np.tanh(v * (1 + 5 * x)) * (0.75 + 0.35 * x)
+        nxt = ons[k + 1] if k + 1 < len(ons) else end - s["onslaught"]
+        v = v[: int((nxt - o) * SR)].copy(); m = min(f, len(v) // 2)
+        if m: v[:m] *= np.linspace(0, 1, m); v[-m:] *= np.linspace(1, 0, m)
+        mix(a, v, s["onslaught"] + o)
+    # pause: silence
+    # 4 "Broncos don't" = hit, "duck," = hit, "they BUCK." = boom
+    mix(a, kick(.9), s["slam"]); mix(a, snare(.5), s["slam"])
+    mix(a, kick(.9), s["slam"] + 20 / FPS)
+    mix(a, boom(), s["slam"] + 38 / FPS); mix(a, kick(1.0), s["slam"] + 38 / FPS)
     # 5-7 march groove, 100 bpm
     beat = 60 / 100
     t = s["print"]; b = 0
