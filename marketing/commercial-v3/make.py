@@ -382,7 +382,7 @@ def s7_real(n=T["real"]):
     for i in range(n - per * len(shots)):
         yield caption(m, cap, size=76, sub=sub)
 
-HERO_BUCK = os.path.join(ROOT, "marketing/product-photos/black-buck-duck-cutout.png")
+HERO_BUCK = os.path.join(ROOT, "marketing/product-photos/blue-buck-duck-cutout.png")   # or green-buck-duck-cutout.png
 def s8_end(n=T["end"]):
     im = Image.new("RGB", (W, H), BG)
     url = "buckthatduck.etsy.com" if ETSY else "BuckThatDuck.com"
