@@ -382,40 +382,55 @@ def s7_real(n=T["real"]):
     for i in range(n - per * len(shots)):
         yield caption(m, cap, size=76, sub=sub)
 
+HERO_BUCK = os.path.join(ROOT, "marketing/product-photos/black-buck-duck-cutout.png")
 def s8_end(n=T["end"]):
-    im = Image.new("RGB", (W, H), BG); d = ImageDraw.Draw(im)
+    im = Image.new("RGB", (W, H), BG)
     url = "buckthatduck.etsy.com" if ETSY else "BuckThatDuck.com"
     small = (120, 115, 105); soft = (215, 208, 195)
+    # the real black Buck biting the duck, on a spotlight, beside (16:9) or above (9:16) the copy
+    hb = Image.open(HERO_BUCK)
+    bh, bcx, bfloor = (420, W // 2, 410) if VERT else (860, 400, 975)
+    hb = hb.resize((round(hb.width * bh / hb.height), bh), Image.LANCZOS)
+    yy, xx = np.mgrid[0:H, 0:W].astype(float)
+    glow = np.clip(1 - np.sqrt(((xx - bcx) / (bh * .75)) ** 2 + ((yy - (bfloor - bh * .5)) / (bh * .8)) ** 2), 0, 1) ** 1.6
+    im = Image.fromarray(np.clip(np.array(im, float) + glow[..., None] * np.array([58, 51, 42]), 0, 255).astype("uint8"))
+    sh = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(sh).ellipse([bcx - hb.width * .5, bfloor - 14, bcx + hb.width * .5, bfloor + 18], fill=170)
+    im.paste((0, 0, 0), (0, 0), sh.filter(ImageFilter.GaussianBlur(16)))
+    im.paste(hb, (bcx - hb.width // 2, bfloor - bh), hb)
+    d = ImageDraw.Draw(im)
+    cx, mw = (W / 2, W * .92) if VERT else (1330, 1100)
+    T_ = lambda parts, y, size: text_parts(d, parts, y, size, cx=cx, shadow=False, maxw=mw)
     fp, fl = font(150), font(70)
     def price(y):
         if SALE:
             pw, lw = d.textlength(PRICE, font=fp), d.textlength(LIST_PRICE, font=fl)
-            x = (W - pw - 40 - lw) / 2
+            x = cx - (pw + 40 + lw) / 2
             d.text((x, y), PRICE, font=fp, fill=GOLD)
             d.text((x + pw + 40, y + 60), LIST_PRICE, font=fl, fill=DIM)
             d.line((x + pw + 40, y + 108, x + pw + 40 + lw, y + 108), fill=DIM, width=6)
         else:
-            text_parts(d, [(LIST_PRICE, GOLD)], y, 150, shadow=False)
+            T_([(LIST_PRICE, GOLD)], y, 150)
     if VERT:                       # stacked layout, everything above the Reels/Stories UI
-        text_parts(d, [("%uck", WHITE), ("ThatDuck", GOLD)], 430, 220, shadow=False)
-        text_parts(d, [("Bronco Buck Classic", (225, 220, 208))], 630, 58, shadow=False)
-        text_parts(d, [("First 100 numbered, with a certificate", (225, 220, 208))], 705, 42, shadow=False)
-        price(810)
-        text_parts(d, [(url, WHITE)], 1040, 100, shadow=False)
-        text_parts(d, [("Real 3D-printed figurines", soft)], 1190, 46, shadow=False)
-        text_parts(d, [("Free rubber duck  ·  Made in the USA", soft)], 1252, 46, shadow=False)
-        text_parts(d, [("Duck scenes feature AI-generated characters.", small)], 1450, 30, shadow=False)
-        text_parts(d, [("Buck photos are real products.", small)], 1490, 30, shadow=False)
-        text_parts(d, [("Not affiliated with Ford Motor Company.", small)], 1530, 30, shadow=False)
-        text_parts(d, [("Bronco® is a trademark of Ford Motor Company.", small)], 1570, 30, shadow=False)
+        T_([("%uck", WHITE), ("ThatDuck", GOLD)], 450, 220)
+        T_([("Bronco Buck Classic", (225, 220, 208))], 650, 58)
+        T_([("First 100 numbered, with a certificate", (225, 220, 208))], 725, 42)
+        price(820)
+        T_([(url, WHITE)], 1045, 100)
+        T_([("Real 3D-printed figurines", soft)], 1190, 46)
+        T_([("Free rubber duck  ·  Made in the USA", soft)], 1252, 46)
+        T_([("Duck scenes feature AI-generated characters.", small)], 1450, 30)
+        T_([("Buck photos are real products.", small)], 1490, 30)
+        T_([("Not affiliated with Ford Motor Company.", small)], 1530, 30)
+        T_([("Bronco® is a trademark of Ford Motor Company.", small)], 1570, 30)
     else:
-        text_parts(d, [("%uck", WHITE), ("ThatDuck", GOLD)], 70, 220, shadow=False)
-        text_parts(d, [("Bronco Buck Classic  ·  First 100 numbered with a certificate", (225, 220, 208))], 375, 48, shadow=False)
-        price(460)
-        text_parts(d, [(url, WHITE)], 690, 100, shadow=False)
-        text_parts(d, [("Real 3D-printed figurines  ·  Free rubber duck  ·  Made in the USA", soft)], 835, 42, shadow=False)
-        text_parts(d, [("Duck scenes feature AI-generated characters. Buck photos are real products.", small)], 975, 26, shadow=False)
-        text_parts(d, [("Not affiliated with Ford Motor Company. Bronco® is a trademark of Ford Motor Company.", small)], 1012, 26, shadow=False)
+        T_([("%uck", WHITE), ("ThatDuck", GOLD)], 90, 190)
+        T_([("Bronco Buck Classic  ·  First 100 numbered with a certificate", (225, 220, 208))], 345, 40)
+        price(430)
+        T_([(url, WHITE)], 650, 96)
+        T_([("Real 3D-printed figurines  ·  Free rubber duck  ·  Made in the USA", soft)], 790, 34)
+        T_([("Duck scenes feature AI-generated characters. Buck photos are real products.", small)], 975, 24)
+        T_([("Not affiliated with Ford Motor Company. Bronco® is a trademark of Ford Motor Company.", small)], 1012, 24)
     for i in range(n):
         a = ease(i / 10)
         yield im if a >= 1 else Image.blend(Image.new("RGB", (W, H), BG), im, a)
