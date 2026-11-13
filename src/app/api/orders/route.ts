@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { isAdminRequest } from "@/lib/admin-auth";
-import { createOrder, getOrders } from "@/lib/orders-db";
+import { appendOrderEvent, createOrder, getOrders } from "@/lib/orders-db";
 import { Order } from "@/types/order";
-import { sendOrderConfirmationEmail } from "@/lib/email";
+import { newEventId, nowIso, sendOrderEmail } from "@/lib/order-events";
 import { sendPurchaseEvent } from "@/lib/meta-capi";
 import { incrementRedemption } from "@/lib/discounts-db";
 import { sanitizeGift } from "@/lib/gift";
@@ -58,10 +58,18 @@ export async function POST(req: Request) {
 
     // Send confirmation email — awaited (a fire-and-forget send can be frozen
     // with the Lambda once the response returns), but never fails the order.
+    // Outcome is logged to the order history so the admin page shows whether
+    // the confirmation went out (it used to leave no record anywhere).
+    const email = await sendOrderEmail(order, "confirmation");
     try {
-      await sendOrderConfirmationEmail(order);
+      await appendOrderEvent(order.orderId, {
+        id: newEventId(),
+        at: nowIso(),
+        type: "order_placed",
+        email,
+      });
     } catch (err) {
-      console.error("Failed to send confirmation email:", err);
+      console.error("Failed to log confirmation email:", err);
     }
 
     // Server-side Meta Conversions API Purchase — non-blocking. Deduplicates

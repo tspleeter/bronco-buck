@@ -200,6 +200,10 @@ function HistoryEntry({
         <EmailOutcome email={event.email} resent />
       </>
     );
+  } else if (event.type === "order_placed") {
+    title = <>Order placed</>;
+    details = <EmailOutcome email={event.email} />;
+    resendKind = "confirmation";
   } else {
     title = <>Customer info changed</>;
     details = (

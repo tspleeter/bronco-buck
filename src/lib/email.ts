@@ -11,6 +11,9 @@ import { CARRIER_LABELS, buildTrackingUrl } from "@/lib/shipping";
 
 const ses = new SESClient({ region: "us-east-1" });
 const FROM_ADDRESS = "orders@buckthatduck.com";
+// Every customer email is BCC'd to orders@ (which forwards to Todd's Gmail),
+// so there is one place to see exactly what each customer was sent.
+const BCC_ADDRESSES = [FROM_ADDRESS];
 
 function renderItemRows(order: Order): string {
   return order.items
@@ -224,7 +227,7 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
   await ses.send(
     new SendEmailCommand({
       Source: FROM_ADDRESS,
-      Destination: { ToAddresses: [c.email] },
+      Destination: { ToAddresses: [c.email], BccAddresses: BCC_ADDRESSES },
       Message: {
         Subject: {
           Data: `Order Confirmed + Invoice ${inv} - %uckThatDuck`,
@@ -331,7 +334,7 @@ export async function sendShipmentEmail(order: Order): Promise<void> {
   await ses.send(
     new SendEmailCommand({
       Source: FROM_ADDRESS,
-      Destination: { ToAddresses: [order.customer.email] },
+      Destination: { ToAddresses: [order.customer.email], BccAddresses: BCC_ADDRESSES },
       Message: {
         Subject: {
           Data: `Your %uckThatDuck order has shipped - #${order.orderId.slice(0, 8).toUpperCase()}`,

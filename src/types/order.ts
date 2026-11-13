@@ -133,6 +133,13 @@ export type OrderEvent =
   | {
       id: string;
       at: string;
+      /** Logged by POST /api/orders: the checkout confirmation/invoice email. */
+      type: "order_placed";
+      email: OrderEmailResult;
+    }
+  | {
+      id: string;
+      at: string;
       type: "customer_updated";
       changes: CustomerFieldChange[];
     };

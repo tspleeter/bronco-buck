@@ -79,6 +79,8 @@ export async function POST(
             source.trackingUrl ??
             buildTrackingUrl(source.carrier, source.trackingNumber),
         };
+      } else if (source.type === "order_placed") {
+        kind = "confirmation";
       } else {
         kind = emailKindForStatus(order.status);
       }
