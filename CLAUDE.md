@@ -199,7 +199,7 @@ Each tile shows a different mane so the grid reads as an assortment, not one rep
 ### Commercial v3 — "Broncos don't duck, they BUCK." (Oct 2026, `marketing/commercial-v3/`)
 - One script, four outputs (`make.py`, run from repo root; `VARIANT`/`ETSY` env vars): `buck-commercial-v3.mp4` (31 s, 16:9, audio), `-15s.mp4` (14.8 s, 16:9, audio — FB in-stream / Reels ads), `-15s-9x16.mp4` (14.8 s, 1080×1920, audio, captions lifted 330 px above the Reels/Stories UI), `-15s-etsy.mp4` (14.8 s, 16:9, **silent**, end card says buckthatduck.etsy.com).
 - Length rules (Oct 29 2026): **Etsy** listing video 5–15 s, audio stripped, up to 2 videos/listing; **Meta** 5–15 s qualifies for every placement (FB Reels ads + in-stream cap at 15 s; IG Feed/Reels take the 31 s cut).
-- End card price is the First Edition Sale price (`SALE`/`PRICE` in make.py) — set `SALE = False` and re-render all four after Nov 13 2026.
+- End card price is the First Edition Sale price (`SALE`/`PRICE` in make.py) — set `SALE = False` and re-render all four after Nov 30 2026 (sale extended).
 
 ### Raw marketing footage — `marketing/footage/`
 - **`print-timelapse-2026-10-19.mp4`** (parked Oct 29 2026) — Todd's Bambu P1S timelapse of a blue Buck printing (the "making of" posted as IG reel `Desl8P6TE9q`). 16.25s, 1280×720, 24 fps, H.264, **no audio**. Starts with the support tree on the plate, ends with the head finished (nozzle visible top-center). Use it for any "how it's made" shot. To put it in commercial v3, copy it to `marketing/commercial-v3/footage/print.mp4` and re-run that script (the slot uses the first 4.5s; trim/speed it first if the end should show).
@@ -324,7 +324,7 @@ Final cross-brand PETG picks per Bronco colorway, matched to the **render-plinth
 - Uploading to Etsy from the sandbox: Chrome `file_upload` can't read container/device files; instead push the file to the repo and, in the Etsy editor tab, `fetch()` the raw.githubusercontent.com URL (pin the commit SHA to dodge CDN cache), wrap in a `File`, set it on `input[type=file]` via `DataTransfer`, dispatch `change`.
 
 ## Site sale (Oct 14 2026)
-- **First Edition Sale: 20% off every Buck, Oct 14 – Nov 13 2026** (matches Etsy FIRSTEDITION20). Single source `src/lib/sale.ts` (`SALE`, `isSaleActive()`, `salePrice()`); set `SALE = null` or edit dates to change.
+- **First Edition Sale: 20% off every Buck, Oct 14 – Nov 30 2026** (extended Nov 13 from Nov 13; Etsy renewed to match through Nov 30). Single source `src/lib/sale.ts` (`SALE`, `isSaleActive()`, `salePrice()`); set `SALE = null` or edit dates to change.
 - **Mechanism:** the sale price is baked into the **cart item price** at add-to-cart (builder `handleAddToCart`, `saved/[id]` add-to-cart), so checkout, tax calc, PaymentIntent, order record and emails need no changes. Saved/shared builds still store the **list** price. Discount codes stack on the sale-priced subtotal.
 - **Display:** `components/SalePrice.tsx` — `<SalePrice price={list}/>` (sale + struck list price) in `PriceSummary`, `BuildSummary`, gallery tiles, `/saved`; `<SaleBanner/>` gold strip above `SiteNav` in `layout.tsx`. `useSaleActive()` flips after mount, so static pages never hydrate-mismatch.
 - **SEO:** `productJsonLd()` Offer price = sale price + `priceValidUntil` (= `SALE.lastDay`) while active (builder route is dynamic, so it switches back on its own). Gifts page hero price uses `<SalePrice>` (Oct 18 2026: shows sale price with list struck through during a sale, reverts on its own); its meta description and FAQ text keep list price.

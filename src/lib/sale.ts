@@ -1,4 +1,5 @@
-// Site-wide sale — single source (Oct 2026: matches the Etsy FIRSTEDITION20 sale).
+// Site-wide sale — single source (Oct 2026: matches the Etsy FIRSTEDITION20 sale;
+// Nov 13 2026: extended through Nov 30 on both site and Etsy).
 // The sale price is baked into the cart item price when a Buck is added to the
 // cart, so checkout, tax, the PaymentIntent and the order record need no changes.
 // To end early or run another sale, edit SALE (or set it to null) and push.
@@ -19,9 +20,9 @@ export const SALE: Sale | null = {
   name: "First Edition Sale",
   percent: 20,
   start: "2026-10-14T00:00:00-04:00",
-  end: "2026-11-14T00:00:00-05:00",
-  endsLabel: "Nov 13",
-  lastDay: "2026-11-13",
+  end: "2026-12-01T00:00:00-05:00",
+  endsLabel: "Nov 30",
+  lastDay: "2026-11-30",
 };
 
 export function isSaleActive(now: number = Date.now()): boolean {
