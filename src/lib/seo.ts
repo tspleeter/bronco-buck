@@ -3,7 +3,7 @@
 // (Product), and the /gifts-for-bronco-owners landing page.
 import config from "@/data/bronco-config.json";
 import { FLAT_SHIPPING } from "@/lib/shipping-rules";
-import { SALE, isSaleActive, salePrice } from "@/lib/sale";
+import { activeSale, salePrice } from "@/lib/sale";
 
 // Canonical host is www — the bare domain redirects there. Sitemap, robots,
 // canonicals and JSON-LD all derive from this.
@@ -88,7 +88,7 @@ export function productJsonLd() {
       "@type": "Offer",
       url: abs(PRODUCT_PATH),
       price: salePrice(config.basePrice).toFixed(2),
-      ...(SALE && isSaleActive() ? { priceValidUntil: SALE.lastDay } : {}),
+      ...(activeSale() ? { priceValidUntil: activeSale()!.lastDay } : {}),
       priceCurrency: config.currency,
       availability: "https://schema.org/InStock",
       itemCondition: "https://schema.org/NewCondition",

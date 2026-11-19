@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SALE, isSaleActive, salePrice } from "@/lib/sale";
+import { activeSale, isSaleActive, salePrice } from "@/lib/sale";
 
 /**
  * True while the site sale is running. Starts false and flips after mount, so
@@ -28,7 +28,8 @@ export function SalePrice({ price, prefix = "" }: { price: number; prefix?: stri
 /** Thin gold strip announcing the sale; renders nothing when no sale is on. */
 export function SaleBanner() {
   const active = useSaleActive();
-  if (!active || !SALE) return null;
+  const sale = activeSale();
+  if (!active || !sale) return null;
   return (
     <div
       role="note"
@@ -42,7 +43,7 @@ export function SaleBanner() {
         lineHeight: 1.4,
       }}
     >
-      {SALE.name}: {SALE.percent}% off every Buck through {SALE.endsLabel}. Limited, numbered first 100.
+      {sale.name}: {sale.percent}% off every Buck through {sale.endsLabel}. Limited, numbered first 100.
     </div>
   );
 }

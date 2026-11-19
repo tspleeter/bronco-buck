@@ -6,7 +6,7 @@
 import config from "@/data/bronco-config.json";
 import { SITE_URL, PRODUCT_PATH, PRODUCT_COLORS, PRODUCT_DESCRIPTION, SITE_NAME, FORD_DISCLAIMER, productImage } from "@/lib/seo";
 import { FLAT_SHIPPING } from "@/lib/shipping-rules";
-import { SALE, isSaleActive, salePrice } from "@/lib/sale";
+import { activeSale, salePrice } from "@/lib/sale";
 
 // Rendered per request so the sale price switches on/off by date without a deploy.
 export const dynamic = "force-dynamic";
@@ -18,7 +18,7 @@ const money = (n: number) => `${n.toFixed(2)} ${config.currency}`;
 
 export function GET() {
   const list = config.basePrice;
-  const onSale = !!SALE && isSaleActive();
+  const sale = activeSale();
   const items = PRODUCT_COLORS.map((c) => {
     const fields: [string, string][] = [
       ["g:id", `${config.productId}-${c.id}`],
@@ -38,9 +38,9 @@ export function GET() {
       ["g:product_type", "Figurines > Horse Busts"],
       ["g:is_bundle", "no"],
     ];
-    if (onSale && SALE) {
+    if (sale) {
       fields.push(["g:sale_price", money(salePrice(list))]);
-      fields.push(["g:sale_price_effective_date", `${SALE.start}/${SALE.end}`]);
+      fields.push(["g:sale_price_effective_date", `${sale.start}/${sale.end}`]);
     }
     const body = fields.map(([k, v]) => `      <${k}>${esc(v)}</${k}>`).join("\n");
     const shipping = `      <g:shipping>\n        <g:country>US</g:country>\n        <g:service>Standard</g:service>\n        <g:price>${money(FLAT_SHIPPING)}</g:price>\n      </g:shipping>`;
