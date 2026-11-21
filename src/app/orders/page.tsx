@@ -203,16 +203,8 @@ export default function OrdersPage() {
                         <div style={{ marginTop: 8, display: "grid", gap: 6, color: "var(--color-text-muted)" }}>
                           <div>Status: {order.status}</div>
                           <div>Items: {order.items.length}</div>
-                          <div>Subtotal: ${order.pricing.subtotal.toFixed(2)}</div>
-                          {order.pricing.discount && order.pricing.discount > 0 ? (
-                            <div>
-                              Discount{order.pricing.discountCode ? ` (${order.pricing.discountCode})` : ""}: −${order.pricing.discount.toFixed(2)}
-                            </div>
-                          ) : null}
-                          <div>Shipping: ${order.pricing.shipping.toFixed(2)}</div>
-                          <div>Tax: ${(order.pricing.tax ?? 0).toFixed(2)}</div>
                           <div style={{ fontWeight: 700 }}>
-                            Total: ${order.pricing.total.toFixed(2)}
+                            Paid: ${order.pricing.total.toFixed(2)}
                           </div>
                         </div>
                       </div>
@@ -227,7 +219,7 @@ export default function OrdersPage() {
                           <div key={item.cartItemId} style={{ display: "grid", gap: 8 }}>
                             {item.quantity > 1 ? (
                               <div style={{ color: "var(--color-text-muted)", fontSize: 14 }}>
-                                Quantity: {item.quantity} × ${item.price.toFixed(2)}
+                                Quantity: {item.quantity}
                               </div>
                             ) : null}
                             <BuildSummary
@@ -237,7 +229,6 @@ export default function OrdersPage() {
                                 customFields: item.customFields,
                               })}
                               nameplateText={item.customFields?.nameplateText}
-                              price={item.price}
                             />
                           </div>
                         ))}

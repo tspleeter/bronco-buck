@@ -755,13 +755,10 @@ export default function OrderDetailPage() {
                 <OrderItemPreview item={item} />
 
                 <div style={{ display: "grid", gap: 10 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                    <strong>{item.productName}</strong>
-                    <strong>${(item.price * item.quantity).toFixed(2)}</strong>
-                  </div>
+                  <strong>{item.productName}</strong>
                   {item.quantity > 1 ? (
                     <div style={{ ...muted, fontSize: 14 }}>
-                      Quantity: {item.quantity} × ${item.price.toFixed(2)}
+                      Quantity: {item.quantity}
                     </div>
                   ) : null}
 
@@ -772,7 +769,6 @@ export default function OrderDetailPage() {
                       customFields: item.customFields,
                     })}
                     nameplateText={item.customFields?.nameplateText}
-                    price={item.price}
                   />
 
                   <div style={{ ...muted, fontSize: 13 }}>

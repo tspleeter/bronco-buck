@@ -6,7 +6,8 @@ import { SalePrice } from "@/components/SalePrice";
 interface BuildSummaryProps {
   items: BuildSummaryItem[];
   nameplateText?: string;
-  price: number;
+  /** Omit to hide the price (orders show only the amount actually paid). */
+  price?: number;
 }
 
 export function BuildSummary({
@@ -22,12 +23,14 @@ export function BuildSummary({
           <span className="eyebrow">Current Build</span>
           <h2 style={{ fontSize: "1.4rem", fontWeight: 800 }}>Build Summary</h2>
         </div>
-        <div
-          className="price-display"
-          style={{ fontSize: "1.75rem", color: "var(--color-gold-light)", whiteSpace: "nowrap" }}
-        >
-          <SalePrice price={price} />
-        </div>
+        {price !== undefined && (
+          <div
+            className="price-display"
+            style={{ fontSize: "1.75rem", color: "var(--color-gold-light)", whiteSpace: "nowrap" }}
+          >
+            <SalePrice price={price} />
+          </div>
+        )}
       </div>
 
       {/* Divider */}
