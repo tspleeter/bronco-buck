@@ -4,7 +4,7 @@ import { ActionButton } from "@/components/ActionButton";
 import { SalePrice } from "@/components/SalePrice";
 import config from "@/data/bronco-config.json";
 import { FLAT_SHIPPING } from "@/lib/shipping-rules";
-import { SALE, isSaleActive, salePrice } from "@/lib/sale";
+import { activeSale, salePrice } from "@/lib/sale";
 import {
   SITE_URL,
   PRODUCT_PATH,
@@ -27,8 +27,9 @@ export const revalidate = 3600;
 
 /** "$31.19" normally; "$24.95 ($31.19 list, 20% off through Nov 13)" during a sale. */
 function priceText(): string {
-  if (!SALE || !isSaleActive()) return PRICE;
-  return `$${salePrice(config.basePrice).toFixed(2)} during the ${SALE.name} (${SALE.percent}% off ${PRICE}, through ${SALE.endsLabel})`;
+  const sale = activeSale();
+  if (!sale) return PRICE;
+  return `$${salePrice(config.basePrice).toFixed(2)} during the ${sale.name} (${sale.percent}% off ${PRICE}, through ${sale.endsLabel})`;
 }
 function fromPrice(): string {
   return `$${salePrice(config.basePrice).toFixed(2)}`;
