@@ -379,7 +379,7 @@ export async function sendGiftCodeEmail(g: {
     <div style="${CARD}">
       <p style="${LABEL}">🎁 Your Bronco Buck gift${forWho}</p>
       <h2 style="color:#FAFAF9;font-size:24px;font-weight:800;margin:0 0 16px;">Thanks, ${esc(g.buyerName)}!</h2>
-      <p style="color:#A8A29E;margin:0 0 20px;line-height:1.6;">Here's the gift code. Pass it on${forWho}. It's worth <strong style="color:#FAFAF9;">$${g.value.toFixed(2)}</strong> toward a Bronco Buck and shipping at buckthatduck.com.</p>
+      <p style="color:#A8A29E;margin:0 0 20px;line-height:1.6;">Here's the gift code. Pass it on${forWho}. It covers a Bronco Buck and shipping at buckthatduck.com.</p>
       <div style="text-align:center;background:#0C0A09;border:2px solid #CA8A04;border-radius:12px;padding:20px;">
         <p style="color:#78716C;font-size:12px;font-weight:700;letter-spacing:0.12em;margin:0 0 8px;">GIFT CODE</p>
         <p style="color:#CA8A04;font-size:28px;font-weight:900;font-family:monospace;letter-spacing:0.06em;margin:0;">${esc(g.code)}</p>
@@ -390,7 +390,7 @@ export async function sendGiftCodeEmail(g: {
     </div>
     <div style="${CARD}">
       <p style="${LABEL}">How to use it</p>
-      <p style="color:#A8A29E;font-size:14px;line-height:1.8;margin:0;">1. Go to <a href="https://www.buckthatduck.com" style="color:#CA8A04;">buckthatduck.com</a><br>2. Build a Buck: Bronco color, mane, nameplate<br>3. Enter the code at checkout<br><br>One use. Covers the Buck and shipping up to $${g.value.toFixed(2)}; anything over that is paid at checkout.</p>
+      <p style="color:#A8A29E;font-size:14px;line-height:1.8;margin:0;">1. Go to <a href="https://www.buckthatduck.com" style="color:#CA8A04;">buckthatduck.com</a><br>2. Build a Buck: Bronco color, mane, nameplate<br>3. Enter the code at checkout<br><br>One use. Covers the Buck and shipping; any extra upgrades are paid at checkout.</p>
     </div>
     <div style="${CARD}">
       <table style="width:100%;border-collapse:collapse;">
@@ -400,7 +400,6 @@ export async function sendGiftCodeEmail(g: {
         </tr>
       </table>
       <table style="width:100%;border-collapse:collapse;margin-top:16px;">
-        ${totalRow("Bronco Buck gift code", `$${g.value.toFixed(2)} value`)}
         ${totalRow("Total paid", `$${GIFT_PRICE_DISPLAY}`, { strong: true })}
       </table>
       <p style="color:#78716C;font-size:12px;line-height:1.6;margin:16px 0 0;">${SELLER_LINES.map(esc).join(" · ")}</p>
@@ -417,12 +416,12 @@ export async function sendGiftCodeEmail(g: {
     `Thanks, ${g.buyerName}! Your Bronco Buck gift${g.recipientName ? ` for ${g.recipientName}` : ""}.`,
     "",
     `GIFT CODE: ${g.code}`,
-    `Worth $${g.value.toFixed(2)} toward a Bronco Buck and shipping at buckthatduck.com.`,
+    "Covers a Bronco Buck and shipping at buckthatduck.com.",
     ...(g.recipientAddress ? ["", `We'll mail a printed gift note with this code to ${g.recipientName ?? ""}, ${g.recipientAddress}.`] : []),
     ...(g.message ? ["", `Your note (printed on the card): ${g.message}`] : []),
     "",
     "How to use it: build a Buck at www.buckthatduck.com and enter the code at checkout.",
-    `One use. Covers the Buck and shipping up to $${g.value.toFixed(2)}; anything over that is paid at checkout.`,
+    "One use. Covers the Buck and shipping; any extra upgrades are paid at checkout.",
     "",
     `Receipt (${issued}): Bronco Buck gift code, total paid $${GIFT_PRICE_DISPLAY}. PAID.`,
     SELLER_LINES.join(", "),

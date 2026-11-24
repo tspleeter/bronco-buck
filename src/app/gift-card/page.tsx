@@ -5,14 +5,13 @@ import Link from "next/link";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { STRIPE_PUBLISHABLE_KEY, STRIPE_TEST_MODE } from "@/lib/stripe-mode";
-import { GIFT_CODE_PRICE, GIFT_CODE_VALUE, GIFT_NAME_MAX } from "@/lib/gift-codes";
+import { GIFT_CODE_PRICE, GIFT_NAME_MAX } from "@/lib/gift-codes";
 import { GIFT_MESSAGE_MAX } from "@/lib/gift";
 import { ActionButton } from "@/components/ActionButton";
 import { trackEvent } from "@/lib/analytics";
 
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 const price = `$${GIFT_CODE_PRICE.toFixed(2)}`;
-const value = `$${GIFT_CODE_VALUE.toFixed(2)}`;
 
 interface Details {
   buyerName: string;
@@ -175,8 +174,8 @@ export default function GiftCardPage() {
           </h1>
           <p style={{ color: "var(--color-text-muted)", lineHeight: 1.6 }}>
             Not sure of their Bronco color? Let them build their own. For {price} we mail them a printed
-            gift note with a {value} code that covers a Bronco Buck and shipping. We email you a copy.
-            Any upgrades beyond {value} are paid by them at checkout.
+            gift note with a code that covers a Bronco Buck and shipping. We email you a copy.
+            Any extra upgrades are paid by them at checkout.
           </p>
         </div>
 
@@ -190,7 +189,7 @@ export default function GiftCardPage() {
                 {done.code}
               </p>
               <p style={{ color: "var(--color-text-muted)", lineHeight: 1.6 }}>
-                Worth {value} toward a Bronco Buck and shipping. One use.
+                Covers a Bronco Buck and shipping. One use.
                 {done.recipientAddress ? <> We&rsquo;ll mail a printed gift note to {done.recipientName}, {done.recipientAddress}.</> : null}{" "}
                 A copy went to <strong style={{ color: "var(--color-text)" }}>{done.buyerEmail}</strong>.
               </p>
