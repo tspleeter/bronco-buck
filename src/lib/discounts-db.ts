@@ -123,6 +123,7 @@ export interface CreateDiscountInput {
   expiresAt?: string | null;
   description?: string;
   coversShipping?: boolean;
+  freeBuck?: boolean;
 }
 
 export async function createDiscount(
@@ -141,6 +142,7 @@ export async function createDiscount(
     expiresAt: input.expiresAt ?? null,
     description: input.description?.trim() || undefined,
     ...(input.coversShipping ? { coversShipping: true } : {}),
+    ...(input.freeBuck ? { freeBuck: true } : {}),
     createdAt: now,
     updatedAt: now,
   };

@@ -20,6 +20,13 @@ export interface Discount {
    * amount is applied to merchandise first, then to shipping. Absent = false.
    */
   coversShipping?: boolean;
+  /**
+   * "Free Buck" gift codes (Nov 24 2026): instead of a fixed dollar value the
+   * code is worth one plain Bronco Buck at the CURRENT price (sale or list) —
+   * plus shipping when coversShipping is also set. Upgrades are not covered.
+   * `value` is ignored when this is true.
+   */
+  freeBuck?: boolean;
   /** Optional internal note (not shown to customers). */
   description?: string;
   createdAt: string;

@@ -4,9 +4,9 @@
  *
  * The buyer pays GIFT_CODE_PRICE and receives a single-use fixed discount code
  * worth GIFT_CODE_VALUE, emailed to them to pass on. The code is an ordinary
- * BroncoBuckDiscounts row with `coversShipping: true`, so it pays for the Buck
- * AND shipping (~$21 + ~$7). Anything above $28 (upgrades, full price after a
- * sale) is paid by the recipient at checkout.
+ * BroncoBuckDiscounts row with `freeBuck` + `coversShipping`: it pays for one
+ * plain Buck at whatever the current price is, plus shipping. Upgrades are
+ * paid by the recipient at checkout. Buyer always pays GIFT_CODE_PRICE.
  */
 export const GIFT_CODE_PRICE = 28;
 export const GIFT_CODE_VALUE = 28;

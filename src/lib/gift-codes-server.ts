@@ -129,6 +129,7 @@ export async function fulfillGiftPurchase(
         active: true,
         maxRedemptions: 1,
         coversShipping: true,
+        freeBuck: true,
         description: `Gift purchase ${pi.id} by ${md.buyerName ?? ""} <${buyerEmail}>${recipientName ? ` for ${recipientName}` : ""}${recipientAddress ? ` | MAIL CARD TO: ${recipientAddress}` : ""}`,
       });
       created = true;

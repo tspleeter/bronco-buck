@@ -1,4 +1,11 @@
 import { Discount, DiscountEvaluation } from "@/types/discount";
+import config from "@/data/bronco-config.json";
+import { salePrice } from "@/lib/sale";
+
+/** Price of one plain Bronco Buck right now (sale price when a sale is on). */
+export function plainBuckPrice(now: number = Date.now()): number {
+  return salePrice(config.basePrice, now);
+}
 
 /**
  * Normalize a discount code to its canonical stored form: trimmed, uppercased,
@@ -20,7 +27,7 @@ function money(n: number): number {
  * which may also absorb the shipping charge (applied to merchandise first).
  */
 export function computeDiscountAmount(
-  discount: Pick<Discount, "type" | "value" | "coversShipping">,
+  discount: Pick<Discount, "type" | "value" | "coversShipping" | "freeBuck">,
   subtotal: number,
   shipping: number = 0,
 ): number {
@@ -29,7 +36,12 @@ export function computeDiscountAmount(
     const pct = Math.min(Math.max(discount.value, 0), 100);
     return money(Math.min(subtotal, (subtotal * pct) / 100));
   }
-  const cap = subtotal + (discount.coversShipping ? Math.max(shipping, 0) : 0);
+  const ship = discount.coversShipping ? Math.max(shipping, 0) : 0;
+  const cap = subtotal + ship;
+  if (discount.freeBuck) {
+    // One plain Buck at today's price, plus shipping if covered.
+    return money(Math.min(subtotal, plainBuckPrice()) + ship);
+  }
   return money(Math.min(cap, Math.max(discount.value, 0)));
 }
 
