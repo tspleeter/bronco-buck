@@ -8,6 +8,9 @@ import type { ProductConfig } from "@/types/product";
 
 const broncoConfig = broncoConfigJson as ProductConfig;
 import { CARRIER_LABELS, buildTrackingUrl } from "@/lib/shipping";
+import { GIFT_CODE_PRICE } from "@/lib/gift-codes";
+
+const GIFT_PRICE_DISPLAY = GIFT_CODE_PRICE.toFixed(2);
 
 const ses = new SESClient({ region: "us-east-1" });
 const FROM_ADDRESS = "orders@buckthatduck.com";
@@ -346,5 +349,130 @@ export async function sendShipmentEmail(order: Order): Promise<void> {
         },
       },
     })
+  );
+}
+
+/**
+ * Gift-code purchase email (Nov 2026). Goes to the BUYER (BCC orders@) with the
+ * code to pass on. Doubles as the receipt: price, PAID, seller block.
+ */
+export async function sendGiftCodeEmail(g: {
+  code: string;
+  value: number;
+  buyerName: string;
+  buyerEmail: string;
+  recipientName?: string;
+  recipientAddress?: string;
+  message?: string;
+}): Promise<void> {
+  const issued = new Date().toLocaleDateString("en-US", { dateStyle: "long" });
+  const forWho = g.recipientName ? ` for ${esc(g.recipientName)}` : "";
+  const html = `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+<body style="margin:0;padding:0;background-color:#0C0A09;font-family:system-ui,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+    <div style="text-align:center;margin-bottom:40px;">
+      <h1 style="color:#CA8A04;font-size:28px;font-weight:900;margin:0;">%uck<span style="color:#FAFAF9;">ThatDuck</span></h1>
+      <p style="color:#78716C;font-size:13px;font-weight:600;letter-spacing:0.06em;margin:8px 0 0;">Broncos don't duck, they buck.</p>
+    </div>
+    <div style="${CARD}">
+      <p style="${LABEL}">🎁 Your Bronco Buck gift${forWho}</p>
+      <h2 style="color:#FAFAF9;font-size:24px;font-weight:800;margin:0 0 16px;">Thanks, ${esc(g.buyerName)}!</h2>
+      <p style="color:#A8A29E;margin:0 0 20px;line-height:1.6;">Here's the gift code. Pass it on${forWho}. It's worth <strong style="color:#FAFAF9;">$${g.value.toFixed(2)}</strong> toward a Bronco Buck at buckthatduck.com.</p>
+      <div style="text-align:center;background:#0C0A09;border:2px solid #CA8A04;border-radius:12px;padding:20px;">
+        <p style="color:#78716C;font-size:12px;font-weight:700;letter-spacing:0.12em;margin:0 0 8px;">GIFT CODE</p>
+        <p style="color:#CA8A04;font-size:28px;font-weight:900;font-family:monospace;letter-spacing:0.06em;margin:0;">${esc(g.code)}</p>
+      </div>
+      ${g.recipientAddress ? `<p style="color:#FAFAF9;font-size:14px;line-height:1.6;margin:20px 0 0;">📬 We'll mail a printed gift note with this code to <strong>${esc(g.recipientName ?? "")}</strong>, ${esc(g.recipientAddress)}.</p>` : ""}
+      ${g.message ? `<p style="color:#A8A29E;font-size:13px;margin:20px 0 6px;">Your note (printed on the card):</p>
+      <p style="color:#FAFAF9;font-size:15px;line-height:1.6;font-style:italic;white-space:pre-line;margin:0;padding:12px 16px;border-left:3px solid #CA8A04;background:#0C0A09;border-radius:6px;">${esc(g.message)}</p>` : ""}
+    </div>
+    <div style="${CARD}">
+      <p style="${LABEL}">How to use it</p>
+      <p style="color:#A8A29E;font-size:14px;line-height:1.8;margin:0;">1. Go to <a href="https://www.buckthatduck.com" style="color:#CA8A04;">buckthatduck.com</a><br>2. Build a Buck: Bronco color, mane, nameplate<br>3. Enter the code at checkout<br><br>One use. Shipping is charged at checkout (free on 2+ Bucks).</p>
+    </div>
+    <div style="${CARD}">
+      <table style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td style="vertical-align:top;"><p style="color:#FAFAF9;font-size:18px;font-weight:800;margin:0;">Receipt</p><p style="color:#A8A29E;font-size:13px;margin:6px 0 0;">${issued}</p></td>
+          <td style="vertical-align:top;text-align:right;"><span style="display:inline-block;background:#14532D;color:#86EFAC;font-size:12px;font-weight:700;letter-spacing:0.1em;padding:4px 10px;border-radius:6px;">PAID</span></td>
+        </tr>
+      </table>
+      <table style="width:100%;border-collapse:collapse;margin-top:16px;">
+        ${totalRow("Bronco Buck gift code", `$${g.value.toFixed(2)} value`)}
+        ${totalRow("Total paid", `$${GIFT_PRICE_DISPLAY}`, { strong: true })}
+      </table>
+      <p style="color:#78716C;font-size:12px;line-height:1.6;margin:16px 0 0;">${SELLER_LINES.map(esc).join(" · ")}</p>
+    </div>
+    <div style="text-align:center;padding-top:24px;">
+      <p style="color:#78716C;font-size:13px;margin:0 0 8px;">Questions? Reply to this email or visit</p>
+      <a href="https://www.buckthatduck.com" style="color:#CA8A04;font-size:13px;">www.buckthatduck.com</a>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  const text = [
+    `Thanks, ${g.buyerName}! Your Bronco Buck gift${g.recipientName ? ` for ${g.recipientName}` : ""}.`,
+    "",
+    `GIFT CODE: ${g.code}`,
+    `Worth $${g.value.toFixed(2)} toward a Bronco Buck at buckthatduck.com.`,
+    ...(g.recipientAddress ? ["", `We'll mail a printed gift note with this code to ${g.recipientName ?? ""}, ${g.recipientAddress}.`] : []),
+    ...(g.message ? ["", `Your note (printed on the card): ${g.message}`] : []),
+    "",
+    "How to use it: build a Buck at www.buckthatduck.com and enter the code at checkout.",
+    "One use. Shipping is charged at checkout (free on 2+ Bucks).",
+    "",
+    `Receipt (${issued}): Bronco Buck gift code, total paid $${GIFT_PRICE_DISPLAY}. PAID.`,
+    SELLER_LINES.join(", "),
+  ].join("\n");
+
+  await ses.send(
+    new SendEmailCommand({
+      Source: FROM_ADDRESS,
+      Destination: { ToAddresses: [g.buyerEmail], BccAddresses: BCC_ADDRESSES },
+      Message: {
+        Subject: { Data: `Your Bronco Buck gift code - %uckThatDuck`, Charset: "UTF-8" },
+        Body: {
+          Html: { Data: html, Charset: "UTF-8" },
+          Text: { Data: text, Charset: "UTF-8" },
+        },
+      },
+    }),
+  );
+}
+
+/** Internal to-do for Todd: a paid gift code whose printed note must be mailed. */
+export async function sendGiftMailTaskEmail(g: {
+  code: string;
+  value: number;
+  buyerName: string;
+  buyerEmail: string;
+  recipientName?: string;
+  recipientAddress?: string;
+  message?: string;
+  paymentIntentId: string;
+}): Promise<void> {
+  const text = [
+    "MAIL A GIFT NOTE",
+    "",
+    `Code: ${g.code} ($${g.value.toFixed(2)}, 1 use)`,
+    `To: ${g.recipientName ?? "(no name)"}`,
+    `Address: ${g.recipientAddress ?? "(no address)"}`,
+    `Note: ${g.message ?? "(none)"}`,
+    "",
+    `Bought by: ${g.buyerName} <${g.buyerEmail}>`,
+    `Paid: $${GIFT_PRICE_DISPLAY} (${g.paymentIntentId})`,
+  ].join("\n");
+  await ses.send(
+    new SendEmailCommand({
+      Source: FROM_ADDRESS,
+      Destination: { ToAddresses: [FROM_ADDRESS] },
+      Message: {
+        Subject: { Data: `ACTION: mail gift card ${g.code} to ${g.recipientName ?? ""}`, Charset: "UTF-8" },
+        Body: { Text: { Data: text, Charset: "UTF-8" } },
+      },
+    }),
   );
 }

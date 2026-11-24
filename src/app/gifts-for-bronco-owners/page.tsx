@@ -205,6 +205,9 @@ export default function GiftsPage() {
               <Link href={PRODUCT_PATH}>
                 <ActionButton variant="primary" size="lg">Build their Buck</ActionButton>
               </Link>
+              <Link href="/gift-card" data-umami-event="gift_code_click">
+                <ActionButton variant="outline" size="lg">🎁 Give a gift code</ActionButton>
+              </Link>
               <a href={ETSY_LISTING_URL} target="_blank" rel="noopener" data-umami-event="etsy_click">
                 <ActionButton variant="outline" size="lg">Shop on Etsy</ActionButton>
               </a>

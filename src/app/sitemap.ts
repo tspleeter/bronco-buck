@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     page("/", 1.0, "weekly"),
     page(PRODUCT_PATH, 0.9, "weekly"),
     page("/gifts-for-bronco-owners", 0.9, "weekly"),
+    page("/gift-card", 0.7, "monthly"),
     page("/gallery", 0.8, "monthly"),
     page("/about", 0.5, "monthly"),
     page("/contact", 0.4, "yearly"),
