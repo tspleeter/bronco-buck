@@ -15,6 +15,11 @@ export interface Discount {
   minSubtotal?: number | null;
   /** Optional expiry (ISO 8601). Absent = never expires. */
   expiresAt?: string | null;
+  /**
+   * Gift codes (Nov 2026): a fixed code that may also cover shipping. The
+   * amount is applied to merchandise first, then to shipping. Absent = false.
+   */
+  coversShipping?: boolean;
   /** Optional internal note (not shown to customers). */
   description?: string;
   createdAt: string;

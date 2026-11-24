@@ -122,6 +122,7 @@ export interface CreateDiscountInput {
   minSubtotal?: number | null;
   expiresAt?: string | null;
   description?: string;
+  coversShipping?: boolean;
 }
 
 export async function createDiscount(
@@ -139,6 +140,7 @@ export async function createDiscount(
     minSubtotal: input.minSubtotal ?? null,
     expiresAt: input.expiresAt ?? null,
     description: input.description?.trim() || undefined,
+    ...(input.coversShipping ? { coversShipping: true } : {}),
     createdAt: now,
     updatedAt: now,
   };

@@ -73,6 +73,8 @@ function CheckoutForm({
   // amount, so the checkout behaves exactly as before until tax applies.
   const [tax, setTax] = useState(0);
   const [taxTotal, setTaxTotal] = useState<number | null>(null);
+  // True when a gift code covers the whole order: no card payment is taken.
+  const [freeOrder, setFreeOrder] = useState(false);
 
   // Discount code state. `appliedCode` is the authoritative code sent to the
   // server on every tax/PI calc; `discount` is the server-returned dollar
@@ -106,11 +108,11 @@ function CheckoutForm({
   const runTaxCalc = useCallback(
     async (
       codeOverride?: string,
-    ): Promise<{ tax: number; total: number; discount: number }> => {
+    ): Promise<{ tax: number; total: number; discount: number; free: boolean }> => {
       // `codeOverride ?? appliedCode` so an explicit "" (code removed) is
       // honored, while address-driven recalcs reuse the applied code.
       const code = codeOverride ?? appliedCode;
-      const fallback = { tax: 0, total: subtotal + shipping, discount: 0 };
+      const fallback = { tax: 0, total: subtotal + shipping, discount: 0, free: false };
       if (!paymentIntentId || subtotal <= 0) return fallback;
 
       try {
@@ -138,14 +140,19 @@ function CheckoutForm({
         const data = await res.json();
         const t = Number(data.tax) || 0;
         const d = Number(data.discount) || 0;
-        const tot = Number(data.total) || Math.max(0, subtotal - d) + shipping;
+        const free = data.free === true;
+        const tot = free
+          ? 0
+          : Number(data.total) || Math.max(0, subtotal + shipping - d);
         setTax(t);
         setDiscount(d);
         setTaxTotal(tot);
-        return { tax: t, total: tot, discount: d };
+        setFreeOrder(free);
+        return { tax: t, total: tot, discount: d, free };
       } catch {
         setTax(0);
         setTaxTotal(subtotal + shipping);
+        setFreeOrder(false);
         return fallback;
       }
     },
@@ -169,7 +176,7 @@ function CheckoutForm({
     setApplyingCode(true);
     setDiscountMsg("");
     try {
-      const result = await validateDiscountCode(code, subtotal);
+      const result = await validateDiscountCode(code, subtotal, itemCount);
       if (!result.valid) {
         setDiscountMsg(result.reason || "That code isn't valid.");
         setApplyingCode(false);
@@ -278,28 +285,36 @@ function CheckoutForm({
       // Authoritative tax calculation for the final address — this also sets the
       // PaymentIntent amount that Stripe is about to charge.
       const finalPricing = await runTaxCalc();
-      try {
-        await elements.fetchUpdates();
-      } catch {
-        /* amount refresh is best-effort */
-      }
+      let paymentNote = "";
+      if (finalPricing.free) {
+        // Gift code covers everything — no card charge. /api/orders re-checks
+        // the code server-side before accepting a $0 order.
+        paymentNote = `No payment: fully covered by gift code ${appliedCode}`;
+      } else {
+        try {
+          await elements.fetchUpdates();
+        } catch {
+          /* amount refresh is best-effort */
+        }
 
-      // Confirm payment with Stripe
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        redirect: "if_required",
-      });
+        // Confirm payment with Stripe
+        const { error, paymentIntent } = await stripe.confirmPayment({
+          elements,
+          redirect: "if_required",
+        });
 
-      if (error) {
-        setMessage(error.message ?? "Payment failed. Please try again.");
-        setPlacingOrder(false);
-        return;
-      }
+        if (error) {
+          setMessage(error.message ?? "Payment failed. Please try again.");
+          setPlacingOrder(false);
+          return;
+        }
 
-      if (paymentIntent?.status !== "succeeded") {
-        setMessage("Payment was not completed. Please try again.");
-        setPlacingOrder(false);
-        return;
+        if (paymentIntent?.status !== "succeeded") {
+          setMessage("Payment was not completed. Please try again.");
+          setPlacingOrder(false);
+          return;
+        }
+        paymentNote = `Stripe payment intent: ${paymentIntent.id}`;
       }
 
       // Payment succeeded — save the order
@@ -340,7 +355,7 @@ function CheckoutForm({
         },
         createdAt: now,
         updatedAt: now,
-        notes: `Stripe payment intent: ${paymentIntent.id}`,
+        notes: paymentNote,
         ...(form.isGift
           ? {
               gift: {
@@ -566,7 +581,14 @@ function CheckoutForm({
                   future date, any CVC.
                 </div>
               )}
-              <PaymentElement />
+              {freeOrder ? (
+                <p style={{ color: "var(--color-gold)", fontWeight: 600 }}>
+                  🎁 Your gift code covers this order. No payment needed.
+                </p>
+              ) : null}
+              <div style={freeOrder ? { display: "none" } : undefined}>
+                <PaymentElement />
+              </div>
             </div>
           </div>
         </div>
@@ -721,7 +743,11 @@ function CheckoutForm({
               disabled={placingOrder || !stripe}
               variant="primary"
             >
-              {placingOrder ? "Processing..." : `Pay $${displayTotal.toFixed(2)}`}
+              {placingOrder
+                ? "Processing..."
+                : freeOrder
+                  ? "Place order"
+                  : `Pay $${displayTotal.toFixed(2)}`}
             </ActionButton>
           </div>
         )}

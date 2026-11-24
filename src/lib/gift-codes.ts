@@ -4,10 +4,11 @@
  *
  * The buyer pays GIFT_CODE_PRICE and receives a single-use fixed discount code
  * worth GIFT_CODE_VALUE, emailed to them to pass on. The code is an ordinary
- * BroncoBuckDiscounts row, so it redeems through the existing checkout code box
- * and shows up on /discounts. Shipping is charged as normal at redemption.
+ * BroncoBuckDiscounts row with `coversShipping: true`, so it pays for the Buck
+ * AND shipping (~$21 + ~$7). Anything above $28 (upgrades, full price after a
+ * sale) is paid by the recipient at checkout.
  */
-export const GIFT_CODE_PRICE = 20.9;
-export const GIFT_CODE_VALUE = 20.9;
+export const GIFT_CODE_PRICE = 28;
+export const GIFT_CODE_VALUE = 28;
 export const GIFT_CODE_PREFIX = "BUCKGIFT";
 export const GIFT_NAME_MAX = 60;

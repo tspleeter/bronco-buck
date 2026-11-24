@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDiscount } from "@/lib/discounts-db";
 import { evaluateDiscount, normalizeCode } from "@/lib/discount-logic";
+import { shippingFor } from "@/lib/shipping-rules";
 
 export const dynamic = "force-dynamic";
 
@@ -10,9 +11,11 @@ export const dynamic = "force-dynamic";
 // in /api/calculate-tax when the PaymentIntent amount is updated.
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as { code?: string; subtotal?: number };
+    const body = (await req.json()) as { code?: string; subtotal?: number; itemCount?: number };
     const code = normalizeCode(body.code);
     const subtotal = Number(body.subtotal) || 0;
+    // Shipping re-derived server-side; only gift codes (coversShipping) use it.
+    const shipping = subtotal > 0 ? shippingFor(Math.max(1, Math.floor(Number(body.itemCount) || 1))) : 0;
 
     if (!code) {
       return NextResponse.json(
@@ -22,7 +25,7 @@ export async function POST(req: Request) {
     }
 
     const discount = await getDiscount(code);
-    const evaluation = evaluateDiscount(discount, subtotal);
+    const evaluation = evaluateDiscount(discount, subtotal, undefined, shipping);
 
     return NextResponse.json({
       valid: evaluation.valid,

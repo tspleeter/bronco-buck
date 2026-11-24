@@ -3,7 +3,12 @@ import Stripe from "stripe";
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { STRIPE_SECRET_PARAM, STRIPE_SECRET_PREFIX } from "@/lib/stripe-mode";
 import { getDiscount } from "@/lib/discounts-db";
-import { evaluateDiscount, normalizeCode } from "@/lib/discount-logic";
+import {
+  evaluateDiscount,
+  normalizeCode,
+  splitDiscount,
+  STRIPE_MIN_CHARGE,
+} from "@/lib/discount-logic";
 import { shippingFor } from "@/lib/shipping-rules";
 
 export const dynamic = "force-dynamic";
@@ -69,7 +74,7 @@ export async function POST(req: Request) {
     const { paymentIntentId, address } = body;
     subtotal = Number(body.subtotal) || 0;
     // Re-derive shipping server-side from the item count (2+ Bucks ship free).
-    // A discount code never changes shipping.
+    // Only gift codes (coversShipping) can take money off shipping.
     shipping = deriveShipping(subtotal, Number(body.itemCount) || 1);
 
     if (!paymentIntentId || subtotal <= 0) {
@@ -81,18 +86,39 @@ export async function POST(req: Request) {
     const code = normalizeCode(body.discountCode);
     if (code) {
       const found = await getDiscount(code);
-      const evaluation = evaluateDiscount(found, subtotal);
+      const evaluation = evaluateDiscount(found, subtotal, undefined, shipping);
       if (evaluation.valid) discount = evaluation.amount;
     }
+    const split = splitDiscount(discount, subtotal, shipping);
     const discountedSubtotal = Math.max(
       0,
-      Math.round((subtotal - discount) * 100) / 100,
+      Math.round((subtotal - split.merchandise) * 100) / 100,
     );
+    const chargedShipping = Math.max(
+      0,
+      Math.round((shipping - split.shipping) * 100) / 100,
+    );
+    const untaxedTotal = discountedSubtotal + chargedShipping;
+
+    // Gift code covers the whole order (or leaves less than Stripe's minimum
+    // charge, which we absorb): nothing to charge. The PaymentIntent is left
+    // alone and never confirmed; checkout places the order without payment and
+    // /api/orders re-verifies the code covers it.
+    if (discount > 0 && untaxedTotal < STRIPE_MIN_CHARGE) {
+      discount = Math.round((subtotal + shipping) * 100) / 100;
+      return NextResponse.json({
+        subtotal,
+        discount,
+        shipping,
+        tax: 0,
+        total: 0,
+        free: true,
+      });
+    }
 
     const stripe = await getStripe();
     const subtotalCents = toCents(discountedSubtotal);
-    const shippingCents = toCents(shipping);
-    const untaxedTotal = discountedSubtotal + shipping;
+    const shippingCents = toCents(chargedShipping);
 
     try {
       // Product + shipping tax codes come from the account's preset codes
@@ -169,7 +195,7 @@ export async function POST(req: Request) {
       discount,
       shipping,
       tax: 0,
-      total: Math.max(0, subtotal - discount) + shipping,
+      total: Math.max(0, subtotal + shipping - discount),
       taxUnavailable: true,
     });
   }

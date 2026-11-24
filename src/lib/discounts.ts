@@ -73,6 +73,7 @@ export interface DiscountValidation {
 export async function validateDiscountCode(
   code: string,
   subtotal: number,
+  itemCount: number = 1,
 ): Promise<DiscountValidation> {
   const res = await fetch("/api/validate-discount", {
     method: "POST",
@@ -80,7 +81,7 @@ export async function validateDiscountCode(
       "Content-Type": "application/json",
       "Cache-Control": "no-cache, no-store",
     },
-    body: JSON.stringify({ code, subtotal }),
+    body: JSON.stringify({ code, subtotal, itemCount }),
   });
   return res.json();
 }

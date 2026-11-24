@@ -175,7 +175,8 @@ export default function GiftCardPage() {
           </h1>
           <p style={{ color: "var(--color-text-muted)", lineHeight: 1.6 }}>
             Not sure of their Bronco color? Let them build their own. For {price} we mail them a printed
-            gift note with a {value} code, and email you a copy. Shipping on the Buck is charged when they order.
+            gift note with a {value} code that covers a Bronco Buck and shipping. We email you a copy.
+            Any upgrades beyond {value} are paid by them at checkout.
           </p>
         </div>
 
@@ -189,7 +190,7 @@ export default function GiftCardPage() {
                 {done.code}
               </p>
               <p style={{ color: "var(--color-text-muted)", lineHeight: 1.6 }}>
-                Worth {value} toward a Bronco Buck. One use.
+                Worth {value} toward a Bronco Buck and shipping. One use.
                 {done.recipientAddress ? <> We&rsquo;ll mail a printed gift note to {done.recipientName}, {done.recipientAddress}.</> : null}{" "}
                 A copy went to <strong style={{ color: "var(--color-text)" }}>{done.buyerEmail}</strong>.
               </p>

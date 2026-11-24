@@ -5,7 +5,9 @@ import { appendOrderEvent, createOrder, getOrders } from "@/lib/orders-db";
 import { Order } from "@/types/order";
 import { newEventId, nowIso, sendOrderEmail } from "@/lib/order-events";
 import { sendPurchaseEvent } from "@/lib/meta-capi";
-import { incrementRedemption } from "@/lib/discounts-db";
+import { getDiscount, incrementRedemption } from "@/lib/discounts-db";
+import { evaluateDiscount, normalizeCode, STRIPE_MIN_CHARGE } from "@/lib/discount-logic";
+import { shippingFor } from "@/lib/shipping-rules";
 import { sanitizeGift } from "@/lib/gift";
 
 // Admin only: the full order list carries every customer's name, email,
@@ -45,6 +47,40 @@ export async function POST(req: Request) {
     const gift = sanitizeGift(order.gift);
     if (gift) order.gift = gift;
     else delete order.gift;
+
+    // A $0 order (no card charge) is only allowed when a gift code really
+    // covers merchandise + shipping. Re-check the code server-side.
+    if ((order.pricing?.total ?? 0) < STRIPE_MIN_CHARGE) {
+      const subtotal = order.items.reduce(
+        (sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 0),
+        0,
+      );
+      const count = order.items.reduce((n, i) => n + (Number(i.quantity) || 0), 0);
+      const shipping = shippingFor(count);
+      const code = normalizeCode(order.pricing?.discountCode);
+      const evaluation = code
+        ? evaluateDiscount(await getDiscount(code), subtotal, undefined, shipping)
+        : { valid: false, amount: 0 };
+      if (
+        subtotal <= 0 ||
+        !evaluation.valid ||
+        subtotal + shipping - evaluation.amount >= STRIPE_MIN_CHARGE
+      ) {
+        return NextResponse.json(
+          { message: "This order needs a payment." },
+          { status: 400 },
+        );
+      }
+      order.pricing = {
+        ...order.pricing,
+        subtotal,
+        shipping,
+        discount: Math.round((subtotal + shipping) * 100) / 100,
+        discountCode: code,
+        tax: 0,
+        total: 0,
+      };
+    }
 
     await createOrder(order);
 

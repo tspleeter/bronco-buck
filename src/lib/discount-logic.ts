@@ -15,21 +15,42 @@ function money(n: number): number {
 }
 
 /**
- * Compute the dollar discount a code yields on a given subtotal, capped so it
- * can never exceed the merchandise subtotal (shipping is always still owed).
+ * Compute the dollar discount a code yields. Capped at the merchandise
+ * subtotal (shipping still owed) — except gift codes with `coversShipping`,
+ * which may also absorb the shipping charge (applied to merchandise first).
  */
 export function computeDiscountAmount(
-  discount: Pick<Discount, "type" | "value">,
+  discount: Pick<Discount, "type" | "value" | "coversShipping">,
   subtotal: number,
+  shipping: number = 0,
 ): number {
   if (subtotal <= 0) return 0;
   if (discount.type === "percent") {
     const pct = Math.min(Math.max(discount.value, 0), 100);
     return money(Math.min(subtotal, (subtotal * pct) / 100));
   }
-  // fixed dollars off, never more than the subtotal
-  return money(Math.min(subtotal, Math.max(discount.value, 0)));
+  const cap = subtotal + (discount.coversShipping ? Math.max(shipping, 0) : 0);
+  return money(Math.min(cap, Math.max(discount.value, 0)));
 }
+
+/**
+ * Split an applied discount into the merchandise part and the shipping part
+ * (only non-zero for coversShipping gift codes).
+ */
+export function splitDiscount(
+  discount: number,
+  subtotal: number,
+  shipping: number,
+): { merchandise: number; shipping: number } {
+  const merchandise = money(Math.min(discount, subtotal));
+  return { merchandise, shipping: money(Math.min(shipping, discount - merchandise)) };
+}
+
+/**
+ * Stripe can't charge less than $0.50. When a gift code leaves a balance under
+ * that, we absorb it and treat the order as fully covered.
+ */
+export const STRIPE_MIN_CHARGE = 0.5;
 
 /**
  * Server-authoritative validation of a code against a cart. Pure — callers pass
@@ -42,6 +63,7 @@ export function evaluateDiscount(
   discount: Discount | undefined,
   subtotal: number,
   nowIso: string = new Date().toISOString(),
+  shipping: number = 0,
 ): DiscountEvaluation {
   if (!discount) {
     return { valid: false, amount: 0, reason: "That code isn't valid." };
@@ -70,7 +92,7 @@ export function evaluateDiscount(
     };
   }
 
-  const amount = computeDiscountAmount(discount, subtotal);
+  const amount = computeDiscountAmount(discount, subtotal, shipping);
   if (amount <= 0) {
     return {
       valid: false,
