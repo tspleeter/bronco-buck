@@ -609,7 +609,9 @@ export default function OrderDetailPage() {
                     Discount{order.pricing.discountCode ? ` (${order.pricing.discountCode})` : ""}: −${order.pricing.discount.toFixed(2)}
                   </div>
                 ) : null}
-                <div>Shipping: ${order.pricing.shipping.toFixed(2)}</div>
+                <div>
+                  Shipping: {order.pricing.shippingWaived ? "FREE (gift)" : `$${order.pricing.shipping.toFixed(2)}`}
+                </div>
                 <div>Tax: ${(order.pricing.tax ?? 0).toFixed(2)}</div>
                 <div style={{ fontWeight: 700, color: "var(--color-text)" }}>
                   Total: ${order.pricing.total.toFixed(2)}

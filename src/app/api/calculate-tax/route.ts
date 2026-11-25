@@ -113,6 +113,7 @@ export async function POST(req: Request) {
         tax: 0,
         total: 0,
         free: true,
+        shippingCovered: shipping,
       });
     }
 
@@ -158,6 +159,7 @@ export async function POST(req: Request) {
         shipping,
         tax: calculation.tax_amount_exclusive / 100,
         total: calculation.amount_total / 100,
+        shippingCovered: split.shipping,
       });
     } catch (calcErr) {
       // Tax unavailable (Stripe Tax not enabled, no registration for the

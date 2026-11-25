@@ -55,6 +55,11 @@ export interface OrderPricing {
   /** The discount code applied, if any. */
   discountCode?: string;
   shipping: number;
+  /**
+   * Gift code paid the shipping (Nov 2026). `shipping` is then 0 and
+   * `discount` covers merchandise only; shown as "FREE (gift)".
+   */
+  shippingWaived?: boolean;
   tax?: number;
   total: number;
 }

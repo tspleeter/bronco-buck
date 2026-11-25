@@ -75,6 +75,8 @@ function CheckoutForm({
   const [taxTotal, setTaxTotal] = useState<number | null>(null);
   // True when a gift code covers the whole order: no card payment is taken.
   const [freeOrder, setFreeOrder] = useState(false);
+  // Shipping paid by a gift code (shown as "FREE (gift)", not as discount).
+  const [shippingCovered, setShippingCovered] = useState(0);
 
   // Discount code state. `appliedCode` is the authoritative code sent to the
   // server on every tax/PI calc; `discount` is the server-returned dollar
@@ -148,11 +150,13 @@ function CheckoutForm({
         setDiscount(d);
         setTaxTotal(tot);
         setFreeOrder(free);
+        setShippingCovered(Number(data.shippingCovered) || 0);
         return { tax: t, total: tot, discount: d, free };
       } catch {
         setTax(0);
         setTaxTotal(subtotal + shipping);
         setFreeOrder(false);
+        setShippingCovered(0);
         return fallback;
       }
     },
@@ -705,17 +709,26 @@ function CheckoutForm({
                 <span>Subtotal</span>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
-              {discount > 0 ? (
+              {discount - shippingCovered > 0 ? (
                 <div style={summaryRowStyle}>
-                  <span>Discount{appliedCode ? ` (${appliedCode})` : ""}</span>
+                  <span>
+                    {shippingCovered > 0 ? "Gift" : "Discount"}
+                    {appliedCode ? ` (${appliedCode})` : ""}
+                  </span>
                   <span style={{ color: "var(--color-gold-light)" }}>
-                    −${discount.toFixed(2)}
+                    −${(discount - shippingCovered).toFixed(2)}
                   </span>
                 </div>
               ) : null}
               <div style={summaryRowStyle}>
                 <span>Shipping</span>
-                <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                {shipping > 0 && shippingCovered >= shipping ? (
+                  <span style={{ color: "var(--color-gold-light)" }}>FREE (gift)</span>
+                ) : (
+                  <span>
+                    {shipping === 0 ? "Free" : `$${(shipping - shippingCovered).toFixed(2)}`}
+                  </span>
+                )}
               </div>
               {tax > 0 ? (
                 <div style={summaryRowStyle}>

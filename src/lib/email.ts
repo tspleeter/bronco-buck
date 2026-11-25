@@ -182,12 +182,12 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
       <table style="width:100%;border-collapse:collapse;margin-top:12px;">
         ${totalRow("🦆 Free rubber duck", "FREE", { gold: true })}
         ${totalRow("Subtotal", `$${p.subtotal.toFixed(2)}`)}
-        ${p.discount && p.discount > 0 ? totalRow(`Discount${p.discountCode ? ` (${esc(p.discountCode)})` : ""}`, `&minus;$${p.discount.toFixed(2)}`, { gold: true }) : ""}
-        ${totalRow("Shipping", p.shipping === 0 ? "Free" : `$${p.shipping.toFixed(2)}`)}
+        ${p.discount && p.discount > 0 ? totalRow(`${p.shippingWaived ? "Gift" : "Discount"}${p.discountCode ? ` (${esc(p.discountCode)})` : ""}`, `&minus;$${p.discount.toFixed(2)}`, { gold: true }) : ""}
+        ${totalRow("Shipping", p.shippingWaived ? "FREE (gift)" : p.shipping === 0 ? "Free" : `$${p.shipping.toFixed(2)}`, p.shippingWaived ? { gold: true } : undefined)}
         ${p.tax && p.tax > 0 ? totalRow("Sales tax", `$${p.tax.toFixed(2)}`) : ""}
         ${totalRow("Total paid", `$${p.total.toFixed(2)}`, { strong: true })}
       </table>
-      <p style="color:#78716C;font-size:12px;margin:16px 0 0;">Paid by card on ${issued}. Order ID ${order.orderId}</p>
+      <p style="color:#78716C;font-size:12px;margin:16px 0 0;">${p.total > 0 ? `Paid by card on ${issued}.` : `Covered by gift code on ${issued}. No card charged.`} Order ID ${order.orderId}</p>
     </div>
     <div style="${CARD}">
       <h3 style="color:#FAFAF9;font-size:16px;font-weight:700;margin:0 0 16px;">Shipping To</h3>
@@ -217,8 +217,8 @@ export async function sendOrderConfirmationEmail(order: Order): Promise<void> {
     for (const l of itemDetailLines(item)) text.push(`  ${l}`);
   }
   text.push("", "Free rubber duck: FREE", `Subtotal: $${p.subtotal.toFixed(2)}`);
-  if (p.discount && p.discount > 0) text.push(`Discount${p.discountCode ? ` (${p.discountCode})` : ""}: -$${p.discount.toFixed(2)}`);
-  text.push(`Shipping: ${p.shipping === 0 ? "Free" : "$" + p.shipping.toFixed(2)}`);
+  if (p.discount && p.discount > 0) text.push(`${p.shippingWaived ? "Gift" : "Discount"}${p.discountCode ? ` (${p.discountCode})` : ""}: -$${p.discount.toFixed(2)}`);
+  text.push(`Shipping: ${p.shippingWaived ? "FREE (gift)" : p.shipping === 0 ? "Free" : "$" + p.shipping.toFixed(2)}`);
   if (p.tax && p.tax > 0) text.push(`Sales tax: $${p.tax.toFixed(2)}`);
   text.push(`Total paid: $${p.total.toFixed(2)}`);
   if (gift) {

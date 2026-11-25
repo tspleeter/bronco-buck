@@ -82,6 +82,22 @@ export async function POST(req: Request) {
       };
     }
 
+    // Gift codes that pay shipping: record it as "shipping waived" rather than
+    // a discount bigger than the subtotal. Totals are unchanged.
+    const appliedCode = normalizeCode(order.pricing?.discountCode);
+    if (appliedCode && order.pricing && order.pricing.shipping > 0) {
+      const found = await getDiscount(appliedCode);
+      const disc = order.pricing.discount ?? 0;
+      if (found?.coversShipping && disc >= order.pricing.shipping) {
+        order.pricing = {
+          ...order.pricing,
+          discount: Math.round((disc - order.pricing.shipping) * 100) / 100,
+          shipping: 0,
+          shippingWaived: true,
+        };
+      }
+    }
+
     await createOrder(order);
 
     // Bump the discount's redemption counter — best-effort, never fail the
